@@ -31,24 +31,24 @@ function Sidebar() {
     const handleSignOut = async () => {
         try {
             const button = await Swal.fire({
-                title:'Sign-Out?',
-                text:'Please confirm your signing out',
-                icon:'question',
+                title: 'Sign-Out?',
+                text: 'Please confirm your signing out',
+                icon: 'question',
                 showConfirmButton: true,
                 confirmButtonText: "Confirm",
                 confirmButtonColor: "#dc3545",
                 showCancelButton: true
             })
 
-            if(button.isConfirmed) {
+            if (button.isConfirmed) {
                 localStorage.removeItem('token');
                 navigate('/');
             }
         } catch (e) {
             Swal.fire({
-                title:'error',
-                text:e.message,
-                icon:'error'
+                title: 'error',
+                text: e.message,
+                icon: 'error'
             })
         }
     }
@@ -56,7 +56,7 @@ function Sidebar() {
     return <>
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <a href="index3.html" class="brand-link">
-                <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style={{opacity: '.8'}} />
+                <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style={{ opacity: '.8' }} />
                 <span class="brand-text font-weight-light">AdminLTE 3</span>
             </a>
 
@@ -67,9 +67,6 @@ function Sidebar() {
                     </div>
                     <div class="info">
                         <a href="#" class="d-block">{user.name}</a>
-                        <button onClick={handleSignOut} className="btn btn-danger" style={{marginTop:'20px', marginLeft:'5.5px'}}>
-                            <i className="fa fa-times mr-2"></i> Sign Out
-                        </button>
                     </div>
                 </div>
 
@@ -103,6 +100,12 @@ function Sidebar() {
                         </li>
                     </ul>
                 </nav>
+            </div>
+            <div className="sidebar-bottom" style={{ position: 'absolute', bottom: '10px', width: '100%', padding: '10px' }}>
+                <button onClick={handleSignOut} className="btn btn-danger btn-block sign-out-btn" style={{ marginTop: '20px', whiteSpace: 'nowrap' }}>
+                    <i className="fa fa-times mr-2"></i>
+                    <span className="sign-out-text">Sign Out</span>
+                </button>
             </div>
         </aside>
     </>
