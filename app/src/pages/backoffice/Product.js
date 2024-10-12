@@ -19,9 +19,9 @@ axios.interceptors.response.use(
 function Product() {
     const [product, setProduct] = useState({});
     const [errorForm, setErrorForm] = useState({
-        name:'',
-        cost:'',
-        price:''
+        name: '',
+        cost: '',
+        price: ''
     });
     const [products, setProducts] = useState([]);
 
@@ -49,7 +49,7 @@ function Product() {
         try {
             product.cost = parseInt(product.cost);
             product.price = parseInt(product.price);
-            
+
             const result = await axios.post(config.apiPath + '/product/create', product, config.headers());
 
             if (result.data.message === 'success') {
@@ -65,7 +65,7 @@ function Product() {
         } catch (e) {
             if (e.response.status === 410) {
                 const errorList = e.response.data['data'];
-                for(let i=0; i<errorList.length; i++) {
+                for (let i = 0; i < errorList.length; i++) {
                     setErrorBorder(errorList[i]);
                 }
             } else {
@@ -80,47 +80,75 @@ function Product() {
 
     const setErrorBorder = (e) => {
         setErrorForm((prev) => ({
-            ...prev, [e]:e
+            ...prev, [e]: e
         }));
     }
 
     const clearErrorBorder = (e) => {
         setErrorForm((prev) => ({
-            ...prev, [e]:''
+            ...prev, [e]: ''
         }));
     }
 
     const clearForm = () => {
         setProduct({
-            name:"", 
-            cost:"", 
-            price:"",
-            img:""
+            name: "",
+            cost: "",
+            price: "",
+            img: ""
         })
-    } 
+    }
 
     return <BackOffice>
-        <div className='h5' style={{fontWeight:'bold'}}>Product</div>
+        <div className='h5' style={{ fontWeight: 'bold' }}>Product</div>
         <button onClick={clearForm} className='btn btn-primary' data-toggle='modal' data-target='#modalProduct'>
             <i className='fa fa-plus-circle mr-2' aria-hidden="true"></i> Add
         </button>
 
+        <table className='mt-3 table table-bordered table-striped'>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th width='150px' className='text-right'>Cost</th>
+                    <th width='150px' className='text-right'>Price</th>
+                    <th width='140px'></th>
+                </tr>
+            </thead>
+            <tbody>
+                {products.length > 0 ? products.map(item =>
+                    <tr>
+                        <td>{item.name}</td>
+                        <td className='text-right'>{item.cost}</td>
+                        <td className='text-right'>{item.cost}</td>
+                        <td className='text-center'>
+                            <button className='btn btn-primary mr-2'>
+                                <i className='fa fa-edit'></i>
+                            </button>
+                            <button className='btn btn-danger'>
+                                <i className='fa fa-times'></i>
+                            </button>
+                        </td>
+                    </tr>
+                ) : <></>}
+            </tbody>
+        </table>
+
         <MyModal id='modalProduct' title='Add Product'>
             <div>
                 <div>Name</div>
-                <input className={`form-control ${errorForm['name']? 'border border-danger rounded' : ''}`} value={product.name} onChange={e => setProduct({...product, name:e.target.value})} onKeyDown={() => clearErrorBorder('name')}/>
+                <input className={`form-control ${errorForm['name'] ? 'border border-danger rounded' : ''}`} value={product.name} onChange={e => setProduct({ ...product, name: e.target.value })} onKeyDown={() => clearErrorBorder('name')} />
             </div>
             <div className='mt-1'>
                 <div>Cost</div>
-                <input className={`form-control ${errorForm['cost']? 'border border-danger rounded' : ''}`} type='number' value={product.cost} placeholder="Enter positive integer only" min={0} onChange={e => setProduct({...product, cost:e.target.value})} onKeyDown={() => clearErrorBorder('cost')}/>
+                <input className={`form-control ${errorForm['cost'] ? 'border border-danger rounded' : ''}`} type='number' value={product.cost} placeholder="Enter positive integer only" min={0} onChange={e => setProduct({ ...product, cost: e.target.value })} onKeyDown={() => clearErrorBorder('cost')} />
             </div>
             <div className='mt-1'>
                 <div>Price</div>
-                <input className={`form-control ${errorForm['price']? 'border border-danger rounded' : ''}`} type='number' value={product.price} placeholder="Enter positive integer only" min={0} onChange={e => setProduct({...product, price:e.target.value})} onKeyDown={() => clearErrorBorder('price')}/>
+                <input className={`form-control ${errorForm['price'] ? 'border border-danger rounded' : ''}`} type='number' value={product.price} placeholder="Enter positive integer only" min={0} onChange={e => setProduct({ ...product, price: e.target.value })} onKeyDown={() => clearErrorBorder('price')} />
             </div>
             <div className='mt-1'>
                 <div>Image</div>
-                <input type='file' value={product.img}/>
+                <input type='file' value={product.img} />
             </div>
             <div className='mt-3'>
                 <button className='btn btn-primary' onClick={handleSave}>
