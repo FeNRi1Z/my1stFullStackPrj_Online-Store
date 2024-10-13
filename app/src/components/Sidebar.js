@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import config from "../config";
 import { Link, useNavigate } from "react-router-dom";
 
+
 function Sidebar() {
     const [user, setUser] = useState({});
     const navigate = useNavigate();
@@ -70,7 +71,7 @@ function Sidebar() {
                     </div>
                 </div>
 
-                <nav class="mt-2">
+                <nav class="mt-0">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <li class="nav-header">MENU</li>
                         <li class="nav-item">
@@ -101,10 +102,16 @@ function Sidebar() {
                     </ul>
                 </nav>
             </div>
-            <div className="sidebar-bottom" style={{ position: 'absolute', bottom: '10px', width: '100%', padding: '10px' }}>
-                <button onClick={handleSignOut} className="btn btn-danger btn-block sign-out-btn" style={{ marginTop: '20px', whiteSpace: 'nowrap' }}>
-                    <i className="fa fa-times mr-2"></i>
-                    <span className="sign-out-text">Sign Out</span>
+            <div style={{ position: 'absolute', bottom: '0px', width: '100%', padding: '10px' }}>
+                <button onClick={handleSignOut} 
+                        className="btn btn-danger btn-block" 
+                        style={{ marginTop: '10px', 
+                                whiteSpace: 'nowrap', 
+                                height:'40px', width:'100%', 
+                                justifyContent: 'center', 
+                                alignItems: 'center' }} >
+                    <i className="fa fa-power-off fa-lg"></i>
+                    {/* <span>Sign Out</span> */}
                 </button>
             </div>
         </aside>
