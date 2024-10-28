@@ -87,7 +87,7 @@ function Sidebar() {
                             <a href="pages/gallery.html" class="nav-link">
                                 <i class="nav-icon fas fa-image"></i>
                                 <p>
-                                    Gallery
+                                    Spare
                                 </p>
                             </a>
                         </li>
@@ -95,7 +95,7 @@ function Sidebar() {
                             <a href="pages/kanban.html" class="nav-link">
                                 <i class="nav-icon fas fa-columns"></i>
                                 <p>
-                                    Kanban Board
+                                    Spare
                                 </p>
                             </a>
                         </li>
