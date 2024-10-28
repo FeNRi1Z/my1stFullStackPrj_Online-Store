@@ -23,7 +23,7 @@ function Product() {
         cost: '',
         price: ''
     });
-    const [products, setProducts] = useState([]);
+    const [products, setProducts] = useState([]); //fetched data
 
     useEffect(() => {
         fetchData();
@@ -31,14 +31,14 @@ function Product() {
 
     const fetchData = async () => {
         try {
-            const res = await axios.get(config.apiPath + '/product/list', config.headers());
+            const res = await axios.get(config.apiPath + '/product/list/', config.headers());
 
             if (res.data.results !== undefined) {
                 setProducts(res.data.results);
             }
         } catch (e) {
             Swal.fire({
-                title: 'Error',
+                title: 'Error!',
                 text: e.message,
                 icon: 'error'
             });
@@ -50,12 +50,12 @@ function Product() {
             product.cost = parseInt(product.cost);
             product.price = parseInt(product.price);
 
-            const result = await axios.post(config.apiPath + '/product/create', product, config.headers());
+            const result = await axios.post(config.apiPath + '/product/create/', product, config.headers());
 
             if (result.data.message === 'success') {
                 Swal.fire({
-                    title: 'Sucess',
-                    text: 'Procuct Added Sucessfully',
+                    title: 'Success',
+                    text: 'Procuct Added Successfully',
                     icon: 'success',
                     timer: 2000 //2 sec.
                 });
@@ -70,11 +70,45 @@ function Product() {
                 }
             } else {
                 Swal.fire({
-                    title: 'Error',
+                    title: 'Error!',
                     text: e.message,
                     icon: 'error'
                 });
             }
+        }
+    }
+
+    const handleRemove = async (item) => {
+        try {
+            const button = await Swal.fire({
+                title: 'Remove?',
+                text: 'Do you want to remove ' + item.name + '?',
+                icon: 'question',
+                showConfirmButton: true,
+                confirmButtonText: "Confirm",
+                confirmButtonColor: "#dc3545",
+                showCancelButton: true
+            });
+
+            if (button.isConfirmed) {
+                const res = await axios.delete(config.apiPath + '/product/remove/' + item.id, config.headers());
+
+                if (res.data.message === 'success') {
+                    Swal.fire({
+                        title: 'Remove',
+                        text: 'Remove success',
+                        icon: 'success',
+                        timer: 2000
+                    });
+                    fetchData();
+                }
+            }
+        } catch (e) {
+            Swal.fire({
+                title: 'Error!',
+                text: e.message,
+                icon: 'error'
+            });
         }
     }
 
@@ -90,6 +124,14 @@ function Product() {
         }));
     }
 
+    const clearErrorForm = () => {
+        setErrorForm({
+            name: '',
+            cost: '',
+            price: ''
+        });
+    }
+
     const clearForm = () => {
         setProduct({
             name: "",
@@ -101,7 +143,7 @@ function Product() {
 
     return <BackOffice>
         <div className='h5' style={{ fontWeight: 'bold' }}>Product</div>
-        <button onClick={clearForm} className='btn btn-primary' data-toggle='modal' data-target='#modalProduct'>
+        <button onClick={() => { clearForm(); clearErrorForm() }} className='btn btn-primary font-weight-bold' data-toggle='modal' data-target='#modalProduct'>
             <i className='fa fa-plus-circle mr-2' aria-hidden="true"></i> Add
         </button>
 
@@ -111,7 +153,7 @@ function Product() {
                     <th>Name</th>
                     <th width='150px' className='text-right'>Cost</th>
                     <th width='150px' className='text-right'>Price</th>
-                    <th width='140px'></th>
+                    <th width='120px' className='text-center'>Modify</th>
                 </tr>
             </thead>
             <tbody>
@@ -119,17 +161,17 @@ function Product() {
                     <tr>
                         <td>{item.name}</td>
                         <td className='text-right'>{item.cost}</td>
-                        <td className='text-right'>{item.cost}</td>
+                        <td className='text-right'>{item.price}</td>
                         <td className='text-center'>
-                            <button className='btn btn-primary mr-2'>
-                                <i className='fa fa-edit'></i>
+                            <button className='btn btn-primary mr-2' style={{ width: '40px', height: '40px' }} data-toggle='modal' data-target='#modalProduct' onClick={e => setProduct(item)}>
+                                <i className='ion-edit' style={{ fontSize: '15px' }}></i>
                             </button>
-                            <button className='btn btn-danger'>
-                                <i className='fa fa-times'></i>
+                            <button className='btn btn-danger' style={{ width: '40px', height: '40px' }} onClick={e => handleRemove(item)}>
+                                <i className='ion-android-delete' style={{ fontSize: '18px' }}></i>
                             </button>
                         </td>
                     </tr>
-                ) : <></>}
+                ) : <> </>}
             </tbody>
         </table>
 
@@ -151,7 +193,7 @@ function Product() {
                 <input type='file' value={product.img} />
             </div>
             <div className='mt-3'>
-                <button className='btn btn-primary' onClick={handleSave}>
+                <button className='btn btn-primary font-weight-bold' onClick={handleSave}>
                     <i className='fa fa-check mr-2'></i>Add
                 </button>
             </div>

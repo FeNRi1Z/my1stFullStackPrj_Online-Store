@@ -69,10 +69,10 @@ function SignIn() {
             </div>
             <div class="card">
                 <div class="card-body login-card-body">
-                    <p class="login-box-msg" style={{ height: '30px' }}>Sign in to start your sessions</p>
+                    <p class="login-box-msg" style={{ height: '25px' }}>Sign in to start your sessions</p>
                     <div>
                         <div style={{ height: '22px' }}>
-                            {validUsername && (<l id="usernameAlert" className="text-danger" style={{ fontSize: '12px', marginBottom: '1px' }}>Username is required!</l>)}
+                            {validUsername && (<l id="usernameAlert" className="text-danger" style={{ fontSize: '12px' }}>Username is required!</l>)}
                         </div>
                         <div id="usernameForm" class="input-group mb-0" style={{}}>
                             <input
@@ -91,7 +91,7 @@ function SignIn() {
                             </div>
                         </div>
                         <div style={{ height: '22px' }}>
-                            {validPassword && (<l id="passwordAlert" className="text-danger" style={{ fontSize: '12px', marginBottom: '1px' }}>Password is required!</l>)}
+                            {validPassword && (<l id="passwordAlert" className="text-danger" style={{ fontSize: '12px' }}>Password is required!</l>)}
                         </div>
                         <div id="passwordForm" class="input-group mb-3">
                             <input
@@ -114,7 +114,7 @@ function SignIn() {
                                 <div class="icheck-primary">
                                     <input type="checkbox" id="remember" />
                                     <label for="remember">
-                                        Remember Me
+                                        Remember Me?
                                     </label>
                                 </div>
                             </div>
@@ -125,7 +125,7 @@ function SignIn() {
                             </div>
                         </div>
                     </div>
-
+{/* 
                     <div class="social-auth-links text-center mb-3">
                         <p>- OR -</p>
                         <a href="#" class="btn btn-block btn-primary">
@@ -141,7 +141,7 @@ function SignIn() {
                     </p>
                     <p class="mb-0">
                         <a href="register.html" class="text-center">Register a new membership</a>
-                    </p>
+                    </p> */}
                 </div>
             </div>
         </div>

@@ -27,4 +27,5 @@ model Product {
   cost  Int
   price Int
   img   String
+  status String @default("use")
 }

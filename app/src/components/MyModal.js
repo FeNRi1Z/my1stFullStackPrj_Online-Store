@@ -2,7 +2,7 @@ import '../styles/MyModal.css';
 
 function MyModal(props) {
     return <>
-        <div class="modal" tabindex="-1" id={props.id}> 
+        <div class="modal fade" tabindex="-1" id={props.id}> 
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">

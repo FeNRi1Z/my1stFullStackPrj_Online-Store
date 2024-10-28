@@ -4,6 +4,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const { error } = require('console');
 dotenv.config();
 
 function checkSignIn(req, res, next) {
@@ -39,11 +40,31 @@ app.post('/create', checkSignIn, async (req, res) => {
     }
 })
 
+app.delete('/remove/:id', checkSignIn, async (req, res) => {
+    try {
+        await prisma.product.update({
+            data: {
+                status: 'delete'
+            },
+            where: {
+                id: parseInt(req.params.id)
+            }
+        })
+
+        res.send({ message: 'success' });
+    } catch (e) {
+        res.status(500).send({ error: e.message });
+    }
+})
+
 app.get('/list', checkSignIn, async (req, res) => {
     try {
         const data = await prisma.product.findMany({
             orderBy: {
                 id: 'desc'
+            },
+            where: {
+                status: 'use'
             }
         })
 

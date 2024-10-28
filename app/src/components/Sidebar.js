@@ -64,10 +64,10 @@ function Sidebar() {
             <div class="sidebar">
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="image">
-                        <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image" />
+                        <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User" />
                     </div>
                     <div class="info">
-                        <a href="#" class="d-block">{user.name}</a>
+                        <l class="d-block" style={{color: "white"}}>{user.name}</l>
                     </div>
                 </div>
 
@@ -103,13 +103,15 @@ function Sidebar() {
                 </nav>
             </div>
             <div style={{ position: 'absolute', bottom: '0px', width: '100%', padding: '10px' }}>
-                <button onClick={handleSignOut} 
-                        className="btn btn-danger btn-block" 
-                        style={{ marginTop: '10px', 
-                                whiteSpace: 'nowrap', 
-                                height:'40px', width:'100%', 
-                                justifyContent: 'center', 
-                                alignItems: 'center' }} >
+                <button onClick={handleSignOut}
+                    className="btn btn-danger btn-block"
+                    style={{
+                        marginTop: '10px',
+                        whiteSpace: 'nowrap',
+                        height: '40px', width: '100%',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }} >
                     <i className="fa fa-power-off fa-lg"></i>
                     {/* <span>Sign Out</span> */}
                 </button>
