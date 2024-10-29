@@ -50,21 +50,28 @@ function Product() {
             product.cost = parseInt(product.cost);
             product.price = parseInt(product.price);
 
-            const result = await axios.post(config.apiPath + '/product/create/', product, config.headers());
+            let result;
+            if (product.id === undefined) {
+                result = await axios.post(config.apiPath + '/product/create/', product, config.headers());
+            } else {
+                result = await axios.put(config.apiPath + '/product/update/', product, config.headers());
+            }
 
             if (result.data.message === 'success') {
                 Swal.fire({
                     title: 'Success',
-                    text: 'Procuct Added Successfully',
+                    text: product.id ? 'Procuct Saved Successfully' : 'Procuct Added Successfully',
                     icon: 'success',
                     timer: 2000 //2 sec.
                 });
                 document.getElementById('modalProduct_btnClose').click();
                 fetchData();
+
+                setProduct({ ...product, id: undefined }); //clear id
             }
         } catch (e) {
             if (e.response.status === 410) {
-                const errorList = e.response.data['data'];
+                const errorList = e.response.data['errorList'];
                 for (let i = 0; i < errorList.length; i++) {
                     setErrorBorder(errorList[i]);
                 }
@@ -175,7 +182,7 @@ function Product() {
             </tbody>
         </table>
 
-        <MyModal id='modalProduct' title='Add Product'>
+        <MyModal id='modalProduct' title={`${product.name ? 'Edit Product' : 'Add Product'}`}>
             <div>
                 <div>Name</div>
                 <input className={`form-control ${errorForm['name'] ? 'border border-danger rounded' : ''}`} value={product.name} onChange={e => setProduct({ ...product, name: e.target.value })} onKeyDown={() => clearErrorBorder('name')} />
@@ -194,7 +201,7 @@ function Product() {
             </div>
             <div className='mt-3'>
                 <button className='btn btn-primary font-weight-bold' onClick={handleSave}>
-                    <i className='fa fa-check mr-2'></i>Add
+                    {product.name ? <><i className='fa fa-save mr-2'></i> Save</> : <><i className='fa fa-plus-circle mr-2'></i> Add</>}
                 </button>
             </div>
         </MyModal>
