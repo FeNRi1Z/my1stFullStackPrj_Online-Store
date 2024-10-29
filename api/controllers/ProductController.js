@@ -4,8 +4,11 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
-const { error } = require('console');
+const fileUpload = require('express-fileupload');
+
 dotenv.config();
+
+app.use(fileUpload());
 
 function checkSignIn(req, res, next) {
     try {
@@ -59,6 +62,12 @@ app.get('/list', checkSignIn, async (req, res) => {
 
 app.put('/update', checkSignIn, async (req, res) => {
     try {
+        const errorList = [];
+        if (!req.body.name) errorList.push('name');
+        if (!req.body.cost || req.body.cost < 0) errorList.push('cost');
+        if (!req.body.price || req.body.price < 0) errorList.push('price');
+        if (errorList.length !== 0) return res.status(410).send({ errorList: errorList });
+
         await prisma.product.update({
             data: req.body,
             where: {
@@ -66,7 +75,7 @@ app.put('/update', checkSignIn, async (req, res) => {
             }
         });
 
-        res.send({ message: 'success' })
+        res.send({ message: 'success' });
     } catch (e) {
         res.status(500).send({ error: e.message });
     }

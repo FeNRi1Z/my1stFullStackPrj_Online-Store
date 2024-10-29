@@ -9,7 +9,7 @@ axios.interceptors.response.use(
     response => response,  // Return the response normally if successful
     error => {
         if (error.response && error.response.status === 401) {
-            // Automatically redirect if 401 Unauthorized is returned
+            // Automatically redirect to sign in page if 401 Unauthorized is returned
             window.location.href = '/';
         }
         return Promise.reject(error);
@@ -17,13 +17,15 @@ axios.interceptors.response.use(
 );
 
 function Product() {
-    const [product, setProduct] = useState({});
+    const [product, setProduct] = useState({}); //for new item adding holder
     const [errorForm, setErrorForm] = useState({
         name: '',
         cost: '',
         price: ''
     });
     const [products, setProducts] = useState([]); //fetched data
+
+    const [isEdit, setIsEdit] = useState(''); //for Product modal text display
 
     useEffect(() => {
         fetchData();
@@ -74,6 +76,16 @@ function Product() {
                 const errorList = e.response.data['errorList'];
                 for (let i = 0; i < errorList.length; i++) {
                     setErrorBorder(errorList[i]);
+                }
+                if (errorList.includes('cost')) {
+                    setProduct((prev) => ({
+                        ...prev, 'cost': ' '
+                    }));
+                }
+                if (errorList.includes('price')) {
+                    setProduct((prev) => ({
+                        ...prev, 'price': ' '
+                    }));
                 }
             } else {
                 Swal.fire({
@@ -141,17 +153,20 @@ function Product() {
 
     const clearForm = () => {
         setProduct({
-            name: "",
-            cost: "",
-            price: "",
-            img: ""
+            name: '',
+            cost: '',
+            price: '',
+            img: ''
         })
     }
 
     return <BackOffice>
         <div className='h5' style={{ fontWeight: 'bold' }}>Product</div>
-        <button onClick={() => { clearForm(); clearErrorForm() }} className='btn btn-primary font-weight-bold' data-toggle='modal' data-target='#modalProduct'>
+        <button onClick={() => { clearForm(); clearErrorForm(); setIsEdit('') }} className='btn btn-primary mr-2 font-weight-bold' data-toggle='modal' data-target='#modalProduct'>
             <i className='fa fa-plus-circle mr-2' aria-hidden="true"></i> Add
+        </button>
+        <button className='btn btn-outline-success'>
+            <i className='fa fa-arrow-down mr-2'></i>Import from sheet
         </button>
 
         <table className='mt-3 table table-bordered table-striped'>
@@ -170,10 +185,10 @@ function Product() {
                         <td className='text-right'>{item.cost}</td>
                         <td className='text-right'>{item.price}</td>
                         <td className='text-center'>
-                            <button className='btn btn-primary mr-2' style={{ width: '40px', height: '40px' }} data-toggle='modal' data-target='#modalProduct' onClick={e => setProduct(item)}>
+                            <button className='btn btn-primary mr-2' style={{ width: '40px', height: '40px' }} data-toggle='modal' data-target='#modalProduct' onClick={() => { clearForm(); clearErrorForm(); setIsEdit('edit'); setProduct(item) }}>
                                 <i className='ion-edit' style={{ fontSize: '15px' }}></i>
                             </button>
-                            <button className='btn btn-danger' style={{ width: '40px', height: '40px' }} onClick={e => handleRemove(item)}>
+                            <button className='btn btn-danger' style={{ width: '40px', height: '40px' }} onClick={() => handleRemove(item)}>
                                 <i className='ion-android-delete' style={{ fontSize: '18px' }}></i>
                             </button>
                         </td>
@@ -182,7 +197,7 @@ function Product() {
             </tbody>
         </table>
 
-        <MyModal id='modalProduct' title={`${product.name ? 'Edit Product' : 'Add Product'}`}>
+        <MyModal id='modalProduct' title={`${isEdit ? 'Edit Product' : 'Add Product'}`}>
             <div>
                 <div>Name</div>
                 <input className={`form-control ${errorForm['name'] ? 'border border-danger rounded' : ''}`} value={product.name} onChange={e => setProduct({ ...product, name: e.target.value })} onKeyDown={() => clearErrorBorder('name')} />
@@ -201,7 +216,7 @@ function Product() {
             </div>
             <div className='mt-3'>
                 <button className='btn btn-primary font-weight-bold' onClick={handleSave}>
-                    {product.name ? <><i className='fa fa-save mr-2'></i> Save</> : <><i className='fa fa-plus-circle mr-2'></i> Add</>}
+                    {isEdit ? <><i className='fa fa-save mr-2'></i> Save</> : <><i className='fa fa-plus-circle mr-2'></i> Add</>}
                 </button>
             </div>
         </MyModal>
