@@ -98,4 +98,37 @@ app.delete('/remove/:id', checkSignIn, async (req, res) => {
     }
 })
 
+app.post('/upload', checkSignIn, async (req, res) => {
+    try {
+        if (req.files != undefined) {
+            if (req.files.img != undefined) {
+                const img = req.files.img;
+                const fs = require('fs');
+                const myDate = new Date();
+                const y = myDate.getFullYear();
+                const m = myDate.getMonth() + 1;
+                const d = myDate.getDate();
+                const h = myDate.getHours();
+                const mi = myDate.getMinutes();
+                const s = myDate.getSeconds();
+                const ms = myDate.getMilliseconds();
+
+                const arrFileName = img.name.split('.');
+                const ext = arrFileName[arrFileName.length - 1];
+
+                const newName = `${y}${m}${d}${h}${mi}${s}${ms}.${ext}`;
+
+                img.mv('./uploads/' + newName, (err) => {
+                    if (err) throw err;
+                    res.send({ newName: newName });
+                })
+            }
+        } else {
+            res.status(501).send('notImplemented');
+        }
+    } catch (e) {
+        res.status(500).send({ error: e.message });
+    }
+})
+
 module.exports = app;

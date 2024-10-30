@@ -24,6 +24,7 @@ function Product() {
         price: ''
     });
     const [products, setProducts] = useState([]); //fetched data
+    const [img, setImg] = useState({}); //file upload
 
     const [isEdit, setIsEdit] = useState(''); //for Product modal text display
 
@@ -49,8 +50,10 @@ function Product() {
 
     const handleSave = async () => {
         try {
+            //ดัก error ที่ front
             product.cost = parseInt(product.cost);
             product.price = parseInt(product.price);
+            product.img = await handleUpload();
 
             let result;
             if (product.id === undefined) {
@@ -131,6 +134,36 @@ function Product() {
         }
     }
 
+    const selectedFile = (inputFile) => {
+        if (inputFile !== undefined && inputFile.length > 0) {
+            setImg(inputFile[0]);
+        }
+    }
+
+    const handleUpload = async () => {
+        try {
+            const formData = new FormData();
+            formData.append('img', img);
+
+            const result = await axios.post(config.apiPath + '/product/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': localStorage.getItem('token')
+                }
+            })
+
+            if (result.data.newName !== undefined) {
+                return result.data.newName;
+            }
+        } catch (e) {
+            Swal.fire({
+                title: 'Error',
+                text: e.message,
+                icon: 'error'
+            })
+        }
+    }
+
     const setErrorBorder = (e) => {
         setErrorForm((prev) => ({
             ...prev, [e]: e
@@ -155,8 +188,7 @@ function Product() {
         setProduct({
             name: '',
             cost: '',
-            price: '',
-            img: ''
+            price: ''
         })
     }
 
@@ -211,8 +243,8 @@ function Product() {
                 <input className={`form-control ${errorForm['price'] ? 'border border-danger rounded' : ''}`} type='number' value={product.price} placeholder="Enter positive integer only" min={0} onChange={e => setProduct({ ...product, price: e.target.value })} onKeyDown={() => clearErrorBorder('price')} />
             </div>
             <div className='mt-1'>
-                <div>Image</div>
-                <input type='file' value={product.img} />
+                <div>Cover</div>
+                <input type='file' onChange={e => selectedFile(e.target.files)} />
             </div>
             <div className='mt-3'>
                 <button className='btn btn-primary font-weight-bold' onClick={handleSave}>
