@@ -124,7 +124,7 @@ app.post('/upload', checkSignIn, async (req, res) => {
                 })
             }
         } else {
-            res.status(501).send('notImplemented');
+            res.send({ newName: 'notImplemented' });
         }
     } catch (e) {
         res.status(500).send({ error: e.message });

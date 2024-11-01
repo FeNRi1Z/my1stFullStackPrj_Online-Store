@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import BackOffice from '../../components/BackOffice';
 import MyModal from '../../components/MyModal';
 import Swal from 'sweetalert2';
@@ -16,6 +16,13 @@ axios.interceptors.response.use(
     }
 );
 
+function showImage(item) {
+    if (item.img !== "") {
+        return <img alt='' className='img-fluid' src={config.apiPath + '/uploads/' + item.img} />
+    }
+    return <></>
+}
+
 function Product() {
     const [product, setProduct] = useState({}); //for new item adding holder
     const [errorForm, setErrorForm] = useState({
@@ -25,6 +32,7 @@ function Product() {
     });
     const [products, setProducts] = useState([]); //fetched data
     const [img, setImg] = useState({}); //file upload
+    const refImg = useRef();
 
     const [isEdit, setIsEdit] = useState(''); //for Product modal text display
 
@@ -48,9 +56,14 @@ function Product() {
         }
     }
 
+    const errorListInFront = [];
     const handleSave = async () => {
         try {
-            //ดัก error ที่ front
+            if (!product.name) errorListInFront.push('name');
+            if (!product.cost || product.cost < 0) errorListInFront.push('cost');
+            if (!product.price || product.price < 0) errorListInFront.push('price');
+            if (errorListInFront.length !== 0) throw new Error("410");
+
             product.cost = parseInt(product.cost);
             product.price = parseInt(product.price);
             product.img = await handleUpload();
@@ -75,8 +88,8 @@ function Product() {
                 setProduct({ ...product, id: undefined }); //clear id
             }
         } catch (e) {
-            if (e.response.status === 410) {
-                const errorList = e.response.data['errorList'];
+            if (e.message === "410" || e.response.status === 410) {
+                const errorList = e.message === "410" ? errorListInFront : e.response.data['errorList'];
                 for (let i = 0; i < errorList.length; i++) {
                     setErrorBorder(errorList[i]);
                 }
@@ -161,6 +174,7 @@ function Product() {
                 text: e.message,
                 icon: 'error'
             })
+            return "";
         }
     }
 
@@ -190,6 +204,8 @@ function Product() {
             cost: '',
             price: ''
         })
+        setImg(null);
+        refImg.current.value = '';
     }
 
     return <BackOffice>
@@ -204,6 +220,7 @@ function Product() {
         <table className='mt-3 table table-bordered table-striped'>
             <thead>
                 <tr>
+                    <th width='150px'>Image</th>
                     <th>Name</th>
                     <th width='150px' className='text-right'>Cost</th>
                     <th width='150px' className='text-right'>Price</th>
@@ -212,7 +229,8 @@ function Product() {
             </thead>
             <tbody>
                 {products.length > 0 ? products.map(item =>
-                    <tr>
+                    <tr key={item.id}>
+                        <td>{showImage(item)}</td>
                         <td>{item.name}</td>
                         <td className='text-right'>{item.cost}</td>
                         <td className='text-right'>{item.price}</td>
@@ -244,7 +262,7 @@ function Product() {
             </div>
             <div className='mt-1'>
                 <div>Cover</div>
-                <input type='file' onChange={e => selectedFile(e.target.files)} />
+                <input type='file' ref={refImg} onChange={e => selectedFile(e.target.files)} />
             </div>
             <div className='mt-3'>
                 <button className='btn btn-primary font-weight-bold' onClick={handleSave}>
@@ -252,6 +270,7 @@ function Product() {
                 </button>
             </div>
         </MyModal>
+
     </BackOffice>
 }
 
