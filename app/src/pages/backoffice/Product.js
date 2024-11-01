@@ -18,9 +18,9 @@ axios.interceptors.response.use(
 
 function showImage(item) {
     if (item.img !== "") {
-        return <img alt='' className='img-fluid' src={config.apiPath + '/uploads/' + item.img} />
+        return <img alt='' className='img-fluid' src={config.apiPath + '/uploads/product_img/' + item.img} />
     }
-    return <></>
+    return <></>;
 }
 
 function Product() {
@@ -32,7 +32,9 @@ function Product() {
     });
     const [products, setProducts] = useState([]); //fetched data
     const [img, setImg] = useState({}); //file upload
+    const [fileExcel, setFileExcel] = useState({}); //excel upload
     const refImg = useRef();
+    const refExcel = useRef();
 
     const [isEdit, setIsEdit] = useState(''); //for Product modal text display
 
@@ -77,13 +79,13 @@ function Product() {
 
             if (result.data.message === 'success') {
                 Swal.fire({
-                    title: 'Success',
-                    text: product.id ? 'Procuct Saved Successfully' : 'Procuct Added Successfully',
+                    title: 'Add product',
+                    text: product.id ? 'Procuct saved successfully' : 'Procuct added successfully',
                     icon: 'success',
                     timer: 2000 //2 sec.
                 });
-                document.getElementById('modalProduct_btnClose').click();
                 fetchData();
+                document.getElementById('modalProduct_btnClose').click();
 
                 setProduct({ ...product, id: undefined }); //clear id
             }
@@ -130,8 +132,8 @@ function Product() {
 
                 if (res.data.message === 'success') {
                     Swal.fire({
-                        title: 'Remove',
-                        text: 'Remove success',
+                        title: 'Remove product',
+                        text: 'Remove successfully',
                         icon: 'success',
                         timer: 2000
                     });
@@ -178,6 +180,48 @@ function Product() {
         }
     }
 
+    const selectedFileExcel = (fileInput) => {
+        if (fileInput !== undefined && fileInput.length > 0) {
+            setFileExcel(fileInput[0]);
+        }
+    }
+
+    const handleUploadExcel = async () => {
+        try {
+            const formData = new FormData();
+            formData.append('fileExcel', fileExcel);
+
+            const result = await axios.post(config.apiPath + '/product/uploadFromExcel', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': localStorage.getItem('token')
+                }
+            });
+
+            if (result.data.message === 'success') {
+                Swal.fire({
+                    title: 'Import products from sheet',
+                    text: 'Import successfully',
+                    icon: 'success',
+                    timer: 2000
+                });
+                fetchData();
+                document.getElementById('modalSheet_btnClose').click();
+            }
+        } catch (e) {
+            Swal.fire({
+                title: 'Error',
+                text: e.message,
+                icon: 'error'
+            })
+        }
+    }
+
+    const clearFormExcel = () => {
+        setFileExcel(null);
+        refExcel.current.value = '';
+    }
+
     const setErrorBorder = (e) => {
         setErrorForm((prev) => ({
             ...prev, [e]: e
@@ -213,8 +257,8 @@ function Product() {
         <button onClick={() => { clearForm(); clearErrorForm(); setIsEdit('') }} className='btn btn-primary mr-2 font-weight-bold' data-toggle='modal' data-target='#modalProduct'>
             <i className='fa fa-plus-circle mr-2' aria-hidden="true"></i> Add
         </button>
-        <button className='btn btn-outline-success'>
-            <i className='fa fa-arrow-down mr-2'></i>Import from sheet
+        <button onClick={clearFormExcel} className='btn btn-outline-success' data-toggle='modal' data-target='#modalSheet'>
+            <i className='fa fa-arrow-down mr-2'></i>Import products from sheet
         </button>
 
         <table className='mt-3 table table-bordered table-striped'>
@@ -263,12 +307,21 @@ function Product() {
             <div className='mt-1'>
                 <div>Cover</div>
                 <input type='file' ref={refImg} onChange={e => selectedFile(e.target.files)} />
+                <div className='mt-2'>{showImage(product)}</div>
             </div>
             <div className='mt-3'>
                 <button className='btn btn-primary font-weight-bold' onClick={handleSave}>
                     {isEdit ? <><i className='fa fa-save mr-2'></i> Save</> : <><i className='fa fa-plus-circle mr-2'></i> Add</>}
                 </button>
             </div>
+        </MyModal>
+
+        <MyModal id='modalSheet' title='Import products from sheet'>
+            <div>Please select the product sheet file</div>
+            <div className='mt-1'><input type='file' ref={refExcel} onChange={e => selectedFileExcel(e.target.files)} /></div>
+            <button className='mt-3 btn btn-primary' onClick={handleUploadExcel}>
+                <i className='fa fa-plus-circle mr-2'></i> Add
+            </button>
         </MyModal>
 
     </BackOffice>

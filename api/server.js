@@ -9,7 +9,7 @@ const productController = require('./controllers/ProductController.js');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads/product_img/', express.static('uploads/product_img'));
 
 app.use('/user', userController);
 app.use('/product', productController);
