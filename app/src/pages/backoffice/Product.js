@@ -157,6 +157,7 @@ function Product() {
 
     const handleUpload = async () => {
         try {
+            if (!img) return "noIMGFile";
             const formData = new FormData();
             formData.append('img', img);
 
@@ -176,7 +177,7 @@ function Product() {
                 text: e.message,
                 icon: 'error'
             })
-            return "";
+            return "noIMGFile";
         }
     }
 

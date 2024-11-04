@@ -76,8 +76,10 @@ app.put('/update', checkSignIn, async (req, res) => {
                 id: parseInt(req.body.id)
             }
         });
-        if (fs.existsSync('./uploads/product_img/' + oldData.img)) {
-            await fs.unlinkSync('./uploads/product_img/' + oldData.img);
+        if (oldData.img !== "noIMGFile"){
+            if (fs.existsSync('./uploads/product_img/' + oldData.img)) {
+                await fs.unlinkSync('./uploads/product_img/' + oldData.img);
+            }
         }
 
         await prisma.product.update({
@@ -112,30 +114,28 @@ app.delete('/remove/:id', checkSignIn, async (req, res) => {
 
 app.post('/upload', checkSignIn, async (req, res) => {
     try {
-        if (req.files != undefined) {
-            if (req.files.img != undefined) {
-                const img = req.files.img;
-                const myDate = new Date();
-                const y = myDate.getFullYear();
-                const m = myDate.getMonth() + 1;
-                const d = myDate.getDate();
-                const h = myDate.getHours();
-                const mi = myDate.getMinutes();
-                const s = myDate.getSeconds();
-                const ms = myDate.getMilliseconds();
+        if (req.files != undefined && req.files.img != undefined) {
+            const img = req.files.img;
+            const myDate = new Date();
+            const y = myDate.getFullYear();
+            const m = myDate.getMonth() + 1;
+            const d = myDate.getDate();
+            const h = myDate.getHours();
+            const mi = myDate.getMinutes();
+            const s = myDate.getSeconds();
+            const ms = myDate.getMilliseconds();
 
-                const arrFileName = img.name.split('.');
-                const ext = arrFileName[arrFileName.length - 1];
+            const arrFileName = img.name.split('.');
+            const ext = arrFileName[arrFileName.length - 1];
 
-                const newName = `${y}${m}${d}${h}${mi}${s}${ms}.${ext}`;
+            const newName = `${y}${m}${d}${h}${mi}${s}${ms}.${ext}`;
 
-                img.mv('./uploads/product_img/' + newName, (err) => {
-                    if (err) throw err;
-                    res.send({ newName: newName });
-                })
-            }
+            img.mv('./uploads/product_img/' + newName, (err) => {
+                if (err) throw err;
+                res.send({ newName: newName });
+            })
         } else {
-            res.send({ newName: '' });
+            res.send({ newName: "noIMGFile" });
         }
     } catch (e) {
         res.status(500).send({ error: e.message });
