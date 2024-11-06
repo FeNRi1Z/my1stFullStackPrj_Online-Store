@@ -321,7 +321,7 @@ function Product() {
             <div>Please select the product sheet file</div>
             <div className='mt-1'><input type='file' ref={refExcel} onChange={e => selectedFileExcel(e.target.files)} /></div>
             <button className='mt-3 btn btn-primary' onClick={handleUploadExcel}>
-                <i className='fa fa-plus-circle mr-2'></i> Add
+                <i className='fa fa-arrow-down mr-2'></i> Import
             </button>
         </MyModal>
 

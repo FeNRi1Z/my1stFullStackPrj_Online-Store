@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const fileUpload = require('express-fileupload');
 const exceljs = require('exceljs');
+const ifIsImage = require('if-is-image');
 
 dotenv.config();
 
@@ -76,9 +77,9 @@ app.put('/update', checkSignIn, async (req, res) => {
                 id: parseInt(req.body.id)
             }
         });
-        if (oldData.img !== "noIMGFile"){
+        if (oldData.img !== "noIMGFile") {
             if (fs.existsSync('./uploads/product_img/' + oldData.img)) {
-                await fs.unlinkSync('./uploads/product_img/' + oldData.img);
+                await fs.unlinkSync('./uploads/product_img/' + oldData.img); //Delete old file
             }
         }
 
@@ -114,7 +115,7 @@ app.delete('/remove/:id', checkSignIn, async (req, res) => {
 
 app.post('/upload', checkSignIn, async (req, res) => {
     try {
-        if (req.files != undefined && req.files.img != undefined) {
+        if (req.files != undefined && req.files.img != undefined && ifIsImage(req.files.img.name)) {
             const img = req.files.img;
             const myDate = new Date();
             const y = myDate.getFullYear();
@@ -165,7 +166,7 @@ app.post('/uploadFromExcel', checkSignIn, (req, res) => {
                             name: name,
                             cost: cost,
                             price: price,
-                            img: ''
+                            img: "noIMGFile"
                         }
                     })
                 }
