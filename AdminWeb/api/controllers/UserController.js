@@ -6,37 +6,7 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 dotenv.config();
 
-function checkSignIn(req, res, next) {
-    try {
-        const token = req.headers['authorization'];
-        if (!token) return res.status(401).send({ error: 'Unauthorized: No token provided', redirect: true });
-
-        const secret = process.env.TOKEN_SECRET;
-        const decoded = jwt.verify(token, secret);
-
-        req.user = decoded;
-        next();
-    } catch (e) {
-        return res.status(401).send({ error: 'Unauthorized: Invalid or expired token', redirect: true });
-    }
-}
-
-// app.use(checkSignIn); //Protected every routh
-
-// No need to use anymore
-// function getUserId(req, res) {
-//     try {
-//         const secret = process.env.TOKEN_SECRET;
-//         const token = req.headers['authorization'];
-//         const result = jwt.verify(token, secret);
-
-//         if (result != undefined) {
-//             return result.id;
-//         }
-//     } catch (e) {
-//         res.status(500).send({ error: e.message });
-//     }
-// }
+const { checkSignIn } = require('../middleware/auth');
 
 app.post('/signIn', async (req, res) => {
     try {

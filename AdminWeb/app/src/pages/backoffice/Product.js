@@ -17,8 +17,12 @@ axios.interceptors.response.use(
 );
 
 function showImage(item) {
-    if (item.img !== "") {
-        return <img alt='' className='img-fluid' src={config.apiPath + '/uploads/product_img/' + item.img} />
+    if (item.img !== undefined) {
+        let imgPath = config.apiPath + '/uploads/product_img/' + item.img;
+
+        if (item.img === "noIMGFile") imgPath = 'default_img.webp';
+
+        return <img alt='' className='img-fluid' src={imgPath} />
     }
     return <></>;
 }
