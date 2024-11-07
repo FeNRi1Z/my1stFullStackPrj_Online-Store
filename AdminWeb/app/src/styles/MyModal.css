@@ -1,0 +1,19 @@
+/* MyModal.css */
+.btn-close-custom {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem; /* Increase the icon size */
+    color: #6c757d; /* Light grey color */
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.btn-close-custom:hover {
+    color: #ff4c4c; /* Red color on hover */
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
