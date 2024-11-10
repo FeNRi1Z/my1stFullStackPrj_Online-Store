@@ -2,7 +2,6 @@ const express = require('express');
 const app = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const fileUpload = require('express-fileupload');
 const exceljs = require('exceljs');
@@ -20,10 +19,19 @@ app.post('/create', checkSignIn, async (req, res) => {
         if (!req.body.name) errorList.push('name');
         if (!req.body.cost || req.body.cost < 0) errorList.push('cost');
         if (!req.body.price || req.body.price < 0) errorList.push('price');
-        if (errorList.length !== 0) return res.status(410).send({ errorList: errorList });
 
+        if (errorList.length > 0) return res.status(410).send({ errorList: errorList });
+        console.log(req.body);
         await prisma.product.create({
-            data: req.body
+            data: {
+                name: req.body.name,
+                cost: req.body.cost,
+                price: req.body.price,
+                img: req.body.img,
+                authorId: req.body.authorId ? req.body.authorId : 1,
+                desc: req.body.desc,
+                quantity: req.body.quantity
+            }
         });
 
         res.send({ message: 'success' });
@@ -40,10 +48,51 @@ app.get('/list', checkSignIn, async (req, res) => {
             },
             where: {
                 status: 'use'
+            },
+            include: {
+                author: true
+            }
+        })
+
+        const results = data.map(product => ({
+            ...product,
+            author: product.author.name,
+        }));
+
+        res.send({ results: results });
+    } catch (e) {
+        res.status(500).send({ error: e.message });
+    }
+})
+
+app.get('/authors', checkSignIn, async (req, res) => {
+    try {
+        const data = await prisma.author.findMany({
+            orderBy: {
+                id: 'asc'
             }
         })
 
         res.send({ results: data });
+    } catch (e) {
+        res.status(500).send({ error: e.message });
+    }
+})
+
+app.post('/createAuthor', checkSignIn, async (req, res) => {
+    try {
+        const errorList = [];
+        if (!req.body.author) errorList.push('author');
+        if (errorList.length !== 0) return res.status(410).send({ errorList: errorList });
+
+        const result = await prisma.author.create({
+            data: { name: req.body.author }
+        });
+
+        res.send({
+            message: 'success',
+            authorId: result.id
+        });
     } catch (e) {
         res.status(500).send({ error: e.message });
     }
@@ -71,7 +120,15 @@ app.put('/update', checkSignIn, async (req, res) => {
         }
 
         await prisma.product.update({
-            data: req.body,
+            data: {
+                name: req.body.name,
+                cost: req.body.cost,
+                price: req.body.price,
+                img: req.body.img,
+                authorId: req.body.authorId,
+                desc: req.body.desc,
+                quantity: req.body.quantity
+            },
             where: {
                 id: parseInt(req.body.id)
             }

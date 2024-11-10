@@ -3,4 +3,5 @@
     "[prisma]": {
         "editor.defaultFormatter": "Prisma.prisma"
     },
+    "prismaERDPreviewer.preferredTheme": "dark",
 }

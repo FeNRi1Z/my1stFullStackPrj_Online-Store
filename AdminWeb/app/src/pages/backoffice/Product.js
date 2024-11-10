@@ -28,13 +28,18 @@ function showImage(item) {
 }
 
 function Product() {
-    const [product, setProduct] = useState({}); //for new item adding holder
+    const [product, setProduct] = useState({}); //for new product adding holder
+    const [products, setProducts] = useState([]); //fetched product data
+
+    const [isNewAuthor, setIsNewAuthor] = useState(null); //for new author adding status holder
+    const [authors, setAuthors] = useState([]); //fetched author data
+
     const [errorForm, setErrorForm] = useState({
         name: '',
         cost: '',
-        price: ''
+        price: '',
+        author: ''
     });
-    const [products, setProducts] = useState([]); //fetched data
     const [img, setImg] = useState({}); //file upload
     const [fileExcel, setFileExcel] = useState({}); //excel upload
     const refImg = useRef();
@@ -48,11 +53,16 @@ function Product() {
 
     const fetchData = async () => {
         try {
-            const res = await axios.get(config.apiPath + '/product/list/', config.headers());
-
-            if (res.data.results !== undefined) {
-                setProducts(res.data.results);
+            const productsList = await axios.get(config.apiPath + '/product/list/', config.headers());
+            if (productsList.data.results !== undefined) {
+                setProducts(productsList.data.results);
             }
+
+            const authorsList = await axios.get(config.apiPath + '/product/authors/', config.headers());
+            if (authorsList.data.results !== undefined) {
+                setAuthors(authorsList.data.results);
+            }
+
         } catch (e) {
             Swal.fire({
                 title: 'Error!',
@@ -62,20 +72,28 @@ function Product() {
         }
     }
 
-    const errorListInFront = [];
+    let errorListInFront = [];
     const handleSave = async () => {
         try {
             if (!product.name) errorListInFront.push('name');
             if (!product.cost || product.cost < 0) errorListInFront.push('cost');
             if (!product.price || product.price < 0) errorListInFront.push('price');
-            if (errorListInFront.length !== 0) throw new Error("410");
+            if (isNewAuthor && !product.author) errorListInFront.push('author');
 
+            if (errorListInFront.length > 0) throw new Error("410");
+           
+            if (isNewAuthor) {
+                const newAuthor = await axios.post(config.apiPath + '/product/createAuthor/', product, config.headers());
+                product.authorId = parseInt(newAuthor.data.authorId);
+            } else {
+                product.authorId = parseInt(product.author);
+            }
             product.cost = parseInt(product.cost);
             product.price = parseInt(product.price);
             product.img = await handleUpload();
 
             let result;
-            if (product.id === undefined) {
+            if (!isEdit) {
                 result = await axios.post(config.apiPath + '/product/create/', product, config.headers());
             } else {
                 result = await axios.put(config.apiPath + '/product/update/', product, config.headers());
@@ -84,15 +102,15 @@ function Product() {
             if (result.data.message === 'success') {
                 Swal.fire({
                     title: 'Add product',
-                    text: product.id ? 'Procuct saved successfully' : 'Procuct added successfully',
+                    text: product.id ? 'Product saved successfully' : 'Product added successfully',
                     icon: 'success',
                     timer: 2000 //2 sec.
                 });
                 fetchData();
                 document.getElementById('modalProduct_btnClose').click();
-
                 setProduct({ ...product, id: undefined }); //clear id
             }
+
         } catch (e) {
             if (e.message === "410" || e.response.status === 410) {
                 const errorList = e.message === "410" ? errorListInFront : e.response.data['errorList'];
@@ -101,12 +119,12 @@ function Product() {
                 }
                 if (errorList.includes('cost')) {
                     setProduct((prev) => ({
-                        ...prev, 'cost': ' '
+                        ...prev, 'cost': NaN
                     }));
                 }
                 if (errorList.includes('price')) {
                     setProduct((prev) => ({
-                        ...prev, 'price': ' '
+                        ...prev, 'price': NaN
                     }));
                 }
             } else {
@@ -243,18 +261,36 @@ function Product() {
         setErrorForm({
             name: '',
             cost: '',
-            price: ''
+            price: '',
+            author: ''
         });
     }
 
     const clearForm = () => {
+        setImg(null);
+        refImg.current.value = '';
+        setIsNewAuthor(null);
         setProduct({
             name: '',
             cost: '',
-            price: ''
+            price: '',
+            desc: '',
+            author: '',
+            authorId: ''
         })
-        setImg(null);
-        refImg.current.value = '';
+    }
+
+    const handleSelectedAuthor = (name) => {
+        if (name === 'Add new author') {
+            clearErrorBorder('author');
+            setProduct({ ...product, authorId: '' });
+            setProduct({ ...product, author: '' });
+            setIsNewAuthor('yes');
+        } else {
+            setIsNewAuthor(null);
+            setProduct({ ...product, authorId: name });
+            setProduct({ ...product, author: name })
+        }
     }
 
     return <BackOffice>
@@ -269,10 +305,13 @@ function Product() {
         <table className='mt-3 table table-bordered table-striped'>
             <thead>
                 <tr>
-                    <th width='150px'>Image</th>
+                    <th width='150px'>Cover</th>
                     <th>Name</th>
-                    <th width='150px' className='text-right'>Cost</th>
-                    <th width='150px' className='text-right'>Price</th>
+                    <th width='150px'>Description</th>
+                    <th>Author</th>
+                    <th width='75px' className='text-right'>Cost</th>
+                    <th width='75px' className='text-right'>Price</th>
+                    <th width='80px' className='text-right'>Quantity</th>
                     <th width='120px' className='text-center'>Modify</th>
                 </tr>
             </thead>
@@ -281,25 +320,44 @@ function Product() {
                     <tr key={item.id}>
                         <td>{showImage(item)}</td>
                         <td>{item.name}</td>
+                        <td>{item.desc}</td>
+                        <td>{item.author}</td>
                         <td className='text-right'>{item.cost}</td>
                         <td className='text-right'>{item.price}</td>
+                        <td className='text-right'>{item.quantity}</td>
                         <td className='text-center'>
                             <button className='btn btn-primary mr-2' style={{ width: '40px', height: '40px' }} data-toggle='modal' data-target='#modalProduct' onClick={() => { clearForm(); clearErrorForm(); setIsEdit('edit'); setProduct(item) }}>
-                                <i className='ion-edit' style={{ fontSize: '15px' }}></i>
+                                <i className='ion-edit' style={{ fontSize: '15px' }}></i> {/*Edit button*/}
                             </button>
                             <button className='btn btn-danger' style={{ width: '40px', height: '40px' }} onClick={() => handleRemove(item)}>
-                                <i className='ion-android-delete' style={{ fontSize: '18px' }}></i>
+                                <i className='ion-android-delete' style={{ fontSize: '18px' }}></i> {/*Delete button*/}
                             </button>
                         </td>
                     </tr>
-                ) : <> </>}
+                ) : <></>}
             </tbody>
         </table>
 
         <MyModal id='modalProduct' title={`${isEdit ? 'Edit Product' : 'Add Product'}`}>
             <div>
                 <div>Name</div>
-                <input className={`form-control ${errorForm['name'] ? 'border border-danger rounded' : ''}`} value={product.name} onChange={e => setProduct({ ...product, name: e.target.value })} onKeyDown={() => clearErrorBorder('name')} />
+                <input className={`form-control ${errorForm['name'] ? 'border border-danger rounded' : ''}`} type='text' value={product.name} onChange={e => setProduct({ ...product, name: e.target.value })} onKeyDown={() => clearErrorBorder('name')} />
+            </div>
+            <div className='mt-1'>
+                <div>Description</div>
+                <input className={`form-control`} type='text' value={product.desc} onChange={e => setProduct({ ...product, desc: e.target.value })} />
+            </div>
+            <div className='mt-1'>
+                <div>Author</div>
+                <select className={`form-control`} value={isNewAuthor ? 'Add new author' : product.author} onChange={e => handleSelectedAuthor(e.target.value)}>
+                    {authors.map(item => <option value={item.id}>{item.id + ': ' + item.name}</option>)}
+                    <option value={'Add new author'}>Add new author</option>
+                </select>
+                {isNewAuthor !== null &&
+                    <div className='mt-1'>
+                        <div>New Author Name</div>
+                        <input className={`form-control ${errorForm['author'] && isNewAuthor ? 'border border-danger rounded' : ''}`} type='text' value={product.author} onChange={e => setProduct({ ...product, author: e.target.value })} onKeyDown={() => clearErrorBorder('author')} />
+                    </div>}
             </div>
             <div className='mt-1'>
                 <div>Cost</div>

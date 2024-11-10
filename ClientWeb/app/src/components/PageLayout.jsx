@@ -1,6 +1,6 @@
 import React from 'react';
-import Navbar2 from '../components/Navbar';
-import Footer from '../components/Footer';
+import Navbar2 from './Navbar';
+import Footer from './Footer';
 
 function PageLayout(props) {
     return (

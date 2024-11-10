@@ -23,8 +23,9 @@ app.post('/signIn', async (req, res) => {
                 name: true
             },
             where: {
-                user: req.body.user,
-                pass: req.body.pass,
+                username: req.body.user,
+                password: req.body.pass,
+                role: 'admin',
                 status: 'use'
             }
         });
@@ -43,7 +44,6 @@ app.post('/signIn', async (req, res) => {
 
 app.get('/info', checkSignIn, async (req, res) => {
     try {
-        //const userId = getUserId(req, res);
         const user = await prisma.user.findFirst({
             select: {
                 name: true

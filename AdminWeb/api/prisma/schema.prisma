@@ -1,8 +1,28 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// generator client {
+//   provider = "prisma-client-js"
+// }
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
+
+// model User {
+//   id     Int    @id @default(autoincrement())
+//   name   String
+//   user   String
+//   pass   String
+//   status String @default("use")
+// }
+
+// model Product {
+//   id     Int    @id @default(autoincrement())
+//   name   String
+//   cost   Int
+//   price  Int
+//   img    String
+//   status String @default("use")
+// }
 
 generator client {
   provider = "prisma-client-js"
@@ -14,18 +34,83 @@ datasource db {
 }
 
 model User {
-  id     Int    @id() @default(autoincrement())
-  name   String
-  user   String
-  pass   String
-  status String @default("use")
+  id        Int             @id @default(autoincrement())
+  name      String
+  username  String          @unique
+  password  String
+  role      String          @default("client")
+  status    String          @default("use")
+  address   String?
+  cartQty   Int             @default(0)
+  cartTotal Int             @default(0)
+  cartItems ProductOnCart[]
+  orders    Order[]
 }
 
 model Product {
-  id    Int    @id @default(autoincrement())
-  name  String
-  cost  Int
-  price Int
-  img   String
-  status String @default("use")
+  id         Int               @id @default(autoincrement())
+  name       String
+  cost       Int
+  price      Int
+  quantity   Int               @default(0)
+  img        String            @default("noIMGFile")
+  status     String            @default("use")
+  desc       String?
+  authorId   Int               @default(1)
+  author     Author            @relation(fields: [authorId], references: [id])
+  categories ProductCategory[]
+  cartItems  ProductOnCart[]
+  orderItems ProductOnOrder[]
+}
+
+model Category {
+  id       Int               @id @default(autoincrement())
+  name     String
+  products ProductCategory[]
+}
+
+model ProductCategory {
+  productId  Int
+  categoryId Int
+  product    Product  @relation(fields: [productId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  @@id([productId, categoryId])
+}
+
+model Author {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[]
+}
+
+model ProductOnCart {
+  userId    Int
+  productId Int
+  quantity  Int     @default(0)
+  user      User    @relation(fields: [userId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@id([userId, productId])
+}
+
+model Order {
+  id         Int              @id @default(autoincrement())
+  userId     Int
+  orderTotal Int
+  status     String           @default("To be paid")
+  address    String
+  orderDate  DateTime
+  user       User             @relation(fields: [userId], references: [id])
+  orderItems ProductOnOrder[]
+}
+
+model ProductOnOrder {
+  orderId   Int
+  productId Int
+  quantity  Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@id([orderId, productId])
 }
