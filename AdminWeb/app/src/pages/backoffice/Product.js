@@ -5,6 +5,9 @@ import Swal from 'sweetalert2';
 import axios from 'axios';
 import config from '../../config';
 
+import Select from '@oshq/react-select';
+import '@oshq/react-select/index.css';
+
 axios.interceptors.response.use(
     response => response,  // Return the response normally if successful
     error => {
@@ -33,6 +36,19 @@ function Product() {
 
     const [isNewAuthor, setIsNewAuthor] = useState(null); //for new author adding status holder
     const [authors, setAuthors] = useState([]); //fetched author data
+
+    const [selected, setSelected] = useState(undefined);
+    const options = [
+        { label: "Option 1", value: "option1" },
+        { label: "Option 2", value: "option2" },
+        { label: "Option 3", value: "option3" },
+        { label: "Option 4", value: "option4" },
+        { label: "Option 5", value: "option5" },
+        // Add more options here
+    ];
+    const handleChange = (selected) => {
+        console.log("Selected options:", selected);
+    };
 
     const [errorForm, setErrorForm] = useState({
         name: '',
@@ -81,7 +97,7 @@ function Product() {
             if (isNewAuthor && !product.author) errorListInFront.push('author');
 
             if (errorListInFront.length > 0) throw new Error("410");
-           
+
             if (isNewAuthor) {
                 const newAuthor = await axios.post(config.apiPath + '/product/createAuthor/', product, config.headers());
                 product.authorId = parseInt(newAuthor.data.authorId);
@@ -345,7 +361,7 @@ function Product() {
             </div>
             <div className='mt-1'>
                 <div>Description</div>
-                <input className={`form-control`} type='text' value={product.desc} onChange={e => setProduct({ ...product, desc: e.target.value })} />
+                <textarea id="message" rows="3" className="form-control" placeholder="type some details of the product" value={product.desc} onChange={e => setProduct({ ...product, desc: e.target.value })} />
             </div>
             <div className='mt-1'>
                 <div>Author</div>
@@ -358,6 +374,21 @@ function Product() {
                         <div>New Author Name</div>
                         <input className={`form-control ${errorForm['author'] && isNewAuthor ? 'border border-danger rounded' : ''}`} type='text' value={product.author} onChange={e => setProduct({ ...product, author: e.target.value })} onKeyDown={() => clearErrorBorder('author')} />
                     </div>}
+            </div>
+            <div className='mt-1'>
+                <div>Category</div>
+                <Select
+                    value={selected}
+                    multiple={true}
+                    searchable={true}
+                    creatable={true}
+                    createLabel='Add new category'
+                    placeholder="Select category"
+                    onChange={(_, val) => {
+                        setSelected(val);
+                    }}
+                    options={async () => options}
+                />
             </div>
             <div className='mt-1'>
                 <div>Cost</div>
