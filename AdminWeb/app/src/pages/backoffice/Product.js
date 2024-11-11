@@ -34,10 +34,10 @@ function Product() {
     const [product, setProduct] = useState({}); //for new product adding holder
     const [products, setProducts] = useState([]); //fetched product data
 
-    const [isNewAuthor, setIsNewAuthor] = useState(null); //for new author adding status holder
+    const [isNewAuthor, setIsNewAuthor] = useState(false); //for new author adding status holder
     const [authors, setAuthors] = useState([]); //fetched author data
 
-    const [selected, setSelected] = useState(undefined);
+    const [selectedAuthor, setSelectedAuthor] = useState(1);
     const options = [
         { label: "Option 1", value: "option1" },
         { label: "Option 2", value: "option2" },
@@ -46,9 +46,6 @@ function Product() {
         { label: "Option 5", value: "option5" },
         // Add more options here
     ];
-    const handleChange = (selected) => {
-        console.log("Selected options:", selected);
-    };
 
     const [errorForm, setErrorForm] = useState({
         name: '',
@@ -61,7 +58,7 @@ function Product() {
     const refImg = useRef();
     const refExcel = useRef();
 
-    const [isEdit, setIsEdit] = useState(''); //for Product modal text display
+    const [isEdit, setIsEdit] = useState(false); //for Product modal text display
 
     useEffect(() => {
         fetchData();
@@ -94,15 +91,15 @@ function Product() {
             if (!product.name) errorListInFront.push('name');
             if (!product.cost || product.cost < 0) errorListInFront.push('cost');
             if (!product.price || product.price < 0) errorListInFront.push('price');
-            if (isNewAuthor && !product.author) errorListInFront.push('author');
+            if (!selectedAuthor) errorListInFront.push('author');
 
             if (errorListInFront.length > 0) throw new Error("410");
 
             if (isNewAuthor) {
-                const newAuthor = await axios.post(config.apiPath + '/product/createAuthor/', product, config.headers());
+                const newAuthor = await axios.post(config.apiPath + '/product/createAuthor/', { name: selectedAuthor }, config.headers());
                 product.authorId = parseInt(newAuthor.data.authorId);
             } else {
-                product.authorId = parseInt(product.author);
+                product.authorId = parseInt(selectedAuthor);
             }
             product.cost = parseInt(product.cost);
             product.price = parseInt(product.price);
@@ -285,7 +282,8 @@ function Product() {
     const clearForm = () => {
         setImg(null);
         refImg.current.value = '';
-        setIsNewAuthor(null);
+        setSelectedAuthor(1);
+        setIsNewAuthor(false);
         setProduct({
             name: '',
             cost: '',
@@ -296,35 +294,22 @@ function Product() {
         })
     }
 
-    const handleSelectedAuthor = (name) => {
-        if (name === 'Add new author') {
-            clearErrorBorder('author');
-            setProduct({ ...product, authorId: '' });
-            setProduct({ ...product, author: '' });
-            setIsNewAuthor('yes');
-        } else {
-            setIsNewAuthor(null);
-            setProduct({ ...product, authorId: name });
-            setProduct({ ...product, author: name })
-        }
-    }
-
     return <BackOffice>
         <div className='h5' style={{ fontWeight: 'bold' }}>Product</div>
-        <button onClick={() => { clearForm(); clearErrorForm(); setIsEdit('') }} className='btn btn-primary mr-2 font-weight-bold' data-toggle='modal' data-target='#modalProduct'>
-            <i className='fa fa-plus-circle mr-2' aria-hidden="true"></i> Add
+        <button onClick={() => { clearForm(); clearErrorForm(); setIsEdit(false) }} className='btn btn-primary mr-2 font-weight-bold' data-toggle='modal' data-target='#modalProduct'>
+            <i className='fa fa-plus-circle mr-2' aria-hidden="true"></i> Add Product
         </button>
         <button onClick={clearFormExcel} className='btn btn-outline-success' data-toggle='modal' data-target='#modalSheet'>
             <i className='fa fa-arrow-down mr-2'></i>Import products from sheet
         </button>
-
-        <table className='mt-3 table table-bordered table-striped'>
-            <thead>
+        <table className='mt-3 table table-bordered table-striped table-hover table-head-fixed'>
+            <thead className='table-light'>
                 <tr>
                     <th width='150px'>Cover</th>
                     <th>Name</th>
                     <th width='150px'>Description</th>
                     <th>Author</th>
+                    <th>Categories</th>
                     <th width='75px' className='text-right'>Cost</th>
                     <th width='75px' className='text-right'>Price</th>
                     <th width='80px' className='text-right'>Quantity</th>
@@ -335,14 +320,15 @@ function Product() {
                 {products.length > 0 ? products.map(item =>
                     <tr key={item.id}>
                         <td>{showImage(item)}</td>
-                        <td>{item.name}</td>
-                        <td>{item.desc}</td>
-                        <td>{item.author}</td>
+                        <td><div className='text-truncate' style={{ maxWidth: '150px' }}>{item.name}</div></td>
+                        <td><div className='text-truncate' style={{ maxWidth: '150px' }}>{item.desc}</div></td>
+                        <td><div className='text-truncate' style={{ maxWidth: '150px' }}>{item.author}</div></td>
+                        <td>{"spare category"}</td>
                         <td className='text-right'>{item.cost}</td>
                         <td className='text-right'>{item.price}</td>
                         <td className='text-right'>{item.quantity}</td>
                         <td className='text-center'>
-                            <button className='btn btn-primary mr-2' style={{ width: '40px', height: '40px' }} data-toggle='modal' data-target='#modalProduct' onClick={() => { clearForm(); clearErrorForm(); setIsEdit('edit'); setProduct(item) }}>
+                            <button className='btn btn-primary mr-2' style={{ width: '40px', height: '40px' }} data-toggle='modal' data-target='#modalProduct' onClick={() => { clearForm(); clearErrorForm(); setIsEdit(true); setProduct(item); setSelectedAuthor(item.authorId) }}>
                                 <i className='ion-edit' style={{ fontSize: '15px' }}></i> {/*Edit button*/}
                             </button>
                             <button className='btn btn-danger' style={{ width: '40px', height: '40px' }} onClick={() => handleRemove(item)}>
@@ -365,30 +351,37 @@ function Product() {
             </div>
             <div className='mt-1'>
                 <div>Author</div>
-                <select className={`form-control`} value={isNewAuthor ? 'Add new author' : product.author} onChange={e => handleSelectedAuthor(e.target.value)}>
-                    {authors.map(item => <option value={item.id}>{item.id + ': ' + item.name}</option>)}
-                    <option value={'Add new author'}>Add new author</option>
-                </select>
-                {isNewAuthor !== null &&
-                    <div className='mt-1'>
-                        <div>New Author Name</div>
-                        <input className={`form-control ${errorForm['author'] && isNewAuthor ? 'border border-danger rounded' : ''}`} type='text' value={product.author} onChange={e => setProduct({ ...product, author: e.target.value })} onKeyDown={() => clearErrorBorder('author')} />
-                    </div>}
+                <Select
+                    value={selectedAuthor}
+                    searchable={true}
+                    creatable={true}
+                    showclear={true}
+                    createLabel='Add new author'
+                    placeholder="Select author"
+                    options={async () => authors.map(item => { return { label: item.name, value: item.id } })}
+                    onChange={(_, val) => {
+                        if (!val || typeof (val) === 'object') val = 1;
+                        typeof (val) === 'string' ? setIsNewAuthor(true) : setIsNewAuthor(false);
+                        setSelectedAuthor(val);
+                    }}
+                    className={"form-control"}
+                />
             </div>
             <div className='mt-1'>
                 <div>Category</div>
-                <Select
+                {/* <Select
                     value={selected}
                     multiple={true}
                     searchable={true}
                     creatable={true}
+                    showclear={true}
                     createLabel='Add new category'
                     placeholder="Select category"
                     onChange={(_, val) => {
                         setSelected(val);
                     }}
                     options={async () => options}
-                />
+                /> */}
             </div>
             <div className='mt-1'>
                 <div>Cost</div>
@@ -399,7 +392,11 @@ function Product() {
                 <input className={`form-control ${errorForm['price'] ? 'border border-danger rounded' : ''}`} type='number' value={product.price} placeholder="Enter positive integer only" min={0} onChange={e => setProduct({ ...product, price: e.target.value })} onKeyDown={() => clearErrorBorder('price')} />
             </div>
             <div className='mt-1'>
-                <div>Cover</div>
+                <div>Quantity</div>
+                {/* <input className={`form-control ${errorForm['price'] ? 'border border-danger rounded' : ''}`} type='number' value={product.price} placeholder="Enter positive integer only" min={0} onChange={e => setProduct({ ...product, price: e.target.value })} onKeyDown={() => clearErrorBorder('price')} /> */}
+            </div>
+            <div className='mt-1'>
+                <div>Cover image</div>
                 <input type='file' ref={refImg} onChange={e => selectedFile(e.target.files)} />
                 <div className='mt-2'>{showImage(product)}</div>
             </div>

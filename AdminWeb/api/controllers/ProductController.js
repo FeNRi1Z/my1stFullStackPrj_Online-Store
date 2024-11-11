@@ -19,9 +19,10 @@ app.post('/create', checkSignIn, async (req, res) => {
         if (!req.body.name) errorList.push('name');
         if (!req.body.cost || req.body.cost < 0) errorList.push('cost');
         if (!req.body.price || req.body.price < 0) errorList.push('price');
+        if (!req.body.authorId) errorListInFront.push('author');
 
         if (errorList.length > 0) return res.status(410).send({ errorList: errorList });
-        console.log(req.body);
+        
         await prisma.product.create({
             data: {
                 name: req.body.name,
@@ -65,48 +66,17 @@ app.get('/list', checkSignIn, async (req, res) => {
     }
 })
 
-app.get('/authors', checkSignIn, async (req, res) => {
-    try {
-        const data = await prisma.author.findMany({
-            orderBy: {
-                id: 'asc'
-            }
-        })
-
-        res.send({ results: data });
-    } catch (e) {
-        res.status(500).send({ error: e.message });
-    }
-})
-
-app.post('/createAuthor', checkSignIn, async (req, res) => {
-    try {
-        const errorList = [];
-        if (!req.body.author) errorList.push('author');
-        if (errorList.length !== 0) return res.status(410).send({ errorList: errorList });
-
-        const result = await prisma.author.create({
-            data: { name: req.body.author }
-        });
-
-        res.send({
-            message: 'success',
-            authorId: result.id
-        });
-    } catch (e) {
-        res.status(500).send({ error: e.message });
-    }
-})
-
 app.put('/update', checkSignIn, async (req, res) => {
     try {
         const errorList = [];
         if (!req.body.name) errorList.push('name');
         if (!req.body.cost || req.body.cost < 0) errorList.push('cost');
         if (!req.body.price || req.body.price < 0) errorList.push('price');
+        if (!selectedAuthor) errorListInFront.push('author');
+
         if (errorList.length !== 0) return res.status(410).send({ errorList: errorList });
 
-        //delete old product image
+        // Delete old product image
         const fs = require('fs');
         const oldData = await prisma.product.findFirst({
             where: {
@@ -115,20 +85,12 @@ app.put('/update', checkSignIn, async (req, res) => {
         });
         if (oldData.img !== "noIMGFile") {
             if (fs.existsSync('./uploads/product_img/' + oldData.img)) {
-                await fs.unlinkSync('./uploads/product_img/' + oldData.img); //Delete old file
+                await fs.unlinkSync('./uploads/product_img/' + oldData.img); // Delete old file
             }
         }
 
         await prisma.product.update({
-            data: {
-                name: req.body.name,
-                cost: req.body.cost,
-                price: req.body.price,
-                img: req.body.img,
-                authorId: req.body.authorId,
-                desc: req.body.desc,
-                quantity: req.body.quantity
-            },
+            data: req.body,
             where: {
                 id: parseInt(req.body.id)
             }
@@ -156,6 +118,41 @@ app.delete('/remove/:id', checkSignIn, async (req, res) => {
         res.status(500).send({ error: e.message });
     }
 })
+
+app.get('/authors', checkSignIn, async (req, res) => {
+    try {
+        const data = await prisma.author.findMany({
+            orderBy: {
+                id: 'asc'
+            }
+        })
+
+        res.send({ results: data });
+    } catch (e) {
+        res.status(500).send({ error: e.message });
+    }
+})
+
+app.post('/createAuthor', checkSignIn, async (req, res) => {
+    try {
+        const errorList = [];
+        if (!req.body) errorList.push('author');
+        if (errorList.length !== 0) return res.status(410).send({ errorList: errorList });
+        console.log(req.body);
+        const result = await prisma.author.create({
+            data: { name: req.body.name }
+        });
+
+        res.send({
+            message: 'success',
+            authorId: result.id
+        });
+    } catch (e) {
+        res.status(500).send({ error: e.message });
+    }
+})
+
+
 
 app.post('/upload', checkSignIn, async (req, res) => {
     try {
