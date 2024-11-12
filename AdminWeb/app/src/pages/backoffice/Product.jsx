@@ -6,7 +6,7 @@ import axios from 'axios';
 import config from '../../config';
 
 import { Select, Input } from 'antd';
-const {TextArea} = Input;
+const { TextArea } = Input;
 
 axios.interceptors.response.use(
     response => response,  // Return the response normally if successful
@@ -38,24 +38,20 @@ function Product() {
     const [selectedAuthor, setSelectedAuthor] = useState(); //for author selection
     const [isNewAuthor, setIsNewAuthor] = useState(false); //for new author adding status holder
 
-    const options = [
-        { label: "Option 1", value: "option1" },
-        { label: "Option 2", value: "option2" },
-        { label: "Option 3", value: "option3" },
-        { label: "Option 4", value: "option4" },
-        { label: "Option 5", value: "option5" },
-        // Add more options here
-    ];
+    const [categories, setCategories] = useState([]); //fetched category data
+    const [selectedCategory, setSelectedCategory] = useState([]); //for category selection
+    const [isNewCategory, setIsNewCategory] = useState(false); //for new category adding status holder
 
     const [errorForm, setErrorForm] = useState({
         name: '',
         cost: '',
         price: '',
-        author: ''
+        author: '',
+        quantity: '',
     });
     const [img, setImg] = useState({}); //file upload
-    const [fileExcel, setFileExcel] = useState({}); //excel upload
     const refImg = useRef();
+    const [fileExcel, setFileExcel] = useState({}); //excel upload
     const refExcel = useRef();
 
     const [isEdit, setIsEdit] = useState(false); //for Product modal text display
@@ -76,11 +72,17 @@ function Product() {
                 setAuthors(authorsList.data.results);
             }
 
+            const categoriesList = await axios.get(config.apiPath + '/product/categories/', config.headers());
+            if (categoriesList.data.results !== undefined) {
+                setCategories(categoriesList.data.results);
+            }
+
         } catch (e) {
             Swal.fire({
                 title: 'Error!',
                 text: e.message,
-                icon: 'error'
+                icon: 'error',
+                confirmButtonColor: '#dc3545'
             });
         }
     }
@@ -102,8 +104,10 @@ function Product() {
             } else {
                 product.authorId = parseInt(selectedAuthor);
             }
+
             product.cost = parseInt(product.cost);
             product.price = parseInt(product.price);
+            product.quantity = parseInt(product.quantity);
             product.img = await handleUpload();
 
             let result;
@@ -116,7 +120,7 @@ function Product() {
             if (result.data.message === 'success') {
                 Swal.fire({
                     title: 'Add product',
-                    text: product.id ? 'Product saved successfully' : 'Product added successfully',
+                    text: isEdit ? 'Product saved successfully' : 'Product added successfully',
                     icon: 'success',
                     timer: 2000 //2 sec.
                 });
@@ -150,7 +154,8 @@ function Product() {
                 Swal.fire({
                     title: 'Error!',
                     text: e.message,
-                    icon: 'error'
+                    icon: 'error',
+                    confirmButtonColor: '#dc3545'
                 });
             }
         }
@@ -185,7 +190,8 @@ function Product() {
             Swal.fire({
                 title: 'Error!',
                 text: e.message,
-                icon: 'error'
+                icon: 'error',
+                confirmButtonColor: '#dc3545'
             });
         }
     }
@@ -216,7 +222,8 @@ function Product() {
             Swal.fire({
                 title: 'Error',
                 text: e.message,
-                icon: 'error'
+                icon: 'error',
+                confirmButtonColor: '#dc3545'
             })
             return "noIMGFile";
         }
@@ -254,7 +261,8 @@ function Product() {
             Swal.fire({
                 title: 'Error',
                 text: e.message,
-                icon: 'error'
+                icon: 'error',
+                confirmButtonColor: '#dc3545'
             })
         }
     }
@@ -282,7 +290,8 @@ function Product() {
             cost: '',
             price: '',
             author: '',
-            quantity: ''
+            quantity: '',
+            category: ''
         });
     }
 
@@ -291,6 +300,8 @@ function Product() {
         refImg.current.value = '';
         setSelectedAuthor();
         setIsNewAuthor(false);
+        setSelectedCategory([]);
+        setIsNewCategory(false);
         setProduct({
             name: '',
             cost: '',
@@ -305,6 +316,15 @@ function Product() {
     const onSelectedAuthorChange = (author) => {
         setSelectedAuthor(author[0]);
         typeof (author[0]) === 'string' ? setIsNewAuthor(true) : setIsNewAuthor(false);
+    }
+
+    const onSelectedCategoryChange = (category) => {
+        setSelectedCategory((prev) => {
+            if (!prev.includes(category[0])) {
+                return [...prev, category[0]];
+            }
+        });
+        typeof (category[0]) === 'string' ? setIsNewCategory(true) : setIsNewCategory(false);
     }
 
     return <BackOffice>
@@ -366,9 +386,8 @@ function Product() {
                 {/* <button className='btn btn-primary size-5' onClick={() => console.log(selectedAuthor, typeof (selectedAuthor), isNewAuthor)}></button> */}
                 <div>Author</div>
                 <Select
-                    style={{
-                        width: '100%'
-                    }}
+                    key={selectedAuthor}
+                    className='w-100'
                     mode='tags'
                     status={errorForm['author'] ? 'error' : ''}
                     maxCount={1}
@@ -383,33 +402,65 @@ function Product() {
                 />
             </div>
             <div className='mt-1'>
+                <button className='btn btn-primary size-5' onClick={() => console.log(selectedCategory, typeof (selectedCategory), isNewCategory)}></button>
                 <div>Category</div>
                 {/* <Select
-                    value={selected}
-                    multiple={true}
-                    searchable={true}
-                    creatable={true}
-                    showclear={true}
-                    createLabel='Add new category'
-                    placeholder="Select category"
-                    onChange={(_, val) => {
-                        setSelected(val);
-                    }}
-                    options={async () => options}
+                    key={selectedCategory}
+                    className='w-100'
+                    mode='tags'
+                    status={errorForm['category'] ? 'error' : ''}
+                    value={selectedCategory}
+                    allowClear={true}
+                    placeholder="Select categories"
+                    showSearch={true}
+                    optionFilterProp="label"
+                    options={categories.map(item => { return { label: item.name, value: item.id } })}
+                    onChange={onSelectedCategoryChange}
+                    onFocus={() => clearErrorBorder('category')}
                 /> */}
             </div>
-            <div className='mt-1'>
-                <div>Cost</div>
-                <Input status={errorForm['cost'] ? 'error' : ''} allowClear type='number' value={product.cost} placeholder="Enter positive integer only" min={0} onChange={e => setProduct({ ...product, cost: e.target.value })} onKeyDown={() => clearErrorBorder('cost')} />
+            <div className='row mt-1'>
+                <div className='col-md-4'>
+                    <div>Cost</div>
+                    <Input
+                        status={errorForm['cost'] ? 'error' : ''}
+                        allowClear
+                        type='number'
+                        value={product.cost}
+                        placeholder="Enter positive integer only"
+                        min={0}
+                        onChange={e => setProduct({ ...product, cost: e.target.value })}
+                        onKeyDown={() => clearErrorBorder('cost')}
+                    />
+                </div>
+                <div className='col-md-4'>
+                    <div>Price</div>
+                    <Input
+                        status={errorForm['price'] ? 'error' : ''}
+                        allowClear
+                        type='number'
+                        value={product.price}
+                        placeholder="Enter positive integer only"
+                        min={0}
+                        onChange={e => setProduct({ ...product, price: e.target.value })}
+                        onKeyDown={() => clearErrorBorder('price')}
+                    />
+                </div>
+                <div className='col-md-4'>
+                    <div>Quantity</div>
+                    <Input
+                        status={errorForm['quantity'] ? 'error' : ''}
+                        allowClear
+                        type='number'
+                        value={product.quantity}
+                        placeholder="Enter positive integer only"
+                        min={0}
+                        onChange={e => setProduct({ ...product, quantity: e.target.value })}
+                        onKeyDown={() => clearErrorBorder('quantity')}
+                    />
+                </div>
             </div>
-            <div className='mt-1'>
-                <div>Price</div>
-                <Input status={errorForm['price'] ? 'error' : ''} allowClear type='number' value={product.price} placeholder="Enter positive integer only" min={0} onChange={e => setProduct({ ...product, price: e.target.value })} onKeyDown={() => clearErrorBorder('price')} />
-            </div>
-            <div className='mt-1'>
-                <div>Quantity</div>
-                <Input status={errorForm['quantity'] ? 'error' : ''} allowClear type='number' value={product.quantity} placeholder="Enter positive integer only" min={0} onChange={e => setProduct({ ...product, quantity: e.target.value })} onKeyDown={() => clearErrorBorder('quantity')} />
-            </div>
+
             <div className='mt-1'>
                 <div>Cover image</div>
                 <input type='file' ref={refImg} onChange={e => selectedFile(e.target.files)} />
