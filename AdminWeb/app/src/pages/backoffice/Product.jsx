@@ -5,8 +5,8 @@ import Swal from 'sweetalert2';
 import axios from 'axios';
 import config from '../../config';
 
-import Select from '@oshq/react-select';
-import '@oshq/react-select/index.css';
+import { Select, Input } from 'antd';
+const {TextArea} = Input;
 
 axios.interceptors.response.use(
     response => response,  // Return the response normally if successful
@@ -34,10 +34,10 @@ function Product() {
     const [product, setProduct] = useState({}); //for new product adding holder
     const [products, setProducts] = useState([]); //fetched product data
 
-    const [isNewAuthor, setIsNewAuthor] = useState(false); //for new author adding status holder
     const [authors, setAuthors] = useState([]); //fetched author data
+    const [selectedAuthor, setSelectedAuthor] = useState(); //for author selection
+    const [isNewAuthor, setIsNewAuthor] = useState(false); //for new author adding status holder
 
-    const [selectedAuthor, setSelectedAuthor] = useState(1);
     const options = [
         { label: "Option 1", value: "option1" },
         { label: "Option 2", value: "option2" },
@@ -91,8 +91,9 @@ function Product() {
             if (!product.name) errorListInFront.push('name');
             if (!product.cost || product.cost < 0) errorListInFront.push('cost');
             if (!product.price || product.price < 0) errorListInFront.push('price');
-            if (!selectedAuthor) errorListInFront.push('author');
-
+            if (!product.quantity || product.quantity < 0) errorListInFront.push('quantity');
+            if (selectedAuthor === undefined) errorListInFront.push('author');
+            console.log("errorList: " + errorListInFront);
             if (errorListInFront.length > 0) throw new Error("410");
 
             if (isNewAuthor) {
@@ -132,12 +133,17 @@ function Product() {
                 }
                 if (errorList.includes('cost')) {
                     setProduct((prev) => ({
-                        ...prev, 'cost': NaN
+                        ...prev, cost: NaN
                     }));
                 }
                 if (errorList.includes('price')) {
                     setProduct((prev) => ({
-                        ...prev, 'price': NaN
+                        ...prev, price: NaN
+                    }));
+                }
+                if (errorList.includes('quantity')) {
+                    setProduct((prev) => ({
+                        ...prev, quantity: NaN
                     }));
                 }
             } else {
@@ -275,14 +281,15 @@ function Product() {
             name: '',
             cost: '',
             price: '',
-            author: ''
+            author: '',
+            quantity: ''
         });
     }
 
     const clearForm = () => {
         setImg(null);
         refImg.current.value = '';
-        setSelectedAuthor(1);
+        setSelectedAuthor();
         setIsNewAuthor(false);
         setProduct({
             name: '',
@@ -290,8 +297,14 @@ function Product() {
             price: '',
             desc: '',
             author: '',
-            authorId: ''
+            authorId: '',
+            quantity: ''
         })
+    }
+
+    const onSelectedAuthorChange = (author) => {
+        setSelectedAuthor(author[0]);
+        typeof (author[0]) === 'string' ? setIsNewAuthor(true) : setIsNewAuthor(false);
     }
 
     return <BackOffice>
@@ -302,7 +315,7 @@ function Product() {
         <button onClick={clearFormExcel} className='btn btn-outline-success' data-toggle='modal' data-target='#modalSheet'>
             <i className='fa fa-arrow-down mr-2'></i>Import products from sheet
         </button>
-        <table className='mt-3 table table-bordered table-striped table-hover table-head-fixed'>
+        <table className='mt-3 table table-responsive-sm table-bordered table-striped table-hover table-head-fixed'>
             <thead className='table-light'>
                 <tr>
                     <th width='150px'>Cover</th>
@@ -343,28 +356,30 @@ function Product() {
         <MyModal id='modalProduct' title={`${isEdit ? 'Edit Product' : 'Add Product'}`}>
             <div>
                 <div>Name</div>
-                <input className={`form-control ${errorForm['name'] ? 'border border-danger rounded' : ''}`} type='text' value={product.name} onChange={e => setProduct({ ...product, name: e.target.value })} onKeyDown={() => clearErrorBorder('name')} />
+                <Input status={errorForm['name'] ? 'error' : ''} allowClear type='text' value={product.name} onChange={e => setProduct({ ...product, name: e.target.value })} onKeyDown={() => clearErrorBorder('name')} />
             </div>
             <div className='mt-1'>
                 <div>Description</div>
-                <textarea id="message" rows="3" className="form-control" placeholder="type some details of the product" value={product.desc} onChange={e => setProduct({ ...product, desc: e.target.value })} />
+                <TextArea rows={3} allowClear placeholder="type some details of the product" value={product.desc} onChange={e => setProduct({ ...product, desc: e.target.value })} />
             </div>
             <div className='mt-1'>
+                {/* <button className='btn btn-primary size-5' onClick={() => console.log(selectedAuthor, typeof (selectedAuthor), isNewAuthor)}></button> */}
                 <div>Author</div>
                 <Select
-                    value={selectedAuthor}
-                    searchable={true}
-                    creatable={true}
-                    showclear={true}
-                    createLabel='Add new author'
-                    placeholder="Select author"
-                    options={async () => authors.map(item => { return { label: item.name, value: item.id } })}
-                    onChange={(_, val) => {
-                        if (!val || typeof (val) === 'object') val = 1;
-                        typeof (val) === 'string' ? setIsNewAuthor(true) : setIsNewAuthor(false);
-                        setSelectedAuthor(val);
+                    style={{
+                        width: '100%'
                     }}
-                    className={"form-control"}
+                    mode='tags'
+                    status={errorForm['author'] ? 'error' : ''}
+                    maxCount={1}
+                    value={selectedAuthor}
+                    allowClear={true}
+                    placeholder="Select author"
+                    showSearch={true}
+                    optionFilterProp="label"
+                    options={authors.map(item => { return { label: item.name, value: item.id } })}
+                    onChange={onSelectedAuthorChange}
+                    onFocus={() => clearErrorBorder('author')}
                 />
             </div>
             <div className='mt-1'>
@@ -385,15 +400,15 @@ function Product() {
             </div>
             <div className='mt-1'>
                 <div>Cost</div>
-                <input className={`form-control ${errorForm['cost'] ? 'border border-danger rounded' : ''}`} type='number' value={product.cost} placeholder="Enter positive integer only" min={0} onChange={e => setProduct({ ...product, cost: e.target.value })} onKeyDown={() => clearErrorBorder('cost')} />
+                <Input status={errorForm['cost'] ? 'error' : ''} allowClear type='number' value={product.cost} placeholder="Enter positive integer only" min={0} onChange={e => setProduct({ ...product, cost: e.target.value })} onKeyDown={() => clearErrorBorder('cost')} />
             </div>
             <div className='mt-1'>
                 <div>Price</div>
-                <input className={`form-control ${errorForm['price'] ? 'border border-danger rounded' : ''}`} type='number' value={product.price} placeholder="Enter positive integer only" min={0} onChange={e => setProduct({ ...product, price: e.target.value })} onKeyDown={() => clearErrorBorder('price')} />
+                <Input status={errorForm['price'] ? 'error' : ''} allowClear type='number' value={product.price} placeholder="Enter positive integer only" min={0} onChange={e => setProduct({ ...product, price: e.target.value })} onKeyDown={() => clearErrorBorder('price')} />
             </div>
             <div className='mt-1'>
                 <div>Quantity</div>
-                {/* <input className={`form-control ${errorForm['price'] ? 'border border-danger rounded' : ''}`} type='number' value={product.price} placeholder="Enter positive integer only" min={0} onChange={e => setProduct({ ...product, price: e.target.value })} onKeyDown={() => clearErrorBorder('price')} /> */}
+                <Input status={errorForm['quantity'] ? 'error' : ''} allowClear type='number' value={product.quantity} placeholder="Enter positive integer only" min={0} onChange={e => setProduct({ ...product, quantity: e.target.value })} onKeyDown={() => clearErrorBorder('quantity')} />
             </div>
             <div className='mt-1'>
                 <div>Cover image</div>
