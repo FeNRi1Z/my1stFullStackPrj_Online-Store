@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 import axios from 'axios';
 import config from '../../config';
 
-import { Select, Input } from 'antd';
+import { Select, Input, Tag, Flex } from 'antd';
 const { TextArea } = Input;
 
 axios.interceptors.response.use(
@@ -39,7 +39,7 @@ function Product() {
     const [isNewAuthor, setIsNewAuthor] = useState(false); //for new author adding status holder
 
     const [categories, setCategories] = useState([]); //fetched category data
-    const [selectedCategory, setSelectedCategory] = useState([]); //for category selection
+    const [selectedCategory, setSelectedCategory] = useState(); //for category selection
     const [isNewCategory, setIsNewCategory] = useState(false); //for new category adding status holder
 
     const [errorForm, setErrorForm] = useState({
@@ -48,6 +48,7 @@ function Product() {
         price: '',
         author: '',
         quantity: '',
+        category: ''
     });
     const [img, setImg] = useState({}); //file upload
     const refImg = useRef();
@@ -91,10 +92,11 @@ function Product() {
     const handleSave = async () => {
         try {
             if (!product.name) errorListInFront.push('name');
+            if (selectedAuthor === undefined) errorListInFront.push('author');
+            if (selectedCategory === undefined) errorListInFront.push('category');
             if (!product.cost || product.cost < 0) errorListInFront.push('cost');
             if (!product.price || product.price < 0) errorListInFront.push('price');
             if (!product.quantity || product.quantity < 0) errorListInFront.push('quantity');
-            if (selectedAuthor === undefined) errorListInFront.push('author');
             console.log("errorList: " + errorListInFront);
             if (errorListInFront.length > 0) throw new Error("410");
 
@@ -103,6 +105,15 @@ function Product() {
                 product.authorId = parseInt(newAuthor.data.authorId);
             } else {
                 product.authorId = parseInt(selectedAuthor);
+            }
+
+            if (isNewCategory) {
+                const numbers = selectedCategory.filter(item => typeof item === 'number');
+                const strings = selectedCategory.filter(item => typeof item === 'string');
+                const newCategory = await axios.post(config.apiPath + '/product/createCategory/', { name: strings }, config.headers());
+                product.categoriesId = numbers.concat(newCategory.data.categoryId);
+            } else {
+                product.categoriesId = selectedCategory;
             }
 
             product.cost = parseInt(product.cost);
@@ -300,7 +311,7 @@ function Product() {
         refImg.current.value = '';
         setSelectedAuthor();
         setIsNewAuthor(false);
-        setSelectedCategory([]);
+        setSelectedCategory();
         setIsNewCategory(false);
         setProduct({
             name: '',
@@ -309,7 +320,8 @@ function Product() {
             desc: '',
             author: '',
             authorId: '',
-            quantity: ''
+            quantity: '',
+            categoriesName: '',
         })
     }
 
@@ -319,16 +331,12 @@ function Product() {
     }
 
     const onSelectedCategoryChange = (category) => {
-        setSelectedCategory((prev) => {
-            if (!prev.includes(category[0])) {
-                return [...prev, category[0]];
-            }
-        });
-        typeof (category[0]) === 'string' ? setIsNewCategory(true) : setIsNewCategory(false);
+        setSelectedCategory(category);
+        Object.values(category).some(value => typeof (value) === 'string') ? setIsNewCategory(true) : setIsNewCategory(false);
     }
 
     return <BackOffice>
-        <div className='h5' style={{ fontWeight: 'bold' }}>Product</div>
+        <div className='h5' style={{ fontWeight: 'bold' }}>Product Manager</div>
         <button onClick={() => { clearForm(); clearErrorForm(); setIsEdit(false) }} className='btn btn-primary mr-2 font-weight-bold' data-toggle='modal' data-target='#modalProduct'>
             <i className='fa fa-plus-circle mr-2' aria-hidden="true"></i> Add Product
         </button>
@@ -356,12 +364,12 @@ function Product() {
                         <td><div className='text-truncate' style={{ maxWidth: '150px' }}>{item.name}</div></td>
                         <td><div className='text-truncate' style={{ maxWidth: '150px' }}>{item.desc}</div></td>
                         <td><div className='text-truncate' style={{ maxWidth: '150px' }}>{item.author}</div></td>
-                        <td>{"spare category"}</td>
+                        <td><Flex wrap gap='0.01rem'>{item.categoriesName.map(tag => <Tag color='geekblue' style={{ color: 'black' }}>{tag}</Tag>)}</Flex></td>
                         <td className='text-right'>{item.cost}</td>
                         <td className='text-right'>{item.price}</td>
                         <td className='text-right'>{item.quantity}</td>
                         <td className='text-center'>
-                            <button className='btn btn-primary mr-2' style={{ width: '40px', height: '40px' }} data-toggle='modal' data-target='#modalProduct' onClick={() => { clearForm(); clearErrorForm(); setIsEdit(true); setProduct(item); setSelectedAuthor(item.authorId) }}>
+                            <button className='btn btn-primary mr-2' style={{ width: '40px', height: '40px' }} data-toggle='modal' data-target='#modalProduct' onClick={() => { clearForm(); clearErrorForm(); setIsEdit(true); setProduct(item); setSelectedAuthor(item.authorId); setSelectedCategory(item.categories) }}>
                                 <i className='ion-edit' style={{ fontSize: '15px' }}></i> {/*Edit button*/}
                             </button>
                             <button className='btn btn-danger' style={{ width: '40px', height: '40px' }} onClick={() => handleRemove(item)}>
@@ -402,22 +410,22 @@ function Product() {
                 />
             </div>
             <div className='mt-1'>
-                <button className='btn btn-primary size-5' onClick={() => console.log(selectedCategory, typeof (selectedCategory), isNewCategory)}></button>
+                {/* <button className='btn btn-primary size-5' onClick={() => console.log(selectedCategory, typeof (selectedCategory), isNewCategory)}></button> */}
                 <div>Category</div>
-                {/* <Select
+                <Select
                     key={selectedCategory}
                     className='w-100'
                     mode='tags'
                     status={errorForm['category'] ? 'error' : ''}
                     value={selectedCategory}
                     allowClear={true}
-                    placeholder="Select categories"
+                    placeholder="Select category"
                     showSearch={true}
                     optionFilterProp="label"
                     options={categories.map(item => { return { label: item.name, value: item.id } })}
                     onChange={onSelectedCategoryChange}
                     onFocus={() => clearErrorBorder('category')}
-                /> */}
+                />
             </div>
             <div className='row mt-1'>
                 <div className='col-md-4'>
@@ -464,7 +472,7 @@ function Product() {
             <div className='mt-1'>
                 <div>Cover image</div>
                 <input type='file' ref={refImg} onChange={e => selectedFile(e.target.files)} />
-                <div className='mt-2'>{showImage(product)}</div>
+                {isEdit ? <div className='mt-2'>{showImage(product)}</div> : <></>}
             </div>
             <div className='mt-3'>
                 <button className='btn btn-primary font-weight-bold' onClick={handleSave}>

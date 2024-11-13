@@ -11,22 +11,23 @@ const ifIsImage = require('if-is-image');
 dotenv.config();
 
 const { checkSignIn } = require('../middleware/auth');
+const e = require('express');
 
 app.use(fileUpload());
 
 app.post('/create', checkSignIn, async (req, res) => {
     try {
-        console.log(1, req.body);
         const errorList = [];
         if (!req.body.name) errorList.push('name');
         if (!req.body.cost || req.body.cost < 0) errorList.push('cost');
         if (!req.body.price || req.body.price < 0) errorList.push('price');
         if (!req.body.quantity || req.body.quantity < 0) errorList.push('quantity');
         if (!req.body.authorId) errorList.push('author');
-        console.log(2, errorList);
+        if (!req.body.categoriesId) errorList.push('category');
+        console.log("errorList: ", errorList);
         if (errorList.length > 0) return res.status(410).send({ errorList: errorList });
         
-        await prisma.product.create({
+        const productResult = await prisma.product.create({
             data: {
                 name: req.body.name,
                 desc: req.body.desc,
@@ -34,10 +35,17 @@ app.post('/create', checkSignIn, async (req, res) => {
                 cost: parseInt(req.body.cost),
                 price: parseInt(req.body.price),
                 quantity: parseInt(req.body.quantity) || 0,
-                img: req.body.img || 'noIMGFile', // fallback for img if needed
+                img: req.body.img || 'noIMGFile',
             }
-        });
-        console.log(3, req.body);
+        })
+
+        await prisma.productCategory.createMany({
+            data: req.body.categoriesId.map(categoryId => ({
+                productId: parseInt(productResult.id),
+                categoryId: parseInt(categoryId)
+            }))
+        })
+
         res.send({ message: 'success' });
     } catch (e) {
         if (req.body.img) {
@@ -61,16 +69,23 @@ app.get('/list', checkSignIn, async (req, res) => {
                 status: 'use'
             },
             include: {
-                author: true
+                author: true,
+                categories: {
+                    include: {
+                        category: true
+                    }
+                }
             }
-        })
+        });
 
         const results = data.map(product => ({
             ...product,
             author: product.author.name,
+            categories: product.categories.map(pc => pc.categoryId),
+            categoriesName: product.categories.map(pc => pc.category.name)
         }));
 
-        res.send({ results: results });
+        res.send({ results });
     } catch (e) {
         res.status(500).send({ error: e.message });
     }
@@ -84,7 +99,8 @@ app.put('/update', checkSignIn, async (req, res) => {
         if (!req.body.price || req.body.price < 0) errorList.push('price');
         if (!req.body.quantity || req.body.quantity < 0) errorList.push('quantity');
         if (!req.body.authorId) errorList.push('author');
-
+        if (!req.body.categoriesId) errorList.push('category');
+        console.log("errorList: ", errorList);
         if (errorList.length !== 0) return res.status(410).send({ errorList: errorList });
 
         // Delete old product image
@@ -110,12 +126,25 @@ app.put('/update', checkSignIn, async (req, res) => {
                 cost: parseInt(req.body.cost),
                 price: parseInt(req.body.price),
                 quantity: parseInt(req.body.quantity) || 0,
-                img: req.body.img || 'noIMGFile', // fallback for img if needed
+                img: req.body.img || 'noIMGFile',
             },
             where: {
                 id: parseInt(req.body.id)
             }
         });
+
+        await prisma.productCategory.deleteMany({
+            where: {
+                productId: parseInt(req.body.id)
+            }
+        })
+
+        await prisma.productCategory.createMany({
+            data: req.body.categoriesId.map(categoryId => ({
+                productId: parseInt(req.body.id),
+                categoryId: parseInt(categoryId)
+            }))
+        })
 
         res.send({ message: 'success' });
     } catch (e) {
@@ -161,7 +190,8 @@ app.post('/createAuthor', checkSignIn, async (req, res) => {
         if (errorList.length !== 0) return res.status(410).send({ errorList: errorList });
 
         const result = await prisma.author.create({
-            data: { name: req.body.name }
+            data: { name: req.body.name },
+            skipDuplicates: true,
         });
 
         res.send({
@@ -193,13 +223,15 @@ app.post('/createCategory', checkSignIn, async (req, res) => {
         if (!req.body) errorList.push('category');
         if (errorList.length !== 0) return res.status(410).send({ errorList: errorList });
 
-        const result = await prisma.category.create({
-            data: { name: req.body.name }
+        data = req.body.name.map(name => ({ name: name }));
+        const result = await prisma.category.createManyAndReturn({
+            data: data,
+            skipDuplicates: true,
         });
 
         res.send({
             message: 'success',
-            categoryId: result.id
+            categoryId: result.map(r => r.id)
         });
     } catch (e) {
         res.status(500).send({ error: e.message });
