@@ -11,7 +11,6 @@ const ifIsImage = require('if-is-image');
 dotenv.config();
 
 const { checkSignIn } = require('../middleware/auth');
-const e = require('express');
 
 app.use(fileUpload());
 
@@ -36,9 +35,10 @@ app.post('/create', checkSignIn, async (req, res) => {
                 price: parseInt(req.body.price),
                 quantity: parseInt(req.body.quantity) || 0,
                 img: req.body.img || 'noIMGFile',
-            }
+            },
         })
-
+        console.log("productResult: ", productResult);
+        
         await prisma.productCategory.createMany({
             data: req.body.categoriesId.map(categoryId => ({
                 productId: parseInt(productResult.id),
@@ -48,7 +48,7 @@ app.post('/create', checkSignIn, async (req, res) => {
 
         res.send({ message: 'success' });
     } catch (e) {
-        if (req.body.img) {
+        if (req.body.img && req.body.img !== 'noIMGFile') {
             try {
                 await fs.promises.unlink(`./uploads/product_img/${req.body.img}`);
             } catch (fileError) {

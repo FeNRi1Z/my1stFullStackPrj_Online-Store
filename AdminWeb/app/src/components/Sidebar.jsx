@@ -67,7 +67,7 @@ function Sidebar() {
                         <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User" />
                     </div>
                     <div class="info">
-                        <l class="d-block" style={{color: "white"}}>{user.name}</l>
+                        <l class="d-block" style={{ color: "white" }}>{user.name}</l>
                     </div>
                 </div>
 
@@ -75,29 +75,36 @@ function Sidebar() {
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <li class="nav-header">MENU</li>
                         <li class="nav-item">
-                            <Link to="/product" class="nav-link">
-                                <i class="nav-icon fas fa-box"></i>
+                            <Link to="/home" class="nav-link">
+                                <i class="nav-icon fa fa-dashboard mr-3"></i>
                                 <p>
-                                    Product
-                                    <span class="badge badge-info right">2</span>
+                                    Dashboard
                                 </p>
                             </Link>
                         </li>
                         <li class="nav-item">
-                            <a href="pages/gallery.html" class="nav-link">
-                                <i class="nav-icon fas fa-image"></i>
+                            <Link to="/product" class="nav-link">
+                                <i class="nav-icon fas fa-box mr-3"></i>
                                 <p>
-                                    Spare
+                                    Product Management
                                 </p>
-                            </a>
+                            </Link>
                         </li>
                         <li class="nav-item">
-                            <a href="pages/kanban.html" class="nav-link">
-                                <i class="nav-icon fas fa-columns"></i>
+                            <Link to="" class="nav-link">
+                                <i class="nav-icon fas note-icon-orderedlist mr-3"></i>
                                 <p>
-                                    Spare
+                                    Order Management
                                 </p>
-                            </a>
+                            </Link>
+                        </li>
+                        <li class="nav-item">
+                            <Link to="" class="nav-link">
+                                <i class="nav-icon fas fa-user-alt mr-3"></i>
+                                <p>
+                                    User Management
+                                </p>
+                            </Link>
                         </li>
                     </ul>
                 </nav>

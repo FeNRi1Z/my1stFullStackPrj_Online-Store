@@ -5,7 +5,11 @@ import Swal from 'sweetalert2';
 import axios from 'axios';
 import config from '../../config';
 
-import { Select, Input, Tag, Flex } from 'antd';
+import { Select, Input, Tag, Flex, Space, Table, Button, Upload, Image } from 'antd';
+import { createStyles } from 'antd-style';
+import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
+import Highlighter from 'react-highlight-words';
+
 const { TextArea } = Input;
 
 axios.interceptors.response.use(
@@ -19,20 +23,205 @@ axios.interceptors.response.use(
     }
 );
 
-function showImage(item) {
-    if (item.img !== undefined) {
-        let imgPath = config.apiPath + '/uploads/product_img/' + item.img;
+function showImage(path) {
+    if (path !== undefined) {
+        let imgPath = config.apiPath + '/uploads/product_img/' + path;
 
-        if (item.img === "noIMGFile") imgPath = 'default_img.webp';
+        if (path === "noIMGFile") imgPath = 'default_img.webp';
 
         return <img alt='' className='img-fluid' src={imgPath} />
     }
-    return <></>;
+    return <></>
 }
 
 function Product() {
     const [product, setProduct] = useState({}); //for new product adding holder
     const [products, setProducts] = useState([]); //fetched product data
+    const [searchText, setSearchText] = useState('');
+    const [searchedColumn, setSearchedColumn] = useState('');
+    const searchInput = useRef(null);
+    const handleSearch = (selectedKeys, confirm, dataIndex) => {
+        confirm();
+        setSearchText(selectedKeys[0]);
+        setSearchedColumn(dataIndex);
+    };
+    const handleReset = (clearFilters) => {
+        clearFilters();
+        setSearchText('');
+    };
+    const getColumnSearchProps = (dataIndex) => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+            <div style={{ padding: 8, }} onKeyDown={(e) => e.stopPropagation()}>
+                <Input
+                    ref={searchInput}
+                    placeholder={`Search ${dataIndex}`}
+                    value={selectedKeys[0]}
+                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+                    style={{ marginBottom: 8, display: 'block', }}
+                />
+                <Space>
+                    <Button
+                        type="primary"
+                        onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 90, }}
+                    >Search</Button>
+                    <Button
+                        onClick={() => clearFilters && handleReset(clearFilters)}
+                        size="small"
+                        style={{ width: 90, }}
+                    >Reset</Button>
+                    <Button
+                        type="link"
+                        size="small"
+                        onClick={() => { confirm({ closeDropdown: false, }); setSearchText(selectedKeys[0]); setSearchedColumn(dataIndex); }}
+                    >Filter</Button>
+                    <Button
+                        type="link"
+                        size="small"
+                        onClick={() => { close(); }}
+                    >Close</Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: (filtered) => (
+            <SearchOutlined
+                style={{
+                    color: filtered ? '#1677ff' : undefined,
+                }}
+            />
+        ),
+        onFilter: (value, record) =>
+            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+        filterDropdownProps: {
+            onOpenChange(open) {
+                if (open) setTimeout(() => searchInput.current?.select(), 100);
+            },
+        },
+        render: (text) =>
+            searchedColumn === dataIndex ? (
+                <Highlighter
+                    highlightStyle={{
+                        backgroundColor: '#ffc069',
+                        padding: 0,
+                    }}
+                    searchWords={[searchText]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ''}
+                />
+            ) : (
+                text
+            ),
+    });
+    const useStyle = createStyles(({ css, token }) => {
+        const { antCls } = token;
+        return {
+            customTable: css`
+            ${antCls}-table {
+              ${antCls}-table-container {
+                ${antCls}-table-body,
+                ${antCls}-table-content {
+                  scrollbar-width: thin;
+                  scrollbar-color: #eaeaea transparent;
+                  scrollbar-gutter: stable;
+                }
+              }
+            }
+          `,
+        };
+    });
+    const { styles } = useStyle();
+    const columns = [
+        {
+            fixed: 'left',
+            width: '100px',
+            title: 'Cover',
+            dataIndex: 'img',
+            key: 'img',
+            render: (img) => showImage(img)
+        },
+        {
+            fixed: 'left',
+            width: '100px',
+            title: 'Name',
+            dataIndex: 'name',
+            key: 'name',
+            ...getColumnSearchProps('name'),
+        },
+        {
+
+            width: '300px',
+            title: 'Description',
+            dataIndex: 'desc',
+            key: 'desc',
+            ...getColumnSearchProps('desc'),
+        },
+        {
+            width: '100px',
+            title: 'Author',
+            dataIndex: 'author',
+            key: 'author',
+            ...getColumnSearchProps('author'),
+        },
+        {
+            width: '250px',
+            title: 'Categories',
+            dataIndex: 'categoriesName',
+            key: 'categoriesName',
+            ...getColumnSearchProps('categoriesName'),
+            sorter: (a, b) => a.categoriesName.length - b.categoriesName.length,
+            sortDirections: ['descend', 'ascend'],
+            render: (tags) => <Flex wrap gap='0.01px'>
+                {tags.map((tag) => {
+                    return <Tag color={'geekblue'} key={tag} style={{ color: 'black' }}>{tag}</Tag>
+                })}</Flex>
+        },
+        {
+            width: '110px',
+            title: 'Cost',
+            dataIndex: 'cost',
+            key: 'cost',
+            ...getColumnSearchProps('cost'),
+            sorter: (a, b) => a.cost - b.cost,
+            sortDirections: ['descend', 'ascend'],
+        },
+        {
+            width: '110px',
+            title: 'Price',
+            dataIndex: 'price',
+            key: 'price',
+            ...getColumnSearchProps('price'),
+            sorter: (a, b) => a.price - b.price,
+            sortDirections: ['descend', 'ascend'],
+        },
+        {
+            width: '110px',
+            title: 'Quantity',
+            dataIndex: 'quantity',
+            key: 'quantity',
+            ...getColumnSearchProps('quantity'),
+            sorter: (a, b) => a.quantity - b.quantity,
+            sortDirections: ['descend', 'ascend'],
+        },
+        {
+            fixed: 'right',
+            width: '110px',
+            title: 'Modify',
+            dataIndex: 'id',
+            key: 'modify',
+            render: (_, record) =>
+                <div className='text-center'>
+                    <button className='btn btn-primary mr-2' style={{ width: '40px', height: '40px' }} data-toggle='modal' data-target='#modalProduct' onClick={() => { clearForm(); clearErrorForm(); setIsEdit(true); setProduct(record); setSelectedAuthor(record.authorId); setSelectedCategory(record.categories) }}>
+                        <i className='ion-edit' style={{ fontSize: '15px' }}></i>
+                    </button>
+                    <button className='btn btn-danger' style={{ width: '40px', height: '40px' }} onClick={() => handleRemove(record)}>
+                        <i className='ion-android-delete' style={{ fontSize: '18px' }}></i>
+                    </button>
+                </div>
+        }
+    ];
 
     const [authors, setAuthors] = useState([]); //fetched author data
     const [selectedAuthor, setSelectedAuthor] = useState(); //for author selection
@@ -50,8 +239,9 @@ function Product() {
         quantity: '',
         category: ''
     });
-    const [img, setImg] = useState({}); //file upload
+    const [img, setImg] = useState(); //file upload
     const refImg = useRef();
+
     const [fileExcel, setFileExcel] = useState({}); //excel upload
     const refExcel = useRef();
 
@@ -336,14 +526,17 @@ function Product() {
     }
 
     return <BackOffice>
-        <div className='h5' style={{ fontWeight: 'bold' }}>Product Manager</div>
-        <button onClick={() => { clearForm(); clearErrorForm(); setIsEdit(false) }} className='btn btn-primary mr-2 font-weight-bold' data-toggle='modal' data-target='#modalProduct'>
-            <i className='fa fa-plus-circle mr-2' aria-hidden="true"></i> Add Product
-        </button>
-        <button onClick={clearFormExcel} className='btn btn-outline-success' data-toggle='modal' data-target='#modalSheet'>
-            <i className='fa fa-arrow-down mr-2'></i>Import products from sheet
-        </button>
-        <table className='mt-3 table table-responsive-sm table-bordered table-striped table-hover table-head-fixed'>
+        <div className='mb-3'>
+            <div className='h5' style={{ fontWeight: 'bold' }}>Product Manager</div>
+            <button onClick={() => { clearForm(); clearErrorForm(); setIsEdit(false) }} className='btn btn-primary mr-2 font-weight-bold' data-toggle='modal' data-target='#modalProduct'>
+                <i className='fa fa-plus-circle mr-2' aria-hidden="true"></i> Add Product
+            </button>
+            <button onClick={clearFormExcel} className='btn btn-outline-success' data-toggle='modal' data-target='#modalSheet'>
+                <i className='fa fa-arrow-down mr-2'></i>Import products from sheet
+            </button>
+        </div>
+
+        {/* <table className='mt-3 table table-responsive-sm table-bordered table-striped table-hover table-head-fixed'>
             <thead className='table-light'>
                 <tr>
                     <th width='150px'>Cover</th>
@@ -370,16 +563,29 @@ function Product() {
                         <td className='text-right'>{item.quantity}</td>
                         <td className='text-center'>
                             <button className='btn btn-primary mr-2' style={{ width: '40px', height: '40px' }} data-toggle='modal' data-target='#modalProduct' onClick={() => { clearForm(); clearErrorForm(); setIsEdit(true); setProduct(item); setSelectedAuthor(item.authorId); setSelectedCategory(item.categories) }}>
-                                <i className='ion-edit' style={{ fontSize: '15px' }}></i> {/*Edit button*/}
+                                <i className='ion-edit' style={{ fontSize: '15px' }}></i> 
                             </button>
                             <button className='btn btn-danger' style={{ width: '40px', height: '40px' }} onClick={() => handleRemove(item)}>
-                                <i className='ion-android-delete' style={{ fontSize: '18px' }}></i> {/*Delete button*/}
+                                <i className='ion-android-delete' style={{ fontSize: '18px' }}></i> 
                             </button>
                         </td>
                     </tr>
                 ) : <></>}
             </tbody>
-        </table>
+        </table> */}
+
+        <Table className={styles.customTable} size='small' sticky bordered={true}
+            columns={columns} dataSource={products}
+            scrollToFirstRowOnChange={true}
+            scroll={{
+                x: 'max-content',
+                y: 10 * 75,
+            }}
+            pagination={{
+                pageSize: 10,
+                hideOnSinglePage: true,
+            }}
+        />
 
         <MyModal id='modalProduct' title={`${isEdit ? 'Edit Product' : 'Add Product'}`}>
             <div>
@@ -472,7 +678,7 @@ function Product() {
             <div className='mt-1'>
                 <div>Cover image</div>
                 <input type='file' ref={refImg} onChange={e => selectedFile(e.target.files)} />
-                {isEdit ? <div className='mt-2'>{showImage(product)}</div> : <></>}
+                {isEdit ? <div className='mt-2'>{showImage(product.img)}</div> : <></>}
             </div>
             <div className='mt-3'>
                 <button className='btn btn-primary font-weight-bold' onClick={handleSave}>
