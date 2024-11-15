@@ -6,7 +6,9 @@ import {
 } from 'react-router-dom';
 import SignIn from './pages/backoffice/SignIn';
 import Home from './pages/backoffice/Home';
+import Order from './pages/backoffice/Order';
 import Product from './pages/backoffice/Product';
+import User from './pages/backoffice/User';
 
 const router = createBrowserRouter([
   {
@@ -18,8 +20,16 @@ const router = createBrowserRouter([
     element: <Home />
   },
   {
+    path: '/order',
+    element: <Order />
+  },
+  {
     path: '/product',
     element: <Product />
+  },
+  {
+    path: '/user',
+    element: <User />
   }
 ]);
 

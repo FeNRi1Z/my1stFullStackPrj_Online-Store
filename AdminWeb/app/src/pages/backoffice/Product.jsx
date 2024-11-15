@@ -5,9 +5,9 @@ import Swal from 'sweetalert2';
 import axios from 'axios';
 import config from '../../config';
 
-import { Select, Input, Tag, Flex, Space, Table, Button, Upload, Image } from 'antd';
+import { Select, Input, Tag, Flex, Space, Table, Button, Image } from 'antd';
 import { createStyles } from 'antd-style';
-import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
+import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 
 const { TextArea } = Input;
@@ -23,16 +23,16 @@ axios.interceptors.response.use(
     }
 );
 
-function showImage(path) {
-    if (path !== undefined) {
-        let imgPath = config.apiPath + '/uploads/product_img/' + path;
+// function showImage(path) {
+//     if (path !== undefined) {
+//         let imgPath = config.apiPath + '/uploads/product_img/' + path;
 
-        if (path === "noIMGFile") imgPath = 'default_img.webp';
+//         if (path === "noIMGFile") imgPath = 'default_img.webp';
 
-        return <img alt='' className='img-fluid' src={imgPath} />
-    }
-    return <></>
-}
+//         return <Image height={100} width={100} src={imgPath} />
+//     }
+//     return <></>
+// }
 
 function Product() {
     const [product, setProduct] = useState({}); //for new product adding holder
@@ -140,7 +140,7 @@ function Product() {
             title: 'Cover',
             dataIndex: 'img',
             key: 'img',
-            render: (img) => showImage(img)
+            render: (img) => <Image height={100} width={100} src={config.apiPath + '/uploads/product_img/' + img} fallback='default_img.webp' />
         },
         {
             fixed: 'left',
@@ -213,7 +213,7 @@ function Product() {
             key: 'modify',
             render: (_, record) =>
                 <div className='text-center'>
-                    <button className='btn btn-primary mr-2' style={{ width: '40px', height: '40px' }} data-toggle='modal' data-target='#modalProduct' onClick={() => { clearForm(); clearErrorForm(); setIsEdit(true); setProduct(record); setSelectedAuthor(record.authorId); setSelectedCategory(record.categories) }}>
+                    <button className='btn btn-primary mr-2' style={{ width: '40px', height: '40px' }} data-toggle='modal' data-target='#modalProduct' onClick={() => { setIsEdit(true); clearErrorForm(); clearForm(); setProduct(record); setSelectedAuthor(record.authorId); setSelectedCategory(record.categories); if(record.img === 'noIMGFile') setIsRemoveIMG(true); }}>
                         <i className='ion-edit' style={{ fontSize: '15px' }}></i>
                     </button>
                     <button className='btn btn-danger' style={{ width: '40px', height: '40px' }} onClick={() => handleRemove(record)}>
@@ -246,6 +246,7 @@ function Product() {
     const refExcel = useRef();
 
     const [isEdit, setIsEdit] = useState(false); //for Product modal text display
+    const [isRemoveIMG, setIsRemoveIMG] = useState(false); //for remove image status
 
     useEffect(() => {
         fetchData();
@@ -499,6 +500,7 @@ function Product() {
     const clearForm = () => {
         setImg(null);
         refImg.current.value = '';
+        setIsRemoveIMG(false);
         setSelectedAuthor();
         setIsNewAuthor(false);
         setSelectedCategory();
@@ -528,7 +530,7 @@ function Product() {
     return <BackOffice>
         <div className='mb-3'>
             <div className='h5' style={{ fontWeight: 'bold' }}>Product Manager</div>
-            <button onClick={() => { clearForm(); clearErrorForm(); setIsEdit(false) }} className='btn btn-primary mr-2 font-weight-bold' data-toggle='modal' data-target='#modalProduct'>
+            <button onClick={() => { setIsEdit(false); clearErrorForm(); clearForm(); }} className='btn btn-primary mr-2 font-weight-bold' data-toggle='modal' data-target='#modalProduct'>
                 <i className='fa fa-plus-circle mr-2' aria-hidden="true"></i> Add Product
             </button>
             <button onClick={clearFormExcel} className='btn btn-outline-success' data-toggle='modal' data-target='#modalSheet'>
@@ -676,10 +678,20 @@ function Product() {
             </div>
 
             <div className='mt-1'>
-                <div>Cover image</div>
-                <input type='file' ref={refImg} onChange={e => selectedFile(e.target.files)} />
-                {isEdit ? <div className='mt-2'>{showImage(product.img)}</div> : <></>}
+                <div>Cover Image</div>
+                {!isEdit || isRemoveIMG ? (
+                    <input className='mt-1' type='file' ref={refImg} onChange={e => selectedFile(e.target.files)} />
+                ) : (
+                    <button ref={refImg} className='btn btn-default' onClick={() => setIsRemoveIMG(true)}>
+                        <i className='fas fa-remove'></i>
+                    </button>
+                )}
+                {isEdit && !isRemoveIMG ?
+                    <div className='d-flex justify-content-center mt-2'>
+                        <Image height={200} width={200} src={config.apiPath + '/uploads/product_img/' + product.img} fallback='default_img.webp' preview={false}/>
+                    </div> : <></>}
             </div>
+
             <div className='mt-3'>
                 <button className='btn btn-primary font-weight-bold' onClick={handleSave}>
                     {isEdit ? <><i className='fa fa-save mr-2'></i> Save</> : <><i className='fa fa-plus-circle mr-2'></i> Add</>}
