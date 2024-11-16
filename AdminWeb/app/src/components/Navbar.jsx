@@ -57,11 +57,6 @@ function Navbar() {
                         <i class="fas fa-expand-arrows-alt"></i>
                     </li>
                 </li>
-                <li class="nav-item">
-                    <li class="nav-link" data-widget="control-sidebar" data-controlsidebar-slide="true" role="button">
-                        <i class="fas fa-th-large"></i>
-                    </li>
-                </li>
             </ul>
         </nav>
     </>
