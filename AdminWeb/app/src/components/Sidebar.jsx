@@ -4,19 +4,15 @@ import Swal from "sweetalert2";
 import config from "../config";
 import { Link, useNavigate } from "react-router-dom";
 
+import { Image } from "antd";
 
 function Sidebar() {
     const [user, setUser] = useState({});
     const navigate = useNavigate();
 
-    useEffect(() => {
-        fetchData();
-    }, []);
-
     const fetchData = async () => {
         try {
             const res = await axios.get(config.apiPath + '/user/info', config.headers());
-            console.log(res);
             if (res.data.result !== undefined) {
                 setUser(res.data.result);
             }
@@ -28,6 +24,10 @@ function Sidebar() {
             })
         }
     }
+
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     const handleSignOut = async () => {
         try {
@@ -58,13 +58,13 @@ function Sidebar() {
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <a href="/home" class="brand-link">
                 <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style={{ opacity: '.8' }} />
-                <span class="brand-text font-weight-bold">Mode-Ed BackOffice</span>
+                <span class="brand-text font-weight-bold">Mod-Ed BackOffice</span>
             </a>
 
             <div class="sidebar">
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="image">
-                        <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User" />
+                        <Image width={35} height={35} src={config.apiPath + "/uploads/user_img/" + user.profile} className="img-circle elevation-2" fallback="default_profile.jpg" />
                     </div>
                     <div class="info">
                         <l class="d-block" style={{ color: "white" }}>{user.name}</l>
@@ -73,7 +73,7 @@ function Sidebar() {
 
                 <nav class="mt-0">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                        <li class="nav-header">MENU</li>
+                        <li class="nav-header text-bold">MENU</li>
                         <li class="nav-item">
                             <Link to="/home" class="nav-link">
                                 <i class="nav-icon fa fa-dashboard mr-3"></i>

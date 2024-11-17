@@ -1,16 +1,16 @@
 import { useEffect, useState, useRef } from "react";
-import BackOffice from "../../components/BackOffice";
-import MyModal from "../../components/MyModal";
 import Swal from "sweetalert2";
 import axios from "axios";
-import config from "../../config";
 
 import { Select, Input, Tag, Flex, Space, Table, Button, Image } from "antd";
 import { createStyles } from "antd-style";
 import { SearchOutlined } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 
-import "../../styles/HoverIMG.css";
+import config from "../../config";
+import BackOffice from "../../components/BackOffice";
+import MyModal from "../../components/MyModal";
+import "../../styles/HoverProductIMG.css";
 
 const { TextArea } = Input;
 
@@ -159,15 +159,15 @@ function Product() {
   const { styles } = useStyle();
   const columns = [
     {
-      fixed: "left",
       width: "100px",
       title: "Cover",
       dataIndex: "img",
       key: "img",
+      className: "text-center",
       render: (img) => (
         <Image
           height={100}
-          width={100}
+          width={'full'}
           src={config.apiPath + "/uploads/product_img/" + img}
           fallback="default_img.webp"
         />
@@ -175,7 +175,7 @@ function Product() {
     },
     {
       fixed: "left",
-      width: "100px",
+      width: "150px",
       title: "Name",
       dataIndex: "name",
       key: "name",
@@ -255,14 +255,14 @@ function Product() {
             style={{ width: "40px", height: "40px" }}
             data-toggle="modal"
             data-target="#modalProduct"
-            onClick={() => {
+            onClick={async () => {
               setIsEdit(true);
               clearErrorForm();
               clearForm();
               setProduct(record);
               setSelectedAuthor(record.authorId);
               setSelectedCategory(record.categories);
-              if (record.img === "noIMGFile") setIsRemoveIMG(true);
+              if (record.img === "noIMGFile") await setIsRemoveIMG(true);
             }}
           >
             <i className="ion-edit" style={{ fontSize: "15px" }}></i>
@@ -304,10 +304,6 @@ function Product() {
   const [isEdit, setIsEdit] = useState(false); //for Product modal text display
   const [isRemoveIMG, setIsRemoveIMG] = useState(false); //for remove image status
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const fetchData = async () => {
     try {
       const productsList = await axios.get(
@@ -342,6 +338,10 @@ function Product() {
       });
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   let errorListInFront = [];
   const handleSave = async () => {
@@ -701,7 +701,7 @@ function Product() {
             </tbody>
         </table> */}
 
-      <Table
+      <Table id="productTable"
         className={styles.customTable}
         size="small"
         sticky
@@ -846,7 +846,7 @@ function Product() {
 
           {isEdit && !isRemoveIMG ? (
             <div
-              class="container containerProduct mt-1"
+              class="container containerIMG mt-1"
               onClick={() => setIsRemoveIMG(true)}
             >
               <Image
@@ -857,7 +857,7 @@ function Product() {
                 fallback="default_img.webp"
                 preview={false}
               />
-              <div class="middle textProduct">
+              <div class="middle textIMG">
                 <i className="fas fa-trash-alt"></i>
                 <div>Click to Remove</div>
               </div>
@@ -867,7 +867,7 @@ function Product() {
           )}
         </div>
 
-        <div className="mt-3">
+        <div className="text-right mt-3">
           <button
             className="btn btn-primary font-weight-bold"
             onClick={handleSave}
@@ -883,6 +883,7 @@ function Product() {
             )}
           </button>
         </div>
+
       </MyModal>
 
       {/* <MyModal id="modalSheet" title="Import products from sheet">

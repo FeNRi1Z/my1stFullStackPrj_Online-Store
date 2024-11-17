@@ -65,7 +65,7 @@ function SignIn() {
     return <div class="hold-transition login-page">
         <div class="login-box">
             <div class="login-logo">
-                <a href="../../index2.html"><b>Admin</b>LTE</a>
+                <l><b>Mod-Ed_</b>Admin_Panel</l>
             </div>
             <div class="card">
                 <div class="card-body login-card-body">
@@ -109,16 +109,8 @@ function SignIn() {
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-8">
-                                <div class="icheck-primary">
-                                    <input type="checkbox" id="remember" />
-                                    <label for="remember">
-                                        Remember Me?
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-4">
+                        <div class="align-content-center">
+                            <div class="container">
                                 <button type="submit" class="btn btn-primary btn-block" onClick={handleSignIn}>
                                     Sign In
                                 </button>

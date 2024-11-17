@@ -41,6 +41,8 @@ model User {
   role      String          @default("client")
   status    String          @default("use")
   address   String?
+  phone     String?
+  profile   String          @default("noIMGFile")
   cartQty   Int             @default(0)
   cartTotal Int             @default(0)
   cartItems ProductOnCart[]
@@ -87,7 +89,7 @@ model Author {
 model ProductOnCart {
   userId    Int
   productId Int
-  quantity  Int     @default(0)
+  quantity  Int     @default(1)
   user      User    @relation(fields: [userId], references: [id])
   product   Product @relation(fields: [productId], references: [id])
 
@@ -95,22 +97,27 @@ model ProductOnCart {
 }
 
 model Order {
-  id         Int              @id @default(autoincrement())
-  userId     Int
-  orderTotal Int
-  status     String           @default("To be paid")
-  address    String
-  orderDate  DateTime
-  user       User             @relation(fields: [userId], references: [id])
-  orderItems ProductOnOrder[]
+  id           Int              @id @default(autoincrement())
+  userId       Int
+  orderTotal   Int
+  status       String           @default("To be paid")
+  address      String
+  phone        String
+  orderDate    DateTime         @default(now())
+  orderSlipIMG String?
+  parcelCode   String?
+  user         User             @relation(fields: [userId], references: [id])
+  orderItems   ProductOnOrder[]
 }
 
 model ProductOnOrder {
-  orderId   Int
-  productId Int
-  quantity  Int
-  order     Order   @relation(fields: [orderId], references: [id])
-  product   Product @relation(fields: [productId], references: [id])
+  orderId      Int
+  productId    Int
+  productPrice Int
+  quantity     Int     @default(1)
+  productTotal Int
+  order        Order   @relation(fields: [orderId], references: [id])
+  product      Product @relation(fields: [productId], references: [id])
 
   @@id([orderId, productId])
 }

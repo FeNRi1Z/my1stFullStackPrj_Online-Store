@@ -37,7 +37,7 @@ app.post('/create', checkSignIn, async (req, res) => {
                 img: req.body.img || 'noIMGFile',
             },
         })
-        console.log("productResult: ", productResult);
+        console.log("Create productResult: ", productResult);
         
         await prisma.productCategory.createMany({
             data: req.body.categoriesId.map(categoryId => ({
@@ -145,7 +145,7 @@ app.put('/update', checkSignIn, async (req, res) => {
                 categoryId: parseInt(categoryId)
             }))
         })
-
+        
         res.send({ message: 'success' });
     } catch (e) {
         res.status(500).send({ error: e.message });
@@ -191,7 +191,6 @@ app.post('/createAuthor', checkSignIn, async (req, res) => {
 
         const result = await prisma.author.create({
             data: { name: req.body.name },
-            skipDuplicates: true,
         });
 
         res.send({
@@ -226,7 +225,6 @@ app.post('/createCategory', checkSignIn, async (req, res) => {
         data = req.body.name.map(name => ({ name: name }));
         const result = await prisma.category.createManyAndReturn({
             data: data,
-            skipDuplicates: true,
         });
 
         res.send({
