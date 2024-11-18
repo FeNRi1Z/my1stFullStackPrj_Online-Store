@@ -76,7 +76,7 @@ function Sidebar() {
                         <li class="nav-header text-bold">MENU</li>
                         <li class="nav-item">
                             <Link to="/home" class="nav-link">
-                                <i class="nav-icon fa fa-dashboard mr-3"></i>
+                                <i class="nav-icon ion ion-pie-graph mr-3" style={{scale:'1.3'}}></i>
                                 <p>
                                     Dashboard
                                 </p>
