@@ -628,11 +628,11 @@ function Product() {
 				scrollToFirstRowOnChange={true}
 				scroll={{
 					x: "max-content",
-					y: 10 * 75,
+					y: "max-content",
 				}}
 				pagination={{
 					pageSize: 10,
-					hideOnSinglePage: true,
+					hideOnSinglePage: false,
 				}}
 			/>
 
@@ -719,7 +719,7 @@ function Product() {
 				</div>
 
 				<div className="text-right mt-3">
-					<button className="btn btn-primary font-weight-bold" onClick={handleSave}>
+					<button className="btn btn-primary font-weight-bold" onClick={() => {handleSave()}}>
 						{isEdit ? (
 							<>
 								<i className="fa fa-save mr-2"></i> Save

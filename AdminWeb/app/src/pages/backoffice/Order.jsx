@@ -4,7 +4,7 @@ import axios from "axios";
 
 import { Select, Input, Tag, Space, Table, Button, Image } from "antd";
 import { createStyles } from "antd-style";
-import { SearchOutlined, LoadingOutlined, QuestionCircleOutlined, InfoCircleOutlined, SendOutlined, CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import { SearchOutlined, LoadingOutlined, QuestionCircleOutlined, InfoCircleOutlined, SendOutlined, CheckCircleOutlined, CloseCircleOutlined, PlusCircleTwoTone, MinusCircleTwoTone } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 
 import config from "../../config";
@@ -14,9 +14,9 @@ import "../../styles/HoverTag.css";
 
 function Order() {
 	const [orderList, setOrderList] = useState([]);
-    const [order, setOrder] = useState({});
+	const [order, setOrder] = useState({});
 
-    const [selectedStatus, setSelectedStatus] = useState();
+	const [selectedStatus, setSelectedStatus] = useState();
 
 	const fetchData = async () => {
 		try {
@@ -140,6 +140,7 @@ function Order() {
 			sorter: (a, b) => a.id - b.id,
 			sortDirections: ["descend", "ascend"],
 		},
+		Table.EXPAND_COLUMN,
 		{
 			title: "Order Date",
 			dataIndex: "orderDate",
@@ -154,7 +155,7 @@ function Order() {
 			dataIndex: "userId",
 			key: "userId",
 			className: "text-center",
-			width: 70,
+			width: 100,
 			...getColumnSearchProps("userId"),
 			sorter: (a, b) => a.userId - b.userId,
 			sortDirections: ["descend", "ascend"],
@@ -181,7 +182,7 @@ function Order() {
 			...getColumnSearchProps("phone"),
 		},
 		{
-			title: "Total Price",
+			title: "Order Total",
 			dataIndex: "orderTotal",
 			key: "orderTotal",
 			width: 100,
@@ -193,7 +194,7 @@ function Order() {
 			title: "Payment Date",
 			dataIndex: "paymentDate",
 			key: "paymentDate",
-			width: 100,
+			width: 110,
 			...getColumnSearchProps("paymentDate"),
 			sorter: (a, b) => new Date(a.paymentDate) - new Date(b.paymentDate),
 			sortDirections: ["descend", "ascend"],
@@ -220,27 +221,27 @@ function Order() {
 			width: 150,
 			fixed: "right",
 			render: (status, record) => {
-				let color = "blue";
-				let icon = <LoadingOutlined />;
-				if (status === "To be paid") {
-					color = "volcano";
-					icon = <QuestionCircleOutlined />;
-				} else if (status === "Paid") {
-					color = "orange";
-					icon = <InfoCircleOutlined />;
-				} else if (status === "Shipping") {
-					color = "gold";
-					icon = <SendOutlined />;
-				} else if (status === "Completed") {
-					color = "green";
-					icon = <CheckCircleOutlined />;
-				} else if (status === "Cancelled") {
-					color = "red";
-					icon = <CloseCircleOutlined />;
-				}
+				const statusConfig = {
+					"To be paid": { color: "volcano", icon: <QuestionCircleOutlined /> },
+					Paid: { color: "orange", icon: <InfoCircleOutlined /> },
+					Shipping: { color: "gold", icon: <SendOutlined /> },
+					Completed: { color: "green", icon: <CheckCircleOutlined /> },
+					Cancelled: { color: "red", icon: <CloseCircleOutlined /> },
+				};
+				const { color = "blue", icon = <LoadingOutlined /> } = statusConfig[status] || {};
 				return (
 					<>
-						<Tag className="col p-1 text-center hoverable-tag" style={{ "--color": color }} icon={icon} color={color} data-toggle="modal" data-target="#modalOrder" onClick={() => {setOrder(record); setSelectedStatus(record.status)}}>
+						<Tag
+							className="col p-1 text-center hoverable-tag"
+							style={{ "--color": color }}
+							icon={icon}
+							color={color}
+							data-toggle="modal"
+							data-target="#modalOrder"
+							onClick={() => {
+								setOrder(record);
+								setSelectedStatus(record.status);
+							}}>
 							{status.toUpperCase()}
 						</Tag>
 					</>
@@ -248,6 +249,79 @@ function Order() {
 			},
 		},
 	];
+	const expandColumns = [
+		{
+			title: "Order Items List",
+			children: [
+				{
+					title: "ID",
+					dataIndex: "productId",
+					key: "productId",
+					className: "text-center",
+					width: 70,
+					fixed: "left",
+					...getColumnSearchProps("productId"),
+					sorter: (a, b) => a.productId - b.productId,
+					sortDirections: ["descend", "ascend"],
+				},
+				{
+					title: "Cover",
+					dataIndex: "productImage",
+					key: "productImage",
+					className: "text-center",
+					width: 100,
+					render: (productIMG) => <Image height={100} width={"full"} src={config.apiPath + "/uploads/product_img/" + productIMG} fallback="default_img.webp" />,
+				},
+				{
+					title: "Name",
+					dataIndex: "productName",
+					key: "productName",
+					...getColumnSearchProps("productName"),
+				},
+				{
+					title: "Price",
+					dataIndex: "productPrice",
+					key: "productPrice",
+					width: 100,
+					...getColumnSearchProps("productPrice"),
+					sorter: (a, b) => a.productPrice - b.productPrice,
+					sortDirections: ["descend", "ascend"],
+				},
+				{
+					title: "Quantity",
+					dataIndex: "quantity",
+					key: "quantity",
+					width: 120,
+					...getColumnSearchProps("quantity"),
+					sorter: (a, b) => a.quantity - b.quantity,
+					sortDirections: ["descend", "ascend"],
+				},
+				{
+					title: "Total Price",
+					dataIndex: "totalPrice",
+					key: "totalPrice",
+					width: 100,
+					...getColumnSearchProps("totalPrice"),
+					sorter: (a, b) => a.totalPrice - b.totalPrice,
+					sortDirections: ["descend", "ascend"],
+				},
+			],
+		},
+	];
+	const expandedRowRender = (record) => 
+	<Table 
+		columns={expandColumns} 
+		dataSource={record.orderItems} 
+		pagination={false} 
+		className={styles.customTable} 
+		size="small" 
+		sticky bordered={true} 
+		scrollToFirstRowOnChange={true}
+			scroll={{
+				x: "max-content",
+				y: 5 * 50,
+			}}
+	/>;
 
 	return (
 		<BackOffice>
@@ -257,7 +331,7 @@ function Order() {
 				</div>
 			</div>
 			<Table
-				id="productTable"
+				id="orderTable"
 				className={styles.customTable}
 				size="small"
 				sticky
@@ -267,30 +341,55 @@ function Order() {
 				scrollToFirstRowOnChange={true}
 				scroll={{
 					x: "max-content",
-					y: 10 * 75,
+					y: "max-content",
 				}}
 				pagination={{
 					pageSize: 10,
-					hideOnSinglePage: true,
+					hideOnSinglePage: false,
+				}}
+				rowKey={(record) => record.id}
+				expandable={{
+					expandedRowRender,
+					columnTitle: "Order Items",
+					columnWidth: 55,
+					fixed: "left",
+					expandIcon: ({ expanded, onExpand, record }) => {
+						return expanded ? <MinusCircleTwoTone onClick={(e) => onExpand(record, e)} /> : <PlusCircleTwoTone onClick={(e) => onExpand(record, e)} />;
+					},
 				}}
 			/>
 
 			<MyModal id="modalOrder" title={`Manage Order ID: ${order.id}`}>
-                <div className="row">
-                    <div className="col mb-2" style={{fontWeight:'bold'}}>
-                        Select order status:
-                    </div>
-                </div>
-                <Select style={{ width: '100%' }} value={selectedStatus} onChange={(value) => {setSelectedStatus(value)}} onSelect={(value) => {console.log(value)}}>
-                    <Select.Option value="To be paid">To be paid</Select.Option>
-                    <Select.Option value="Paid">Paid</Select.Option>
-                    <Select.Option value="In Progress">In Progress</Select.Option>
-                    <Select.Option value="Sent">Sent</Select.Option>
-                    <Select.Option value="Complete">Complete</Select.Option>
-                    <Select.Option value="Cancelled">Cancelled</Select.Option>
-                </Select>
-            </MyModal>
+				<div className="row">
+					<div className="col mb-2" style={{ fontWeight: "bold" }}>
+						Select order status:
+					</div>
+				</div>
 
+				<Select
+					style={{ width: "100%" }}
+					value={selectedStatus}
+					onChange={(value) => {
+						setSelectedStatus(value);
+					}}
+					onSelect={(value) => {
+						console.log(value);
+					}}>
+					<Select.Option value="To be paid">To be paid</Select.Option>
+					<Select.Option value="Paid">Paid</Select.Option>
+					<Select.Option value="In Progress">In Progress</Select.Option>
+					<Select.Option value="Sent">Sent</Select.Option>
+					<Select.Option value="Complete">Complete</Select.Option>
+					<Select.Option value="Cancelled">Cancelled</Select.Option>
+				</Select>
+
+				<div className="text-right mt-3">
+					<button className="btn btn-primary font-weight-bold" onClick={() => {}}>
+						<i className="fa fa-save mr-2"></i>
+						Save
+					</button>
+				</div>
+			</MyModal>
 		</BackOffice>
 	);
 }

@@ -53,6 +53,7 @@ app.get("/orderList", checkSignIn, async (req, res) => {
 				productName: item.product.name,
                 productImg: item.product.img,
 				product: undefined, // Remove original product key
+				totalPrice: item.productPrice * item.quantity, // Add totalPrice key
 			})),
 		}));
 

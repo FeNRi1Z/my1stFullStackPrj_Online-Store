@@ -406,11 +406,11 @@ function User() {
 				}}
 				scroll={{
 					x: "max-content",
-					y: 10 * 75,
+					y: "max-content",
 				}}
 				pagination={{
 					pageSize: 10,
-					hideOnSinglePage: true,
+					hideOnSinglePage: false,
 				}}
 			/>
 		</BackOffice>
