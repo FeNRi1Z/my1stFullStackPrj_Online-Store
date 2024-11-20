@@ -71,18 +71,19 @@ model ProductOnCart {
 }
 
 model Order {
-  id           Int              @id @default(autoincrement())
-  userId       Int
-  orderTotal   Int?
-  status       String           @default("To be paid")
-  address      String
-  phone        String
-  orderDate    DateTime         @default(now())
+  id             Int              @id @default(autoincrement())
+  userId         Int
+  orderTotal     Int?
+  status         String           @default("To be paid")
+  statusDetail   String?          @default("Please complete the payment and confirm the payment")
+  address        String
+  phone          String
+  orderDate      DateTime         @default(now())
   paymentSlipIMG String?
-  paymentDate  DateTime?
-  parcelCode   String?
-  user         User             @relation(fields: [userId], references: [id])
-  orderItems   ProductOnOrder[]
+  paymentDate    DateTime?
+  parcelCode     String?
+  user           User             @relation(fields: [userId], references: [id])
+  orderItems     ProductOnOrder[]
 }
 
 model ProductOnOrder {

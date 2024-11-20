@@ -2,15 +2,39 @@ import { useEffect, useState, useRef } from "react";
 import Swal from "sweetalert2";
 import axios from "axios";
 
-import { Select, Input, Tag, Space, Table, Button, Image } from "antd";
+import { Select, Input, Tag, Space, Table, Button, Image, Flex } from "antd";
 import { createStyles } from "antd-style";
-import { SearchOutlined, LoadingOutlined, QuestionCircleOutlined, InfoCircleOutlined, SendOutlined, CheckCircleOutlined, CloseCircleOutlined, PlusCircleTwoTone, MinusCircleTwoTone } from "@ant-design/icons";
+import {
+	SearchOutlined,
+	LoadingOutlined,
+	QuestionCircleOutlined,
+	InfoCircleOutlined,
+	SendOutlined,
+	CheckCircleOutlined,
+	CloseCircleOutlined,
+	PlusCircleTwoTone,
+	MinusCircleTwoTone,
+	WarningOutlined,
+} from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 
 import config from "../../config";
 import BackOffice from "../../components/BackOffice";
 import MyModal from "../../components/MyModal";
 import "../../styles/HoverTag.css";
+
+axios.interceptors.response.use(
+	(response) => response, // Return the response normally if successful
+	(error) => {
+		if (error.response && error.response.status === 401) {
+			// Automatically redirect to sign in page if 401 Unauthorized is returned
+			window.location.href = "/";
+		}
+		return Promise.reject(error);
+	}
+);
+
+const { TextArea } = Input;
 
 function Order() {
 	const [orderList, setOrderList] = useState([]);
@@ -53,7 +77,14 @@ function Order() {
 	const getColumnSearchProps = (dataIndex) => ({
 		filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
 			<div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
-				<Input ref={searchInput} placeholder={`Search ${dataIndex}`} value={selectedKeys[0]} onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])} onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)} style={{ marginBottom: 8, display: "block" }} />
+				<Input
+					ref={searchInput}
+					placeholder={`Search ${dataIndex}`}
+					value={selectedKeys[0]}
+					onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+					onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+					style={{ marginBottom: 8, display: "block" }}
+				/>
 				<Space>
 					<Button type="primary" onClick={() => handleSearch(selectedKeys, confirm, dataIndex)} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
 						Search
@@ -214,6 +245,12 @@ function Order() {
 			width: 150,
 		},
 		{
+			title: "Status Detail",
+			dataIndex: "statusDetail",
+			key: "statusDetail",
+			width: 200,
+		},
+		{
 			title: "Status",
 			dataIndex: "status",
 			key: "status",
@@ -222,9 +259,10 @@ function Order() {
 			fixed: "right",
 			render: (status, record) => {
 				const statusConfig = {
-					"To be paid": { color: "volcano", icon: <QuestionCircleOutlined /> },
-					Paid: { color: "orange", icon: <InfoCircleOutlined /> },
-					Shipping: { color: "gold", icon: <SendOutlined /> },
+					"To be paid": { color: "orange", icon: <QuestionCircleOutlined /> },
+					Paid: { color: "lime", icon: <InfoCircleOutlined /> },
+					Problem: { color: "volcano", icon: <WarningOutlined /> },
+					Shipping: { color: "purple", icon: <SendOutlined /> },
 					Completed: { color: "green", icon: <CheckCircleOutlined /> },
 					Cancelled: { color: "red", icon: <CloseCircleOutlined /> },
 				};
@@ -251,77 +289,110 @@ function Order() {
 	];
 	const expandColumns = [
 		{
-			title: "Order Items List",
-			children: [
-				{
-					title: "ID",
-					dataIndex: "productId",
-					key: "productId",
-					className: "text-center",
-					width: 70,
-					fixed: "left",
-					...getColumnSearchProps("productId"),
-					sorter: (a, b) => a.productId - b.productId,
-					sortDirections: ["descend", "ascend"],
-				},
-				{
-					title: "Cover",
-					dataIndex: "productImage",
-					key: "productImage",
-					className: "text-center",
-					width: 100,
-					render: (productIMG) => <Image height={100} width={"full"} src={config.apiPath + "/uploads/product_img/" + productIMG} fallback="default_img.webp" />,
-				},
-				{
-					title: "Name",
-					dataIndex: "productName",
-					key: "productName",
-					...getColumnSearchProps("productName"),
-				},
-				{
-					title: "Price",
-					dataIndex: "productPrice",
-					key: "productPrice",
-					width: 100,
-					...getColumnSearchProps("productPrice"),
-					sorter: (a, b) => a.productPrice - b.productPrice,
-					sortDirections: ["descend", "ascend"],
-				},
-				{
-					title: "Quantity",
-					dataIndex: "quantity",
-					key: "quantity",
-					width: 120,
-					...getColumnSearchProps("quantity"),
-					sorter: (a, b) => a.quantity - b.quantity,
-					sortDirections: ["descend", "ascend"],
-				},
-				{
-					title: "Total Price",
-					dataIndex: "totalPrice",
-					key: "totalPrice",
-					width: 100,
-					...getColumnSearchProps("totalPrice"),
-					sorter: (a, b) => a.totalPrice - b.totalPrice,
-					sortDirections: ["descend", "ascend"],
-				},
-			],
+			title: "ID",
+			dataIndex: "productId",
+			key: "productId",
+			className: "text-center",
+			width: 70,
+			fixed: "left",
+			...getColumnSearchProps("productId"),
+			sorter: (a, b) => a.productId - b.productId,
+			sortDirections: ["descend", "ascend"],
+		},
+		{
+			title: "Cover",
+			dataIndex: "img",
+			key: "img",
+			className: "text-center",
+			width: 100,
+			render: (img) => <Image height={100} width={"full"} src={config.apiPath + "/uploads/product_img/" + img} fallback="default_img.webp" />,
+		},
+		{
+			fixed: "left",
+			width: "150px",
+			title: "Name",
+			dataIndex: "name",
+			key: "name",
+			...getColumnSearchProps("name"),
+		},
+		{
+			width: "300px",
+			title: "Description",
+			dataIndex: "desc",
+			key: "desc",
+			...getColumnSearchProps("desc"),
+		},
+		{
+			width: "100px",
+			title: "Author",
+			dataIndex: "author",
+			key: "author",
+			...getColumnSearchProps("author"),
+		},
+		{
+			width: "250px",
+			title: "Categories",
+			dataIndex: "categoriesName",
+			key: "categoriesName",
+			...getColumnSearchProps("categoriesName"),
+			sorter: (a, b) => a.categoriesName.length - b.categoriesName.length,
+			sortDirections: ["descend", "ascend"],
+			render: (tags) => (
+				<Flex wrap gap="0.01px">
+					{tags.map((tag) => {
+						return (
+							<Tag color={"geekblue"} key={tag} style={{ color: "black" }}>
+								{tag}
+							</Tag>
+						);
+					})}
+				</Flex>
+			),
+		},
+		{
+			width: "110px",
+			title: "Price",
+			dataIndex: "productPrice",
+			key: "productPrice",
+			...getColumnSearchProps("productPrice"),
+			sorter: (a, b) => a.productPrice - b.productPrice,
+			sortDirections: ["descend", "ascend"],
+		},
+		{
+			width: "110px",
+			title: "Quantity",
+			dataIndex: "quantity",
+			key: "quantity",
+			...getColumnSearchProps("quantity"),
+			sorter: (a, b) => a.quantity - b.quantity,
+			sortDirections: ["descend", "ascend"],
+		},
+		{
+			title: "Total Price",
+			dataIndex: "totalPrice",
+			key: "totalPrice",
+			width: 100,
+			...getColumnSearchProps("totalPrice"),
+			sorter: (a, b) => a.totalPrice - b.totalPrice,
+			sortDirections: ["descend", "ascend"],
 		},
 	];
-	const expandedRowRender = (record) => 
-	<Table 
-		columns={expandColumns} 
-		dataSource={record.orderItems} 
-		pagination={false} 
-		className={styles.customTable} 
-		size="small" 
-		sticky bordered={true} 
-		scrollToFirstRowOnChange={true}
+	const expandedRowRender = (record) => (
+		<Table
+			columns={expandColumns}
+			dataSource={record.orderItems}
+			pagination={false}
+			className={styles.customTable}
+			size="small"
+			sticky
+			bordered={true}
+			scrollToFirstRowOnChange={true}
 			scroll={{
 				x: "max-content",
 				y: 5 * 50,
 			}}
-	/>;
+		/>
+	);
 
 	return (
 		<BackOffice>
@@ -371,17 +442,35 @@ function Order() {
 					value={selectedStatus}
 					onChange={(value) => {
 						setSelectedStatus(value);
-					}}
-					onSelect={(value) => {
-						console.log(value);
 					}}>
 					<Select.Option value="To be paid">To be paid</Select.Option>
-					<Select.Option value="Paid">Paid</Select.Option>
+					<Select.Option value="Paid">Paid</Select.Option> {/*For admin selected must input payment slip and payment date*/}
+					<Select.Option value="Problem">Problem</Select.Option> {/*For admin selected must input problem detail*/}
 					<Select.Option value="In Progress">In Progress</Select.Option>
-					<Select.Option value="Sent">Sent</Select.Option>
+					<Select.Option value="Sent">Sent</Select.Option> {/*For admin selected must input parcel code*/}
 					<Select.Option value="Complete">Complete</Select.Option>
 					<Select.Option value="Cancelled">Cancelled</Select.Option>
 				</Select>
+
+				<div id="editStatusDetail" className="row">
+					<div className="col mb-2" style={{ fontWeight: "bold" }}>
+						Status detail:
+					</div>
+				</div>
+
+				<TextArea
+					rows={3}
+					allowClear
+					value={order.statusDetail}
+					onChange={(e) =>
+						setOrder({
+							...order,
+							statusDetail: e.target.value,
+						})
+					}
+				/>
+
+				{selectedStatus === "Paid" && <div></div>}
 
 				<div className="text-right mt-3">
 					<button className="btn btn-primary font-weight-bold" onClick={() => {}}>

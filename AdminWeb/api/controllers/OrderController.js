@@ -29,14 +29,18 @@ app.get("/orderList", checkSignIn, async (req, res) => {
 				orderItems: {
 					select: {
 						productId: true,
-						product: {
-							select: {
-								name: true,
-                                img: true,
-							},
-						},
 						productPrice: true,
 						quantity: true,
+						product: {
+							include: {
+								author: true,
+								categories: {
+									include: {
+										category: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -50,10 +54,13 @@ app.get("/orderList", checkSignIn, async (req, res) => {
 			user: undefined, // Remove original user key
 			orderItems: order.orderItems.map((item) => ({
 				...item,
-				productName: item.product.name,
-                productImg: item.product.img,
-				product: undefined, // Remove original product key
 				totalPrice: item.productPrice * item.quantity, // Add totalPrice key
+				name: item.product.name,
+				img: item.product.img,
+				desc: item.product.desc,
+				author: item.product.author.name,
+				categoriesName: item.product.categories.map((pc) => pc.category.name),
+				product: undefined, // Remove original product key
 			})),
 		}));
 
