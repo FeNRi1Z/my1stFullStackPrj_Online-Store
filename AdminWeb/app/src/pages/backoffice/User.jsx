@@ -49,7 +49,7 @@ function User() {
 	}, []);
 
 	const [selectedClients, setSelectedClients] = useState([]);
-  const useStyle = createStyles(({ css, token }) => {
+	const useStyle = createStyles(({ css, token }) => {
 		const { antCls } = token;
 		return {
 			customTable: css`
@@ -82,7 +82,14 @@ function User() {
 	const getColumnSearchProps = (dataIndex) => ({
 		filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
 			<div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
-				<Input ref={searchInput} placeholder={`Search ${dataIndex}`} value={selectedKeys[0]} onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])} onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)} style={{ marginBottom: 8, display: "block" }} />
+				<Input
+					ref={searchInput}
+					placeholder={`Search ${dataIndex}`}
+					value={selectedKeys[0]}
+					onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+					onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+					style={{ marginBottom: 8, display: "block" }}
+				/>
 				<Space>
 					<Button type="primary" onClick={() => handleSearch(selectedKeys, confirm, dataIndex)} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
 						Search
@@ -198,7 +205,7 @@ function User() {
 			[e]: "",
 		}));
 	};
-  const clearForm = () => {
+	const clearForm = () => {
 		setErrorForm({
 			name: "",
 			phone: "",
@@ -209,8 +216,8 @@ function User() {
 		try {
 			if (!client.name) errorListInFront.push("name");
 			if (client.phone) {
-        if (client.phone.length !== 10 || client.phone[0] !== "0") errorListInFront.push("phone");
-      }
+				if (client.phone.length !== 10 || client.phone[0] !== "0") errorListInFront.push("phone");
+			}
 
 			if (errorListInFront.length > 0) throw new Error("410");
 
@@ -223,8 +230,8 @@ function User() {
 					confirmButtonColor: "#28a745",
 					timer: 2000,
 				});
-        fetchData();
-        document.getElementById("modalClient_btnClose").click();
+				fetchData();
+				document.getElementById("modalClient_btnClose").click();
 			}
 		} catch (e) {
 			if (e.message === "410" || e.response.status === 410) {
@@ -300,7 +307,8 @@ function User() {
 						onClick={() => {
 							setClient(() => {
 								return clientList.find((client) => client.id === selectedClients[0]);
-							}); clearForm();
+							});
+							clearForm();
 						}}>
 						<i className="ion-edit" style={{ fontSize: "18px" }}></i>
 					</button>
@@ -321,7 +329,14 @@ function User() {
 			<MyModal id="modalClient" title={`Edit Client ID: ${client.id}`}>
 				<div className="row">
 					<div className="col-4">
-						<Image className="border rounded-circle hover-img" height={145} width={145} preview={false} src={config.apiPath + "/uploads/user_img/" + client.profile} fallback="default_profile.jpg" />
+						<Image
+							className="border rounded-circle hover-img"
+							height={145}
+							width={145}
+							preview={false}
+							src={config.apiPath + "/uploads/user_img/" + client.profile}
+							fallback="default_profile.jpg"
+						/>
 					</div>
 
 					<div className="col-8">
@@ -372,9 +387,10 @@ function User() {
 										phone: e.target.value,
 									})
 								}
-                onKeyDown={() => clearErrorBorder("phone")}
+								onKeyDown={() => clearErrorBorder("phone")}
 							/>
 						</div>
+						
 						<div className="text-right mt-3">
 							<button
 								className="btn btn-primary font-weight-bold"

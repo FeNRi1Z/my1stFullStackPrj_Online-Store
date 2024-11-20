@@ -41,6 +41,15 @@ function Order() {
 	const [order, setOrder] = useState({});
 
 	const [selectedStatus, setSelectedStatus] = useState();
+	const statusConfig = {
+		"To be paid": { color: "orange", icon: <QuestionCircleOutlined />, statusDetail: "Please transfer money to the bank account below." },
+		Paid: { color: "lime", icon: <InfoCircleOutlined />, statusDetail: "Payment has been received, wait for admin checking." },
+		Problem: { color: "volcano", icon: <WarningOutlined />, statusDetail: "There is a problem with the order, please contact admin." },
+		"In Progress": { color: "blue", icon: <LoadingOutlined />, statusDetail: "The order is being processed." },
+		Shipped: { color: "purple", icon: <SendOutlined />, statusDetail: "The order has shipped, you can follow up with the parcel code." },
+		Completed: { color: "green", icon: <CheckCircleOutlined />, statusDetail: "The order has been completed, thank you for shopping with us." },
+		Cancelled: { color: "red", icon: <CloseCircleOutlined />, statusDetail: "The order has been cancelled." },
+	};
 
 	const fetchData = async () => {
 		try {
@@ -258,15 +267,7 @@ function Order() {
 			width: 150,
 			fixed: "right",
 			render: (status, record) => {
-				const statusConfig = {
-					"To be paid": { color: "orange", icon: <QuestionCircleOutlined /> },
-					Paid: { color: "lime", icon: <InfoCircleOutlined /> },
-					Problem: { color: "volcano", icon: <WarningOutlined /> },
-					Shipping: { color: "purple", icon: <SendOutlined /> },
-					Completed: { color: "green", icon: <CheckCircleOutlined /> },
-					Cancelled: { color: "red", icon: <CloseCircleOutlined /> },
-				};
-				const { color = "blue", icon = <LoadingOutlined /> } = statusConfig[status] || {};
+				const { color = "default", icon = <></> } = statusConfig[status] || {};
 				return (
 					<>
 						<Tag
@@ -275,13 +276,27 @@ function Order() {
 							icon={icon}
 							color={color}
 							data-toggle="modal"
-							data-target="#modalOrder"
+							data-target="#modalOrderStatus"
 							onClick={() => {
 								setOrder(record);
 								setSelectedStatus(record.status);
 							}}>
 							{status.toUpperCase()}
 						</Tag>
+						<button
+							id="editButton"
+							className="btn btn-primary mt-2"
+							style={{
+								width: "40px",
+								height: "40px",
+							}}
+							data-toggle="modal"
+							data-target="#modalOrderInfo"
+							onClick={() => {
+								setOrder(record);
+							}}>
+							<i className="ion-edit" style={{ fontSize: "18px" }}></i>
+						</button>
 					</>
 				);
 			},
@@ -394,6 +409,21 @@ function Order() {
 		/>
 	);
 
+	const [errorForm, setErrorForm] = useState({
+		address: "",
+		phone: "",
+	});
+	const clearErrorBorder = (e) => {
+		setErrorForm((prev) => ({
+			...prev,
+			[e]: "",
+		}));
+	};
+
+	const handleStatusChange = () => {};
+
+	const handleInfoChange = () => {};
+
 	return (
 		<BackOffice>
 			<div className="mb-3">
@@ -430,7 +460,7 @@ function Order() {
 				}}
 			/>
 
-			<MyModal id="modalOrder" title={`Manage Order ID: ${order.id}`}>
+			<MyModal id="modalOrderStatus" title={`Manage status for OrderID: ${order.id}`}>
 				<div className="row">
 					<div className="col mb-2" style={{ fontWeight: "bold" }}>
 						Select order status:
@@ -442,24 +472,25 @@ function Order() {
 					value={selectedStatus}
 					onChange={(value) => {
 						setSelectedStatus(value);
+						setOrder({ ...order, statusDetail: statusConfig[value].statusDetail });
 					}}>
 					<Select.Option value="To be paid">To be paid</Select.Option>
 					<Select.Option value="Paid">Paid</Select.Option> {/*For admin selected must input payment slip and payment date*/}
 					<Select.Option value="Problem">Problem</Select.Option> {/*For admin selected must input problem detail*/}
 					<Select.Option value="In Progress">In Progress</Select.Option>
-					<Select.Option value="Sent">Sent</Select.Option> {/*For admin selected must input parcel code*/}
-					<Select.Option value="Complete">Complete</Select.Option>
+					<Select.Option value="Shipped">Shipped</Select.Option> {/*For admin selected must input parcel code*/}
+					<Select.Option value="Completed">Completed</Select.Option>
 					<Select.Option value="Cancelled">Cancelled</Select.Option>
 				</Select>
 
-				<div id="editStatusDetail" className="row">
+				<div id="editStatusDetail" className="row mt-2">
 					<div className="col mb-2" style={{ fontWeight: "bold" }}>
 						Status detail:
 					</div>
 				</div>
 
 				<TextArea
-					rows={3}
+					rows={2}
 					allowClear
 					value={order.statusDetail}
 					onChange={(e) =>
@@ -473,7 +504,52 @@ function Order() {
 				{selectedStatus === "Paid" && <div></div>}
 
 				<div className="text-right mt-3">
-					<button className="btn btn-primary font-weight-bold" onClick={() => {}}>
+					<button className="btn btn-primary font-weight-bold" onClick={() => {handleStatusChange();}}>
+						<i className="fa fa-save mr-2"></i>
+						Save
+					</button>
+				</div>
+			</MyModal>
+
+			<MyModal id="modalOrderInfo" title={`Manage info for OrderID: ${order.id}`}>
+				<div id="editAddress" className="mb-3">
+					<label className="form-label">Address</label>
+					<TextArea
+						rows={5}
+						status={errorForm["phone"] ? "error" : ""}
+						value={order.address}
+						allowClear
+						onChange={(e) =>
+							setOrder({
+								...order,
+								address: e.target.value,
+							})
+						}
+						onKeyDown={() => clearErrorBorder("phone")}
+					/>
+				</div>
+
+				<div id="editPhone" className="mb-3">
+					<label className="form-label">Phone</label>
+					<Input
+						type="text"
+						maxLength={10}
+						minLength={10}
+						status={errorForm["phone"] ? "error" : ""}
+						value={order.phone}
+						allowClear
+						onChange={(e) =>
+							setOrder({
+								...order,
+								phone: e.target.value,
+							})
+						}
+						onKeyDown={() => clearErrorBorder("phone")}
+					/>
+				</div>
+
+				<div className="text-right mt-3">
+					<button className="btn btn-primary font-weight-bold" onClick={() => {handleInfoChange();}}>
 						<i className="fa fa-save mr-2"></i>
 						Save
 					</button>

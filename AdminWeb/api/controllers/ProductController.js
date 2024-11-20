@@ -20,13 +20,11 @@ app.post("/create", checkSignIn, async (req, res) => {
 		if (!req.body.name) errorList.push("name");
 		if (!req.body.cost || req.body.cost < 0) errorList.push("cost");
 		if (!req.body.price || req.body.price < 0) errorList.push("price");
-		if (!req.body.quantity || req.body.quantity < 0)
-			errorList.push("quantity");
+		if (!req.body.quantity || req.body.quantity < 0) errorList.push("quantity");
 		if (!req.body.authorId) errorList.push("author");
 		if (!req.body.categoriesId) errorList.push("category");
 		console.log("errorList: ", errorList);
-		if (errorList.length > 0)
-			return res.status(410).send({ errorList: errorList });
+		if (errorList.length > 0) return res.status(410).send({ errorList: errorList });
 
 		const productResult = await prisma.product.create({
 			data: {
@@ -52,9 +50,7 @@ app.post("/create", checkSignIn, async (req, res) => {
 	} catch (e) {
 		if (req.body.img && req.body.img !== "noIMGFile") {
 			try {
-				await fs.promises.unlink(
-					`./uploads/product_img/${req.body.img}`
-				);
+				await fs.promises.unlink(`./uploads/product_img/${req.body.img}`);
 			} catch (fileError) {
 				console.error("Failed to delete file:", fileError);
 			}
@@ -101,13 +97,11 @@ app.put("/update", checkSignIn, async (req, res) => {
 		if (!req.body.name) errorList.push("name");
 		if (!req.body.cost || req.body.cost < 0) errorList.push("cost");
 		if (!req.body.price || req.body.price < 0) errorList.push("price");
-		if (!req.body.quantity || req.body.quantity < 0)
-			errorList.push("quantity");
+		if (!req.body.quantity || req.body.quantity < 0) errorList.push("quantity");
 		if (!req.body.authorId) errorList.push("author");
 		if (!req.body.categoriesId) errorList.push("category");
 		console.log("errorList: ", errorList);
-		if (errorList.length !== 0)
-			return res.status(410).send({ errorList: errorList });
+		if (errorList.length !== 0) return res.status(410).send({ errorList: errorList });
 
 		// Delete old product image
 		const oldData = await prisma.product.findFirst({
@@ -193,8 +187,7 @@ app.post("/createAuthor", checkSignIn, async (req, res) => {
 	try {
 		const errorList = [];
 		if (!req.body) errorList.push("author");
-		if (errorList.length !== 0)
-			return res.status(410).send({ errorList: errorList });
+		if (errorList.length !== 0) return res.status(410).send({ errorList: errorList });
 
 		const result = await prisma.author.create({
 			data: { name: req.body.name },
@@ -227,12 +220,18 @@ app.post("/createCategory", checkSignIn, async (req, res) => {
 	try {
 		const errorList = [];
 		if (!req.body) errorList.push("category");
-		if (errorList.length !== 0)
-			return res.status(410).send({ errorList: errorList });
+		if (errorList.length !== 0) return res.status(410).send({ errorList: errorList });
 
 		data = req.body.name.map((name) => ({ name: name }));
-		const result = await prisma.category.createManyAndReturn({
+
+		await prisma.category.createMany({
 			data: data,
+		});
+
+		const result = await prisma.category.findMany({
+			where: {
+				name: { in: req.body.name },
+			},
 		});
 
 		res.send({
@@ -246,11 +245,7 @@ app.post("/createCategory", checkSignIn, async (req, res) => {
 
 app.post("/upload", checkSignIn, async (req, res) => {
 	try {
-		if (
-			req.files != undefined &&
-			req.files.img != undefined &&
-			ifIsImage(req.files.img.name)
-		) {
+		if (req.files != undefined && req.files.img != undefined && ifIsImage(req.files.img.name)) {
 			const img = req.files.img;
 			const myDate = new Date();
 			const y = myDate.getFullYear();

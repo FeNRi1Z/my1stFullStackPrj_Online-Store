@@ -150,6 +150,16 @@ function Product() {
 		},
 		{
 			fixed: "left",
+			width: "65px",
+			title: "ID",
+			dataIndex: "id",
+			key: "id",
+			...getColumnSearchProps("id"),
+			sorter: (a, b) => a.id - b.id,
+			sortDirections: ["descend", "ascend"],
+		},
+		{
+			fixed: "left",
 			width: "150px",
 			title: "Name",
 			dataIndex: "name",
