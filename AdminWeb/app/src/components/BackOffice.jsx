@@ -13,7 +13,7 @@ function BackOffice(props) {
                 {props.children}
             </div>
             <Footer />
-            <FloatButton.BackTop shape='square' type='primary' />
+            <FloatButton.BackTop shape='square' type='default' />
             <ControlSidebar />
         </div>
     </>
