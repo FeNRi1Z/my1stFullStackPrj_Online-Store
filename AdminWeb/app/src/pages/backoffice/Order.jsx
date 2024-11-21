@@ -1,8 +1,11 @@
 import { useEffect, useState, useRef } from "react";
+import Highlighter from "react-highlight-words";
 import Swal from "sweetalert2";
 import axios from "axios";
+import dayjs from "dayjs";
+import buddhistEra from "dayjs/plugin/buddhistEra";
 
-import { Select, Input, Tag, Space, Table, Button, Image, Flex } from "antd";
+import { Select, Input, Tag, Space, Table, Button, Image, Flex, DatePicker } from "antd";
 import { createStyles } from "antd-style";
 import {
 	SearchOutlined,
@@ -16,7 +19,7 @@ import {
 	MinusCircleTwoTone,
 	WarningOutlined,
 } from "@ant-design/icons";
-import Highlighter from "react-highlight-words";
+import en from "antd/es/date-picker/locale/en_US";
 
 import config from "../../config";
 import BackOffice from "../../components/BackOffice";
@@ -36,19 +39,21 @@ axios.interceptors.response.use(
 
 const { TextArea } = Input;
 
+dayjs.extend(buddhistEra);
+
 function Order() {
 	const [orderList, setOrderList] = useState([]);
 	const [order, setOrder] = useState({});
 
 	const [selectedStatus, setSelectedStatus] = useState();
 	const statusConfig = {
-		"To be paid": { color: "orange", icon: <QuestionCircleOutlined />, statusDetail: "Please transfer money to the bank account below." },
-		Paid: { color: "lime", icon: <InfoCircleOutlined />, statusDetail: "Payment has been received, wait for admin checking." },
-		Problem: { color: "volcano", icon: <WarningOutlined />, statusDetail: "There is a problem with the order, please contact admin." },
-		"In Progress": { color: "blue", icon: <LoadingOutlined />, statusDetail: "The order is being processed." },
-		Shipped: { color: "purple", icon: <SendOutlined />, statusDetail: "The order has shipped, you can follow up with the parcel code." },
-		Completed: { color: "green", icon: <CheckCircleOutlined />, statusDetail: "The order has been completed, thank you for shopping with us." },
-		Cancelled: { color: "red", icon: <CloseCircleOutlined />, statusDetail: "The order has been cancelled." },
+		"To be paid": { color: "orange", icon: <QuestionCircleOutlined />, statusDetail: "Please transfer money to the bank account below" },
+		Paid: { color: "lime", icon: <InfoCircleOutlined />, statusDetail: "Payment has been received, wait for admin checking" },
+		Problem: { color: "volcano", icon: <WarningOutlined />, statusDetail: "There is a problem with the order, please contact admin" },
+		"In Progress": { color: "blue", icon: <LoadingOutlined />, statusDetail: "Confirmed your payment, your order is being processed" },
+		Shipped: { color: "purple", icon: <SendOutlined />, statusDetail: "The order has shipped, you can follow up with the parcel code" },
+		Completed: { color: "green", icon: <CheckCircleOutlined />, statusDetail: "The order has been completed, thank you for shopping with us" },
+		Cancelled: { color: "red", icon: <CloseCircleOutlined />, statusDetail: "The order has been cancelled" },
 	};
 
 	const fetchData = async () => {
@@ -260,7 +265,7 @@ function Order() {
 			width: 200,
 		},
 		{
-			title: "Status",
+			title: "Status & Modify",
 			dataIndex: "status",
 			key: "status",
 			className: "text-center",
@@ -280,6 +285,7 @@ function Order() {
 							onClick={() => {
 								setOrder(record);
 								setSelectedStatus(record.status);
+								record.paymentSlipIMG === null ? setIsChangeIMG(true) : setIsChangeIMG(false);
 							}}>
 							{status.toUpperCase()}
 						</Tag>
@@ -325,7 +331,7 @@ function Order() {
 		{
 			fixed: "left",
 			width: "150px",
-			title: "Name",
+			title: "Book Name",
 			dataIndex: "name",
 			key: "name",
 			...getColumnSearchProps("name"),
@@ -412,6 +418,7 @@ function Order() {
 	const [errorForm, setErrorForm] = useState({
 		address: "",
 		phone: "",
+		pacel: "",
 	});
 	const clearErrorBorder = (e) => {
 		setErrorForm((prev) => ({
@@ -420,7 +427,18 @@ function Order() {
 		}));
 	};
 
+	const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+
 	const handleStatusChange = () => {};
+
+	const [img, setImg] = useState(null);
+	const refImg = useRef(null);
+	const [isChangeIMG, setIsChangeIMG] = useState(true);
+	const selectedFile = (inputFile) => {
+		if (inputFile !== undefined && inputFile.length > 0) {
+			setImg(inputFile[0]);
+		}
+	};
 
 	const handleInfoChange = () => {};
 
@@ -468,6 +486,7 @@ function Order() {
 				</div>
 
 				<Select
+					id="selectStatus"
 					style={{ width: "100%" }}
 					value={selectedStatus}
 					onChange={(value) => {
@@ -501,10 +520,83 @@ function Order() {
 					}
 				/>
 
-				{selectedStatus === "Paid" && <div></div>}
+				{selectedStatus === "Paid" && (
+					<>
+						<div className="row mt-2">
+							<div className="col mb-2" style={{ fontWeight: "bold" }}>
+								Select payment date:
+							</div>
+						</div>
+						<DatePicker
+							allowClear={true}
+							showTime
+							showNow
+							defaultValue={order.paymentDate ? dayjs(order.paymentDate) : null}
+							open={isDatePickerOpen}
+							onFocus={() => setIsDatePickerOpen(true)}
+							onChange={(_, dateString) => {
+								setOrder({
+									...order,
+									paymentDate: dateString,
+								});
+							}}
+							onOk={() => {
+								setIsDatePickerOpen(false);
+							}}
+						/>
+						<div className={`mt-2 ${isChangeIMG ? "" : "text-center"}`}>
+							<div style={{ fontWeight: "bold" }}>Payment slip image:</div>
+							{isChangeIMG && <input className="mt-1" type="file" ref={refImg} onChange={(e) => selectedFile(e.target.files)} />}
+
+							{!isChangeIMG && (
+								<div class="container containerIMG mt-1" onClick={async () => await setIsChangeIMG(true)}>
+									<Image
+										className="imageProduct"
+										height={200}
+										width="full"
+										src={config.apiPath + "/uploads/payment_slip_img/" + order.paymentSlipIMG}
+										fallback="default_img.webp"
+										preview={false}
+									/>
+									<div class="middle textIMG">
+										<i className="fas fa-trash-alt"></i>
+										<div>Click to Remove</div>
+									</div>
+								</div>
+							)}
+						</div>
+					</>
+				)}
+
+				{selectedStatus === "Shipped" && (
+					<>
+						<div className="row mt-2">
+							<div className="col mb-2" style={{ fontWeight: "bold" }}>
+								Pacel code:
+							</div>
+						</div>
+						<Input
+							type="text"
+							status={errorForm["pacel"] ? "error" : ""}
+							value={order.pacelCode}
+							allowClear
+							onChange={(e) =>
+								setOrder({
+									...order,
+									pacelCode: e.target.value,
+								})
+							}
+							onKeyDown={() => clearErrorBorder("pacel")}
+						/>
+					</>
+				)}
 
 				<div className="text-right mt-3">
-					<button className="btn btn-primary font-weight-bold" onClick={() => {handleStatusChange();}}>
+					<button
+						className="btn btn-primary font-weight-bold"
+						onClick={() => {
+							handleStatusChange();
+						}}>
 						<i className="fa fa-save mr-2"></i>
 						Save
 					</button>
@@ -516,7 +608,7 @@ function Order() {
 					<label className="form-label">Address</label>
 					<TextArea
 						rows={5}
-						status={errorForm["phone"] ? "error" : ""}
+						status={errorForm["address"] ? "error" : ""}
 						value={order.address}
 						allowClear
 						onChange={(e) =>
@@ -525,7 +617,7 @@ function Order() {
 								address: e.target.value,
 							})
 						}
-						onKeyDown={() => clearErrorBorder("phone")}
+						onKeyDown={() => clearErrorBorder("address")}
 					/>
 				</div>
 
@@ -549,7 +641,11 @@ function Order() {
 				</div>
 
 				<div className="text-right mt-3">
-					<button className="btn btn-primary font-weight-bold" onClick={() => {handleInfoChange();}}>
+					<button
+						className="btn btn-primary font-weight-bold"
+						onClick={() => {
+							handleInfoChange();
+						}}>
 						<i className="fa fa-save mr-2"></i>
 						Save
 					</button>

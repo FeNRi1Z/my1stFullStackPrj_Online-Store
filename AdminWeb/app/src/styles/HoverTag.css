@@ -1,14 +1,17 @@
 .hoverable-tag {
-    font-weight: bolder;
-    font-size: 15px;
-    cursor: pointer;
-    color: var(--color);
-    background-color: transparent;
-    transition: all 0.5s ease;
-  }
-  
-  .hoverable-tag:hover {
-    opacity: 1;
-    background-color: var(--color);
-  }
-  
+	font-weight: bolder;
+	font-size: 15px;
+	cursor: pointer;
+	color: var(--color);
+	background-color: transparent;
+	transition: all 0.5s ease;
+}
+
+.hoverable-tag:hover {
+	opacity: 1;
+	background-color: var(--color);
+}
+
+.ant-picker-dropdown {
+	z-index: 1056;
+}

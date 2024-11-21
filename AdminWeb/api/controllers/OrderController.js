@@ -70,4 +70,20 @@ app.get("/orderList", checkSignIn, async (req, res) => {
 	}
 });
 
+app.put("/orderUpdate", checkSignIn, async (req, res) => {
+	try {
+		await prisma.order.update({
+			data: req.body,
+			where: {
+				id: req.body.id,
+			},
+		});
+
+		res.send({ message: "success" });
+	} catch (e) {
+		console.log("Error: Order update", e);
+		res.status(500).send({ error: e.message });
+	}
+});
+
 module.exports = app;
