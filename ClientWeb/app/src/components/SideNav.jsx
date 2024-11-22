@@ -28,28 +28,28 @@ const SideNav = ({ isOpen, onClose }) => {
       </div>
       <nav className="flex flex-col items-center mt-8">
         <a 
-          href="#" 
+          href="/" 
           onClick={onClose}
           className="mb-4 text-xl text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white"
         >
           Home
         </a>
         <a 
-          href="#" 
+          href="" 
           onClick={onClose}
           className="mb-4 text-xl text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white"
         >
           About
         </a>
         <a 
-          href="#" 
+          href="" 
           onClick={onClose}
           className="mb-4 text-xl text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white"
         >
           Services
         </a>
         <a 
-          href="#" 
+          href="" 
           onClick={onClose}
           className="mb-4 text-xl text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white"
         >
