@@ -6,6 +6,7 @@ import {
     ChevronRight,
     CheckCircle
 } from 'lucide-react';
+import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../components/CartProvider';
 import { useTheme } from '../components/ThemeProvider';
@@ -20,7 +21,7 @@ const Checkout = () => {
     const { theme } = useTheme();
     const { cartItems } = useCart();
 
-    {/* Mock user data */}
+    {/* Mock user data */ }
     const [userData, setUserData] = useState({
         firstName: 'John',
         lastName: 'Doe',
@@ -28,7 +29,7 @@ const Checkout = () => {
         phone: '+1 234-567-8900'
     });
 
-    {/* Handle address modal update */}
+    {/* Handle address modal update */ }
     const handleAddressUpdate = (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
@@ -43,7 +44,7 @@ const Checkout = () => {
         }
     };
 
-    {/* Handle phone modal update */}
+    {/* Handle phone modal update */ }
     const handlePhoneUpdate = (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
@@ -56,6 +57,23 @@ const Checkout = () => {
             }));
             setPhoneModalVisible(false);
         }
+    };
+
+    message.config({
+        top: 24,
+        duration: 2,
+        maxCount: 1,
+    });
+
+    const handleNextStep = () => {
+        if (currentStep === 2 && !paymentMethod) {
+            message.warning({
+                content: 'Please select a payment method',
+                className: `custom-message ${theme === 'dark' ? 'dark' : 'light'}`
+            });
+            return;
+        }
+        setCurrentStep(prev => prev + 1);
     };
 
     const Modal = ({ isOpen, onClose, title, children }) => {
@@ -192,7 +210,7 @@ const Checkout = () => {
                                 {[
                                     { value: 'cod', label: 'Cash on Delivery' },
                                     { value: 'qr', label: 'Bank Transfer' },
-                                    { value: 'credit', label: 'Credit Card' }
+                                    // { value: 'credit', label: 'Credit Card' }
                                 ].map(option => (
                                     <div
                                         key={option.value}
@@ -257,7 +275,7 @@ const Checkout = () => {
         }
     };
 
-    {/* Modal section */}
+    {/* Modal section */ }
     const addressModal = (
         <Modal
             isOpen={addressModalVisible}
@@ -386,10 +404,10 @@ const Checkout = () => {
                         <button
                             onClick={() => currentStep === 1 ? navigate('/') : setCurrentStep(prev => prev - 1)}
                             className="flex items-center px-6 py-2 bg-white dark:bg-background-secondary-dark 
-                                     text-text-dark dark:text-text-light rounded-md 
-                                     border border-gray-200 dark:border-gray-700
-                                     hover:bg-gray-100 dark:hover:bg-gray-700
-                                     focus:outline-none transition-colors"
+                             text-text-dark dark:text-text-light rounded-md 
+                             border border-gray-200 dark:border-gray-700
+                             hover:bg-gray-100 dark:hover:bg-gray-700
+                             focus:outline-none transition-colors"
                         >
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             {currentStep === 1 ? 'Back to Home' : 'Previous'}
@@ -397,16 +415,10 @@ const Checkout = () => {
 
                         {currentStep < 3 && (
                             <button
-                                onClick={() => {
-                                    if (currentStep === 2 && !paymentMethod) {
-                                        alert('Please select a payment method');
-                                        return;
-                                    }
-                                    setCurrentStep(prev => prev + 1);
-                                }}
+                                onClick={handleNextStep}
                                 className="flex items-center px-6 py-2 bg-primary-100 text-white rounded-md
-                                         hover:bg-primary-hover active:bg-primary-active
-                                         focus:outline-none transition-colors"
+                                 hover:bg-primary-hover active:bg-primary-active
+                                 focus:outline-none transition-colors"
                             >
                                 Next
                                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -416,8 +428,8 @@ const Checkout = () => {
                             <button
                                 onClick={() => navigate('/Orders')}
                                 className="flex items-center px-6 py-2 bg-primary-100 text-white rounded-md
-                                         hover:bg-primary-hover active:bg-primary-active
-                                         focus:outline-none transition-colors"
+                                 hover:bg-primary-hover active:bg-primary-active
+                                 focus:outline-none transition-colors"
                             >
                                 Order history
                                 <ChevronRight className="w-4 h-4 ml-2" />
