@@ -29,7 +29,7 @@ const NavLink = ({ href, children }) => (
   </a>
 );
 
-const NavBar = ({ onCartOpen, showThemeToggle = true }) => {
+const NavBar = ({ onCartOpen, showThemeToggle = true   }) => {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const { cartCount } = useCart();
@@ -53,10 +53,10 @@ const NavBar = ({ onCartOpen, showThemeToggle = true }) => {
 
               {/* Desktop Navigation */}
               <div className="hidden md:flex items-center space-x-4 ml-4">
-                <NavLink href="#">Home</NavLink>
-                <NavLink href="#">About</NavLink>
-                <NavLink href="#">Services</NavLink>
-                <NavLink href="#">Contact</NavLink>
+                <NavLink href="/">Home</NavLink>
+                <NavLink href="">About</NavLink>
+                <NavLink href="">Services</NavLink>
+                <NavLink href="">Contact</NavLink>
               </div>
             </div>
 
