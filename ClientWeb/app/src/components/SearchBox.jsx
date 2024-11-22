@@ -100,7 +100,7 @@ const SearchBox = ({ onSearch, onShowAll }) => {
       </div>
 
       {/* Show All Button */}
-      <button
+      {/* <button
         type="button"
         onClick={onShowAll}
         disabled={isLoading}
@@ -113,7 +113,7 @@ const SearchBox = ({ onSearch, onShowAll }) => {
                  disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Show All
-      </button>
+      </button> */}
     </form>
   );
 };
