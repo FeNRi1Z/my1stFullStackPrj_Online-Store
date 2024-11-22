@@ -1,0 +1,254 @@
+{
+    "books": [
+      {
+        "id": 1,
+        "name": "Intermezzo",
+        "author": "Sally Rooney",
+        "img": "/api/placeholder/150/200",
+        "price": 24.99,
+        "quantity": 15,
+        "desc": "A compelling contemporary novel about relationships and modern life",
+        "categoriesName": ["Novel", "Contemporary Fiction"]
+      },
+      {
+        "id": 2,
+        "name": "Atomic Habits",
+        "author": "James Clear",
+        "img": "/api/placeholder/150/200",
+        "price": 19.99,
+        "quantity": 25,
+        "desc": "Transform your life with tiny changes in behavior",
+        "categoriesName": ["Self-love", "Personal Development", "Psychology"]
+      },
+      {
+        "id": 3,
+        "name": "Everything is Predictable",
+        "author": "Tom Chivers",
+        "img": "/api/placeholder/150/200",
+        "price": 27.99,
+        "quantity": 12,
+        "desc": "An exploration of predictive science and human behavior",
+        "categoriesName": ["Science", "Psychology", "Technology"]
+      },
+      {
+        "id": 4,
+        "name": "The City and Its Uncertain Walls",
+        "author": "Haruki Murakami",
+        "img": "/api/placeholder/150/200",
+        "price": 26.99,
+        "quantity": 18,
+        "desc": "A surreal journey through memory and imagination",
+        "categoriesName": ["Novel", "Literary Fiction", "Contemporary Fiction"]
+      },
+      {
+        "id": 5,
+        "name": "The Mountain Is You",
+        "author": "Brianna Wiest",
+        "img": "/api/placeholder/150/200",
+        "price": 18.99,
+        "quantity": 30,
+        "desc": "Transforming self-sabotage into self-mastery",
+        "categoriesName": ["Self-love", "Personal Development"]
+      },
+      {
+        "id": 6,
+        "name": "Eve: How The Female Body Drove 200 Million Years of Human Evolution",
+        "author": "Cat Bohannon",
+        "img": "/api/placeholder/150/200",
+        "price": 29.99,
+        "quantity": 20,
+        "desc": "A groundbreaking exploration of female evolution",
+        "categoriesName": ["Science", "History", "Gender Studies"]
+      },
+      {
+        "id": 7,
+        "name": "Creation Lake",
+        "author": "Rachel Kushner",
+        "img": "/api/placeholder/150/200",
+        "price": 23.99,
+        "quantity": 22,
+        "desc": "A powerful story of art and ambition",
+        "categoriesName": ["Novel", "Literary Fiction"]
+      },
+      {
+        "id": 8,
+        "name": "Healing Is the New High",
+        "author": "Vex King",
+        "img": "/api/placeholder/150/200",
+        "price": 17.99,
+        "quantity": 35,
+        "desc": "A guide to transformative healing and personal growth",
+        "categoriesName": ["Self-love", "Spirituality"]
+      },
+      {
+        "id": 9,
+        "name": "Your Face Belongs to Us",
+        "author": "Kashmir Hill",
+        "img": "/api/placeholder/150/200",
+        "price": 25.99,
+        "quantity": 15,
+        "desc": "An investigation into facial recognition technology and privacy",
+        "categoriesName": ["Science", "Technology", "Current Affairs"]
+      },
+      {
+        "id": 10,
+        "name": "Absolution",
+        "author": "Jeff VanderMeer",
+        "img": "/api/placeholder/150/200",
+        "price": 24.99,
+        "quantity": 20,
+        "desc": "A mind-bending exploration of environmental themes",
+        "categoriesName": ["Novel", "Science Fiction"]
+      },
+      {
+        "id": 11,
+        "name": "The Anxious Generation",
+        "author": "Jonathan Haidt",
+        "img": "/api/placeholder/150/200",
+        "price": 22.99,
+        "quantity": 25,
+        "desc": "Understanding and addressing modern anxiety",
+        "categoriesName": ["Self-love", "Psychology", "Current Affairs"]
+      },
+      {
+        "id": 12,
+        "name": "A City on Mars",
+        "author": "Kelly and Zach Weinersmith",
+        "img": "/api/placeholder/150/200",
+        "price": 28.99,
+        "quantity": 18,
+        "desc": "Exploring the possibilities of Mars colonization",
+        "categoriesName": ["Science", "Technology", "Space"]
+      },
+      {
+        "id": 13,
+        "name": "All Fours",
+        "author": "Miranda July",
+        "img": "/api/placeholder/150/200",
+        "price": 21.99,
+        "quantity": 20,
+        "desc": "A quirky exploration of human connections",
+        "categoriesName": ["Novel", "Contemporary Fiction"]
+      },
+      {
+        "id": 14,
+        "name": "Be Ready When the Luck Happens",
+        "author": "Ina Garten",
+        "img": "/api/placeholder/150/200",
+        "price": 19.99,
+        "quantity": 28,
+        "desc": "A guide to creating your own opportunities",
+        "categoriesName": ["Self-love", "Personal Development"]
+      },
+      {
+        "id": 15,
+        "name": "The Last of Its Kind",
+        "author": "Gísli Pálsson",
+        "img": "/api/placeholder/150/200",
+        "price": 26.99,
+        "quantity": 15,
+        "desc": "An examination of extinction and conservation",
+        "categoriesName": ["Science", "Nature", "Environmental Studies"]
+      },
+      {
+        "id": 16,
+        "name": "Beautyland",
+        "author": "Marie-Helene Bertino",
+        "img": "/api/placeholder/150/200",
+        "price": 23.99,
+        "quantity": 22,
+        "desc": "A magical realist tale of beauty and belonging",
+        "categoriesName": ["Novel", "Literary Fiction"]
+      },
+      {
+        "id": 17,
+        "name": "Coming Home",
+        "author": "Brittney Griner",
+        "img": "/api/placeholder/150/200",
+        "price": 24.99,
+        "quantity": 30,
+        "desc": "A memoir of resilience and return",
+        "categoriesName": ["Self-love", "Memoir", "Sports"]
+      },
+      {
+        "id": 18,
+        "name": "Why We Die",
+        "author": "Venki Ramakrishnan",
+        "img": "/api/placeholder/150/200",
+        "price": 27.99,
+        "quantity": 20,
+        "desc": "A scientific exploration of mortality",
+        "categoriesName": ["Science", "Biology", "Philosophy"]
+      },
+      {
+        "id": 19,
+        "name": "The Book of Love",
+        "author": "Kelly Link",
+        "img": "/api/placeholder/150/200",
+        "price": 22.99,
+        "quantity": 25,
+        "desc": "A collection of magical stories about love",
+        "categoriesName": ["Novel", "Short Stories", "Fantasy"]
+      },
+      {
+        "id": 20,
+        "name": "Grief Is for People",
+        "author": "Sloane Crosley",
+        "img": "/api/placeholder/150/200",
+        "price": 20.99,
+        "quantity": 28,
+        "desc": "A profound exploration of loss and healing",
+        "categoriesName": ["Self-love", "Psychology", "Memoir"]
+      },
+      {
+        "id": 21,
+        "name": "บุพเพสันนิวาส",
+        "author": "รอมแพง",
+        "img": "/api/placeholder/150/200",
+        "price": 25.99,
+        "quantity": 20,
+        "desc": "เรื่องราวสนุกสนานเกิดขึ้นเมื่อ เกศสุรางค์ ประสบอุบัติเหตุทางรถยนต์ แล้วลืมตาตื่นขึ้นมาในร่างของสาวสวย ผอมบาง",
+        "categoriesName": ["Novel", "Historical Fiction", "Romance"]
+      },
+      {
+        "id": 22,
+        "name": "สี่แผ่นดิน",
+        "author": "คึกฤทธิ์ ปราโมช",
+        "img": "https://books.google.com/books/content?id=0UdkAAAAMAAJ",
+        "price": 29.99,
+        "quantity": 20,
+        "desc": "นวนิยายประวัติศาสตร์ที่เล่าเรื่องราวชีวิตของแม่พลอย ผ่านยุคสมัยของพระมหากษัตริย์ไทยสี่รัชกาล ตั้งแต่รัชกาลที่ 5 ถึงรัชกาลที่ 8",
+        "categoriesName": ["Historical Fiction", "Literary Fiction", "Classic"]
+      },
+      {
+        "id": 23,
+        "name": "คู่กรรม",
+        "author": "ทมยันตี",
+        "img": "https://books.google.com/books/content?id=KEJkAAAAMAAJ",
+        "price": 26.99,
+        "quantity": 30,
+        "desc": "นิยายรักในช่วงสงครามโลกครั้งที่สอง เรื่องราวความรักระหว่างหญิงไทยกับทหารญี่ปุ่น",
+        "categoriesName": ["Historical Fiction", "Romance", "Drama"]
+      },
+      {
+        "id": 24,
+        "name": "ลูกอีสาน",
+        "author": "คำพูน บุญทวี",
+        "img": "https://books.google.com/books/content?id=U-0zAAAAIAAJ",
+        "price": 19.99,
+        "quantity": 25,
+        "desc": "เรื่องราวชีวิตของเด็กชายคูน เด็กชาวอีสานที่เติบโตท่ามกลางความยากจน สะท้อนวิถีชีวิตและวัฒนธรรมอีสาน",
+        "categoriesName": ["Literary Fiction", "Cultural", "Classic"]
+      },
+      {
+        "id": 25,
+        "name": "อีเกิ้งดวงกลม",
+        "author": "จตุพร แพงทองดี",
+        "img": "https://books.google.com/books/content?id=91dWDwAAQBAJ",
+        "price": 22.99,
+        "quantity": 18,
+        "desc": "เรื่องราวของคำดั้วที่ภูมิใจในความเป็นลูกอีสาน สะท้อนวิถีชีวิต อาหารการกิน ความเชื่อ วัฒนธรรมประเพณี และภาษาของคนอีสาน",
+        "categoriesName": ["Cultural", "Literary Fiction", "Contemporary"]
+      }
+    ]
+  }

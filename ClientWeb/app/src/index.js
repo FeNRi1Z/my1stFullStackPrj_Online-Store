@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-
+import { ThemeProvider } from './components/ThemeProvider';
+import { CartProvider } from './components/CartProvider';
 import {
   createBrowserRouter,
   RouterProvider
@@ -13,7 +14,7 @@ import Register from './pages/Register';
 import Store from './pages/Store';
 import Profile from './pages/Profile';
 import Orders from './pages/Orders';
-
+import Checkout from './pages/Checkout';
 
 const router = createBrowserRouter([
   {
@@ -39,10 +40,20 @@ const router = createBrowserRouter([
   {
     path: '/Orders',
     element: <Orders />
+  },
+  {
+    path: '/Checkout',
+    element: <Checkout />
   }
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <RouterProvider router={router} />
+  <React.StrictMode>
+    <ThemeProvider>
+      <CartProvider>
+        <RouterProvider router={router} />
+      </CartProvider>
+    </ThemeProvider>
+  </React.StrictMode>
 );

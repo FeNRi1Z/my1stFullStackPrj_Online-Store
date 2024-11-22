@@ -1,0 +1,278 @@
+{
+  "Novel": [
+    {
+      "id": 1,
+      "cover": "/api/placeholder/150/200",
+      "title": "Intermezzo",
+      "author": "Sally Rooney"
+    },
+    {
+      "id": 2,
+      "cover": "/api/placeholder/150/200",
+      "title": "The City and Its Uncertain Walls",
+      "author": "Haruki Murakami"
+    },
+    {
+      "id": 3,
+      "cover": "/api/placeholder/150/200",
+      "title": "Creation Lake",
+      "author": "Rachel Kushner"
+    },
+    {
+      "id": 4,
+      "cover": "/api/placeholder/150/200",
+      "title": "Absolution",
+      "author": "Jeff VanderMeer"
+    },
+    {
+      "id": 5,
+      "cover": "/api/placeholder/150/200",
+      "title": "All Fours",
+      "author": "Miranda July"
+    },
+    {
+      "id": 6,
+      "cover": "/api/placeholder/150/200",
+      "title": "Beautyland",
+      "author": "Marie-Helene Bertino"
+    },
+    {
+      "id": 7,
+      "cover": "/api/placeholder/150/200",
+      "title": "The Book of Love",
+      "author": "Kelly Link"
+    },
+    {
+      "id": 8,
+      "cover": "/api/placeholder/150/200",
+      "title": "The Bright Sword",
+      "author": "Lev Grossman"
+    },
+    {
+      "id": 9,
+      "cover": "/api/placeholder/150/200",
+      "title": "Catalina",
+      "author": "Karla Cornejo Villavicencio"
+    },
+    {
+      "id": 10,
+      "cover": "/api/placeholder/150/200",
+      "title": "Funny Story",
+      "author": "Emily Henry"
+    },
+    {
+      "id": 11,
+      "cover": "/api/placeholder/150/200",
+      "title": "The God of the Woods",
+      "author": "Liz Moore"
+    },
+    {
+      "id": 12,
+      "cover": "/api/placeholder/150/200",
+      "title": "Greta & Valdin",
+      "author": "Rebecca K Reilly"
+    },
+    {
+      "id": 13,
+      "cover": "/api/placeholder/150/200",
+      "title": "James",
+      "author": "Percival Everett"
+    },
+    {
+      "id": 14,
+      "cover": "/api/placeholder/150/200",
+      "title": "Knife",
+      "author": "Salman Rushdie"
+    },
+    {
+      "id": 15,
+      "cover": "/api/placeholder/150/200",
+      "title": "Long Island",
+      "author": "Colm Tóibín"
+    }
+  ],
+  "Self-love": [
+    {
+      "id": 1,
+      "cover": "/api/placeholder/150/200",
+      "title": "Atomic Habits",
+      "author": "James Clear"
+    },
+    {
+      "id": 2,
+      "cover": "/api/placeholder/150/200",
+      "title": "The Mountain Is You",
+      "author": "Brianna Wiest"
+    },
+    {
+      "id": 3,
+      "cover": "/api/placeholder/150/200",
+      "title": "Healing Is the New High",
+      "author": "Vex King"
+    },
+    {
+      "id": 4,
+      "cover": "/api/placeholder/150/200",
+      "title": "The Subtle Art of Not Giving a F*ck",
+      "author": "Mark Manson"
+    },
+    {
+      "id": 5,
+      "cover": "/api/placeholder/150/200",
+      "title": "The Anxious Generation",
+      "author": "Jonathan Haidt"
+    },
+    {
+      "id": 6,
+      "cover": "/api/placeholder/150/200",
+      "title": "Be Ready When the Luck Happens",
+      "author": "Ina Garten"
+    },
+    {
+      "id": 7,
+      "cover": "/api/placeholder/150/200",
+      "title": "Coming Home",
+      "author": "Brittney Griner"
+    },
+    {
+      "id": 8,
+      "cover": "/api/placeholder/150/200",
+      "title": "Grief Is for People",
+      "author": "Sloane Crosley"
+    },
+    {
+      "id": 9,
+      "cover": "/api/placeholder/150/200",
+      "title": "Health and Safety",
+      "author": "Emily Witt"
+    },
+    {
+      "id": 10,
+      "cover": "/api/placeholder/150/200",
+      "title": "I'm Mostly Here to Enjoy Myself",
+      "author": "Glynnis MacNicol"
+    },
+    {
+      "id": 11,
+      "cover": "/api/placeholder/150/200",
+      "title": "Lessons for Survival",
+      "author": "Emily Raboteau"
+    },
+    {
+      "id": 12,
+      "cover": "/api/placeholder/150/200",
+      "title": "More, Please",
+      "author": "Emma Specter"
+    },
+    {
+      "id": 13,
+      "cover": "/api/placeholder/150/200",
+      "title": "Rejection",
+      "author": "Tony Tulathimutte"
+    },
+    {
+      "id": 14,
+      "cover": "/api/placeholder/150/200",
+      "title": "Survival Is a Promise",
+      "author": "Alexis Pauline Gumbs"
+    },
+    {
+      "id": 15,
+      "cover": "/api/placeholder/150/200",
+      "title": "Tell Me Everything",
+      "author": "Elizabeth Strout"
+    }
+  ],
+  "Science": [
+    {
+      "id": 1,
+      "cover": "/api/placeholder/150/200",
+      "title": "Everything is Predictable",
+      "author": "Tom Chivers"
+    },
+    {
+      "id": 2,
+      "cover": "/api/placeholder/150/200",
+      "title": "Eve: How The Female Body Drove 200 Million Years of Human Evolution",
+      "author": "Cat Bohannon"
+    },
+    {
+      "id": 3,
+      "cover": "/api/placeholder/150/200",
+      "title": "Your Face Belongs to Us",
+      "author": "Kashmir Hill"
+    },
+    {
+      "id": 4,
+      "cover": "/api/placeholder/150/200",
+      "title": "The Last of Its Kind",
+      "author": "Gísli Pálsson"
+    },
+    {
+      "id": 5,
+      "cover": "/api/placeholder/150/200",
+      "title": "Why We Die",
+      "author": "Venki Ramakrishnan"
+    },
+    {
+      "id": 6,
+      "cover": "/api/placeholder/150/200",
+      "title": "A City on Mars",
+      "author": "Kelly and Zach Weinersmith"
+    },
+    {
+      "id": 7,
+      "cover": "/api/placeholder/150/200",
+      "title": "The Anthropologists",
+      "author": "Ayşegül Savaş"
+    },
+    {
+      "id": 8,
+      "cover": "/api/placeholder/150/200",
+      "title": "The Book Censor's Library",
+      "author": "Bothayna Al-Essa"
+    },
+    {
+      "id": 9,
+      "cover": "/api/placeholder/150/200",
+      "title": "The Bookshop",
+      "author": "Evan Friss"
+    },
+    {
+      "id": 10,
+      "cover": "/api/placeholder/150/200",
+      "title": "Feeding Ghosts",
+      "author": "Tessa Hulls"
+    },
+    {
+      "id": 11,
+      "cover": "/api/placeholder/150/200",
+      "title": "Get the Picture",
+      "author": "Bianca Bosker"
+    },
+    {
+      "id": 12,
+      "cover": "/api/placeholder/150/200",
+      "title": "The Great Divide",
+      "author": "Cristina Henríquez"
+    },
+    {
+      "id": 13,
+      "cover": "/api/placeholder/150/200",
+      "title": "Hip-Hop Is History",
+      "author": "Questlove"
+    },
+    {
+      "id": 14,
+      "cover": "/api/placeholder/150/200",
+      "title": "The Light Eaters",
+      "author": "Zoë Schlanger"
+    },
+    {
+      "id": 15,
+      "cover": "/api/placeholder/150/200",
+      "title": "Soldiers and Kings",
+      "author": "Jason de León"
+    }
+  ]
+}
