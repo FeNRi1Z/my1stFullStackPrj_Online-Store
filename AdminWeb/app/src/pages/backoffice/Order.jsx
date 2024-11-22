@@ -416,20 +416,21 @@ function Order() {
 	);
 
 	const [errorForm, setErrorForm] = useState({
-		address: "",
-		phone: "",
-		pacel: "",
+		statusDetail: false,
+		address: false,
+		phone: false,
+		pacel: false,
+		paymentDate: false,
+		paymentSlipIMG: false,
 	});
 	const clearErrorBorder = (e) => {
 		setErrorForm((prev) => ({
 			...prev,
-			[e]: "",
+			[e]: false,
 		}));
 	};
 
 	const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
-
-	const handleStatusChange = () => {};
 
 	const [img, setImg] = useState(null);
 	const refImg = useRef(null);
@@ -439,8 +440,62 @@ function Order() {
 			setImg(inputFile[0]);
 		}
 	};
+	const handleUpload = async () => {
 
-	const handleInfoChange = () => {};
+	};
+
+	const handleSave = async (mode) => {
+		try {
+			// Validate
+			let errorList = [];
+
+			if (mode === "status") {
+				order.status = selectedStatus;
+				order.statusDetail = order.statusDetail ? order.statusDetail : statusConfig[selectedStatus].statusDetail;
+
+				if (selectedStatus === "Paid") {
+					if (order.paymentDate === null) errorList["paymentDate"] = true;
+					if (isChangeIMG && !img) errorList["paymentSlipIMG"] = true;
+
+					if (Object.keys(errorList).length > 0) {
+						setErrorForm((prev) => ({
+							...prev,
+							...errorList,
+						}));
+						return;
+					}
+
+					order.paymentDate = dayjs(order.paymentDate).format("YYYY-MM-DD HH:mm:ss");
+					order.paymentSlipIMG = isChangeIMG ? await handleUpload() : order.paymentSlipIMG;
+
+					const result = await axios.put(config.apiPath + "/order/orderUpdate/", order, config.headers());
+				} 
+				else if (selectedStatus === "Shipped") {
+					
+				}
+			} else {
+				if (!order.address) errorList["address"] = true;
+				if (!order.phone) errorList["phone"] = true;
+
+				if (Object.keys(errorList).length > 0) {
+					setErrorForm((prev) => ({
+						...prev,
+						...errorList,
+					}));
+					return;
+				}
+
+				const result = await axios.put(config.apiPath + "/order/orderUpdate/", order, config.headers());
+			}
+		} catch (e) {
+			Swal.fire({
+				title: "Error!",
+				text: e.message,
+				icon: "error",
+				confirmButtonColor: "#dc3545",
+			});
+		}
+	};
 
 	return (
 		<BackOffice>
@@ -529,6 +584,7 @@ function Order() {
 						</div>
 						<DatePicker
 							allowClear={true}
+							error={errorForm["paymentDate"] ? "error" : ""}
 							showTime
 							showNow
 							defaultValue={order.paymentDate ? dayjs(order.paymentDate) : null}
@@ -546,7 +602,7 @@ function Order() {
 						/>
 						<div className={`mt-2 ${isChangeIMG ? "" : "text-center"}`}>
 							<div style={{ fontWeight: "bold" }}>Payment slip image:</div>
-							{isChangeIMG && <input className="mt-1" type="file" ref={refImg} onChange={(e) => selectedFile(e.target.files)} />}
+							{isChangeIMG && <Input className="mt-1" type="file" ref={refImg} onChange={(e) => selectedFile(e.target.files)} error={errorForm["paymentSlipIMG"] ? "error" : ""} />}
 
 							{!isChangeIMG && (
 								<div class="container containerIMG mt-1" onClick={async () => await setIsChangeIMG(true)}>
@@ -595,7 +651,7 @@ function Order() {
 					<button
 						className="btn btn-primary font-weight-bold"
 						onClick={() => {
-							handleStatusChange();
+							handleSave("status");
 						}}>
 						<i className="fa fa-save mr-2"></i>
 						Save
@@ -644,7 +700,7 @@ function Order() {
 					<button
 						className="btn btn-primary font-weight-bold"
 						onClick={() => {
-							handleInfoChange();
+							handleSave("info");
 						}}>
 						<i className="fa fa-save mr-2"></i>
 						Save
