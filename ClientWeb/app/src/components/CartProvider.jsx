@@ -24,20 +24,22 @@ export const CartProvider = ({ children }) => {
       let updatedItems;
 
       if (existingItemIndex !== -1) {
-        // Update existing item
-        updatedItems = prevItems.map((cartItem, index) => {
-          if (index === existingItemIndex) {
-            return {
-              ...cartItem,
-              quantity: cartItem.quantity + item.quantity,
-              totalPrice: (cartItem.quantity + item.quantity) * cartItem.price
-            };
-          }
-          return cartItem;
-        });
+        // Update existing item and move it to the top
+        const existingItem = prevItems[existingItemIndex];
+        const updatedItem = {
+          ...existingItem,
+          quantity: existingItem.quantity + item.quantity,
+          totalPrice: (existingItem.quantity + item.quantity) * existingItem.price
+        };
+        
+        // Update items
+        updatedItems = [
+          updatedItem,
+          ...prevItems.filter(i => i.id !== item.id)
+        ];
       } else {
         // Add new item
-        updatedItems = [...prevItems, { ...item }];
+        updatedItems = [{ ...item }, ...prevItems];
       }
 
       // Update localStorage and cart count
