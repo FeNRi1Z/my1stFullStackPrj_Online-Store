@@ -112,7 +112,7 @@ app.put("/update", checkSignIn, async (req, res) => {
 				id: parseInt(req.body.id),
 			},
 		});
-		if (oldData.img !== "noIMGFile") {
+		if (req.body.deleteIMG) {
 			if (fs.existsSync("./uploads/product_img/" + oldData.img)) {
 				await fs.unlinkSync("./uploads/product_img/" + oldData.img); // Delete old file
 			}
@@ -269,7 +269,7 @@ app.post("/upload", checkSignIn, async (req, res) => {
 			res.send({ newName: "noIMGFile" });
 		}
 	} catch (e) {
-		res.status(500).send({ error: e.message });
+		res.status(500).send({ error: e.message, newName: "noIMGFile" });
 	}
 });
 

@@ -2,13 +2,16 @@ const express = require("express");
 const app = express.Router();
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
-const { format } = require("date-fns");
+const fileUpload = require("express-fileupload");
+const fs = require("fs");
+const ifIsImage = require("if-is-image");
 
 dotenv.config();
 
 const { checkSignIn } = require("../middleware/auth");
+
+app.use(fileUpload());
 
 app.post("/orderCreate", checkSignIn, async (req, res) => {
     
@@ -48,8 +51,7 @@ app.get("/orderList", checkSignIn, async (req, res) => {
 
 		const transOrderList = orderList.map((order) => ({
 			...order,
-			orderDate: format(new Date(order.orderDate), "yyyy-MM-dd HH:mm:ss"),
-            paymentDate: order.paymentDate ? format(new Date(order.paymentDate), "yyyy-MM-dd HH:mm:ss") : null,
+            paymentDate: order.paymentDate ? order.paymentDate : null,
 			userName: order.user.name,
 			user: undefined, // Remove original user key
 			orderItems: order.orderItems.map((item) => ({
@@ -72,8 +74,31 @@ app.get("/orderList", checkSignIn, async (req, res) => {
 
 app.put("/orderUpdate", checkSignIn, async (req, res) => {
 	try {
+		// Delete old paymentSlip image
+		const oldData = await prisma.order.findFirst({
+			select: {
+				paymentSlipIMG: true,
+			},
+			where: {
+				id: parseInt(req.body.id),
+			},
+		});
+		if (req.body.deleteIMG) {
+			if (fs.existsSync("./uploads/payment_slip_img/" + oldData.img)) {
+				await fs.unlinkSync("./uploads/payment_slip_img/" + oldData.img); // Delete old file
+			}
+		}
+
 		await prisma.order.update({
-			data: req.body,
+			data: {
+				status: req.body.status,
+				statusDetail: req.body.statusDetail,
+				paymentDate: req.body.paymentDate,
+				paymentSlipIMG: req.body.paymentSlipIMG,
+				parcelCode: req.body.parcelCode,
+				address: req.body.address,
+				phone: req.body.phone,
+			},
 			where: {
 				id: req.body.id,
 			},
@@ -83,6 +108,36 @@ app.put("/orderUpdate", checkSignIn, async (req, res) => {
 	} catch (e) {
 		console.log("Error: Order update", e);
 		res.status(500).send({ error: e.message });
+	}
+});
+
+app.post("/uploadPaymentSlip", checkSignIn, async (req, res) => {
+	try {
+		if (req.files != undefined && req.files.img != undefined && ifIsImage(req.files.img.name)) {
+			const img = req.files.img;
+			const myDate = new Date();
+			const y = myDate.getFullYear();
+			const m = myDate.getMonth() + 1;
+			const d = myDate.getDate();
+			const h = myDate.getHours();
+			const mi = myDate.getMinutes();
+			const s = myDate.getSeconds();
+			const ms = myDate.getMilliseconds();
+
+			const arrFileName = img.name.split(".");
+			const ext = arrFileName[arrFileName.length - 1];
+
+			const newName = `${y}${m}${d}${h}${mi}${s}${ms}.${ext}`;
+
+			img.mv("./uploads/payment_slip_img/" + newName, (err) => {
+				if (err) throw err;
+				res.send({ newName: newName });
+			});
+		} else {
+			res.send({ newName: null });
+		}
+	} catch (e) {
+		res.status(500).send({ error: e.message, newName: null });
 	}
 });
 
