@@ -21,7 +21,6 @@ const Register = () => {
   });
 
   const handleInputChange = (e) => {
-    console.log(`Updating ${e.target.id} field with value:`, e.target.value);
     setFormData({
       ...formData,
       [e.target.id]: e.target.value
@@ -37,56 +36,45 @@ const Register = () => {
   };
 
   const validateStep = () => {
-    console.log(`Validating step ${currentStep}`);
     switch (currentStep) {
       case 1:
         if (!formData.firstName || !formData.surname) {
-          console.log('Step 1 validation failed: missing personal information');
           message.warning('Please fill in all personal information fields');
           return false;
         }
-        console.log('Step 1 validation passed');
         return true;
       case 2:
         if (!formData.address || !formData.phone) {
-          console.log('Step 2 validation failed: missing contact information');
           message.warning('Please fill in all contact information fields');
           return false;
         }
-        console.log('Step 2 validation passed');
         return true;
-      case 3:
-        if (!formData.username || !formData.password) {
-          console.log('Step 3 validation failed: missing account information');
-          message.warning('Please fill in all account information fields');
-          return false;
-        }
-        console.log('Step 3 validation passed');
+      case 3: // No validate on last step move validate to handle submit instead.
         return true;
       default:
-        console.log('Invalid step number for validation');
         return false;
     }
   };
 
-  const handleNext = () => {
+  const handleNext = (e) => {
+    // Prevent any form submission when clicking next
+    e?.preventDefault();
+    
     if (validateStep()) {
-      console.log(`Moving to step ${currentStep + 1}`);
       setCurrentStep(currentStep + 1);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Starting form submission');
-
-    if (!validateStep()) {
-      console.log('Final validation failed, aborting submission');
+    
+    // validate username and password in submission
+    if (!formData.username || !formData.password) {
+      message.warning('Please fill in all account information fields');
       return;
     }
 
     setIsLoading(true);
-    console.log('Setting loading state');
 
     try {
       const requestData = {
@@ -97,23 +85,16 @@ const Register = () => {
         phone: formData.phone,
       };
 
-      console.log('Preparing to send registration request with data:', {
-        ...requestData,
-        password: '[REDACTED]'
-      });
-
       try {
         const healthCheck = await fetch('http://localhost:3002/health');
         if (!healthCheck.ok) {
           throw new Error('Server health check failed');
         }
       } catch (error) {
-        console.error('Server health check failed:', error);
         message.error('Cannot connect to server. Please ensure the server is running.');
         return;
       }
 
-      // Proceed with registration
       const response = await fetch('http://localhost:3002/user/register', {
         method: 'POST',
         headers: {
@@ -122,51 +103,28 @@ const Register = () => {
         },
         body: JSON.stringify(requestData),
       });
-
-      console.log('Response status:', response.status);
       
-      // Check if response is JSON
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error(`Expected JSON response but got ${contentType}`);
-      }
-
       const data = await response.json();
-      console.log('Response data:', data);
 
       if (!response.ok) {
         throw new Error(data.message || 'Registration failed');
       }
 
-      console.log('Storing token and role in localStorage');
       localStorage.setItem('token', data.token);
       localStorage.setItem('role', data.role);
-
-      console.log('Showing success message');
+      
       message.success('Registration successful!');
-
-      console.log('Navigating to SignIn page');
       navigate('/SignIn');
     } catch (err) {
-      console.error('Detailed registration error:', {
-        message: err.message,
-        stack: err.stack,
-        type: err.constructor.name
-      });
-      
       if (err.message.includes('Failed to fetch')) {
         message.error('Cannot connect to server. Please ensure the server is running.');
-      } else if (err.message.includes('Unexpected token')) {
-        message.error('Server returned invalid response. Please check server logs.');
       } else {
         message.error(err.message || 'Registration failed');
       }
     } finally {
-      console.log('Resetting loading state');
       setIsLoading(false);
     }
-};
-
+  };
   const renderStep = () => {
     console.log(`Rendering step ${currentStep}`);
     switch (currentStep) {
@@ -302,7 +260,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark p-4 transition-colors duration-300">
-      <div className="w-full max-w-xl">
+  <div className="w-full max-w-xl bg-white/80 dark:bg-background-dark/80 shadow-xl rounded-lg">
         {/* Header Section */}
         <div className="px-8 pt-8 pb-6">
           <h1 className="text-text-dark dark:text-text-light text-4xl font-bold text-center">
