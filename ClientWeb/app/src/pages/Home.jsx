@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../components/ThemeProvider';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import NavBar from '../components/Navbar.jsx';
-import TabPanel from '../components/TabPanel.jsx';
 import BookCard from '../components/BookCard.jsx';
 import SideNav from '../components/SideNav.jsx';
 import CartModal from '../components/CartModal.jsx';
@@ -14,7 +13,6 @@ const Home = () => {
   const [books, setBooks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { theme } = useTheme();
-  const username = "John";
   const storeRef = useRef(null);
   const landingRef = useRef(null);
 
@@ -118,10 +116,10 @@ const Home = () => {
 
         {/* Store Section */}
         <section ref={storeRef} className="min-h-screen pt-24 pb-12">
-          <div className="container mx-auto px-4 sm:px-6 md:px-8 max-w-7xl">
+          <div className="mx-auto px-4 sm:px-6 md:px-8 lg:px-12 w-[95%] 2xl:w-[85%]">
             <div className="flex flex-col space-y-6">
               {/* Store button */}
-              <div className="flex justify-start mt-2"> {/* Added mt-4 for extra top margin */}
+              <div className="flex justify-start mt-2"> 
                 <a
                   href="/Store"
                   className="group inline-flex items-center px-6 py-3 
@@ -152,7 +150,8 @@ const Home = () => {
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4 sm:gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 
+                gap-4 sm:gap-6 md:gap-8 lg:gap-10">
                   {books.map((book) => (
                     <div key={book.id} className="flex justify-center">
                       <BookCard
