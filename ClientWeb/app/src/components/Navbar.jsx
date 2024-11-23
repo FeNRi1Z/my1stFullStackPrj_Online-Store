@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Menu, ShoppingBag, Moon, Sun } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useTheme } from './ThemeProvider';
 import { useCart } from './CartProvider';
+import { useAuth } from './AuthProvider';
 import SideNav from './SideNav';
 
 const ThemeToggleButton = ({ children, onClick, showThemeToggle }) => (
@@ -19,27 +20,37 @@ const ThemeToggleButton = ({ children, onClick, showThemeToggle }) => (
   )
 );
 
-const NavLink = ({ href, children }) => (
-  <a 
-    href={href}
+const NavLink = ({ to, children }) => (
+  <Link
+    to={to}
     className="text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white
                transition-colors px-4 py-2"
   >
     {children}
-  </a>
+  </Link>
 );
 
-const NavBar = ({ onCartOpen, showThemeToggle = true   }) => {
+const NavBar = ({ onCartOpen, showThemeToggle = true }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { theme, toggleTheme } = useTheme();
   const { cartCount } = useCart();
+  const { user, isAuthenticated } = useAuth();
   const [isSideNavOpen, setIsSideNavOpen] = useState(false);
+
+  const handleProfileClick = () => {
+    if (isAuthenticated) {
+      navigate('/profile');
+    } else {
+      navigate('/signin', { state: { from: location } });
+    }
+  };
 
   return (
     <>
       <nav className="w-full bg-white dark:bg-background-dark shadow-sm transition-all duration-300 ease-in-out">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center px-4 sm:px-6 md:px-8 py-4">
+        <div className="mx-auto px-4 sm:px-6 md:px-8 lg:px-12 w-[95%] 2xl:w-[95%]">
+          <div className="flex justify-between items-center py-4">
             {/* Left side - Menu button (mobile) and Navigation links (desktop) */}
             <div className="flex items-center">
               <button
@@ -51,19 +62,18 @@ const NavBar = ({ onCartOpen, showThemeToggle = true   }) => {
                 <Menu className="h-6 w-6 text-text-dark dark:text-text-light" />
               </button>
 
-              {/* Desktop Navigation */}
               <div className="hidden md:flex items-center space-x-4 ml-4">
-                <NavLink href="/">Home</NavLink>
-                <NavLink href="">About</NavLink>
-                <NavLink href="">Services</NavLink>
-                <NavLink href="">Contact</NavLink>
+                <NavLink to="/">Home</NavLink>
+                <NavLink to="/store">Store</NavLink>
+                <NavLink to="/about">About</NavLink>
+                <NavLink to="/contact">Contact</NavLink>
               </div>
             </div>
 
             {/* Right side - Icons group */}
             <div className="flex items-center gap-4">
               {/* Shopping Cart Button */}
-              <button 
+              <button
                 onClick={onCartOpen}
                 className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-background-secondary-dark 
                          transition-colors"
@@ -77,7 +87,7 @@ const NavBar = ({ onCartOpen, showThemeToggle = true   }) => {
                   </span>
                 )}
               </button>
-              
+
               {/* Theme Toggle */}
               <ThemeToggleButton onClick={toggleTheme} showThemeToggle={showThemeToggle}>
                 {theme === 'light' ? (
@@ -87,24 +97,32 @@ const NavBar = ({ onCartOpen, showThemeToggle = true   }) => {
                 )}
               </ThemeToggleButton>
 
-              {/* Avatar */}
-              <div 
-                onClick={() => navigate('/Profile')}
+              {/* Profile Button/Avatar */}
+              <button
+                onClick={handleProfileClick}
                 className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-600 cursor-pointer
-                         hover:ring-2 hover:ring-primary-100 transition-all duration-200"
-              />
+                         hover:ring-2 hover:ring-primary-100 transition-all duration-200
+                         flex items-center justify-center overflow-hidden"
+                aria-label="Profile"
+              >
+                {user?.name ? (
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                    {user.name.charAt(0).toUpperCase()}
+                  </span>
+                ) : null}
+              </button>
             </div>
           </div>
         </div>
       </nav>
 
       {/* Mobile SideNav */}
-      <div className="md:hidden">
-        <SideNav 
-          isOpen={isSideNavOpen} 
-          onClose={() => setIsSideNavOpen(false)} 
-        />
-      </div>
+      <SideNav
+        isOpen={isSideNavOpen}
+        onClose={() => setIsSideNavOpen(false)}
+        isAuthenticated={isAuthenticated}
+        user={user}
+      />
     </>
   );
 };
