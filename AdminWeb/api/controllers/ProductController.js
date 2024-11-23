@@ -91,6 +91,42 @@ app.get("/list", checkSignIn, async (req, res) => {
 	}
 });
 
+app.get("/public/list", async (req, res) => {
+    try {
+        const data = await prisma.product.findMany({
+            orderBy: {
+                id: "desc",
+            },
+            where: {
+                status: "use",
+            },
+            include: {
+                author: true,
+                categories: {
+                    include: {
+                        category: true,
+                    },
+                },
+            },
+        });
+
+        const results = data.map((product) => ({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            img: product.img,
+            desc: product.desc,
+            author: product.author.name,
+            categories: product.categories.map((pc) => pc.categoryId),
+            categoriesName: product.categories.map((pc) => pc.category.name),
+        }));
+
+        res.send({ results });
+    } catch (e) {
+        res.status(500).send({ error: e.message });
+    }
+});
+
 app.put("/update", checkSignIn, async (req, res) => {
 	try {
 		const errorList = [];
