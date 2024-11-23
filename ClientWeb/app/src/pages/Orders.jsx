@@ -7,6 +7,7 @@ import { mockOrders } from '../assets/mockData.js';
 import { useTheme } from '../components/ThemeProvider';
 
 const OrderHistory = () => {
+  const [setIsSideNavOpen] = useState(false);
   const { theme } = useTheme();
 
   return (
