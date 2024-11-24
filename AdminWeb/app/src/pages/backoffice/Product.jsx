@@ -337,7 +337,12 @@ function Product() {
 			product.cost = parseInt(product.cost);
 			product.price = parseInt(product.price);
 			product.quantity = parseInt(product.quantity);
-			product.img = isRemoveIMG ? await handleUpload() : product.img;
+			if(isRemoveIMG) {
+				product.img = await handleUpload();
+				product.deleteIMG = true;
+			} else {
+				product.deleteIMG = false;
+			}
 
 			let result;
 			if (!isEdit) {
@@ -534,7 +539,9 @@ function Product() {
 
 	const clearForm = () => {
 		setImg(null);
-		refImg.current.value = "";
+		if (refImg.current) {
+			refImg.current.value = "";
+		}
 		setSelectedAuthor();
 		setIsNewAuthor(false);
 		setSelectedCategory();
@@ -548,6 +555,7 @@ function Product() {
 			authorId: "",
 			quantity: "",
 			categoriesName: "",
+			deleteIMG: false,
 		});
 	};
 

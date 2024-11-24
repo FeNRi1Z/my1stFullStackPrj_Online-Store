@@ -5,7 +5,7 @@ import axios from "axios";
 import dayjs from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
 
-import { Select, Input, Tag, Space, Table, Button, Image, Flex, DatePicker } from "antd";
+import { Select, Input, Tag, Space, Table, Button, Image, Flex, DatePicker, ConfigProvider } from "antd";
 import { createStyles } from "antd-style";
 import {
 	SearchOutlined,
@@ -25,6 +25,7 @@ import config from "../../config";
 import BackOffice from "../../components/BackOffice";
 import MyModal from "../../components/MyModal";
 import "../../styles/HoverTag.css";
+import { render } from "@testing-library/react";
 
 axios.interceptors.response.use(
 	(response) => response, // Return the response normally if successful
@@ -194,6 +195,7 @@ function Order() {
 			...getColumnSearchProps("orderDate"),
 			sorter: (a, b) => new Date(a.orderDate) - new Date(b.orderDate),
 			sortDirections: ["descend", "ascend"],
+			render: (orderDate) => dayjs(orderDate).format("YYYY/MM/DD HH:mm:ss"),
 		},
 		{
 			title: "UserID",
@@ -243,6 +245,7 @@ function Order() {
 			...getColumnSearchProps("paymentDate"),
 			sorter: (a, b) => new Date(a.paymentDate) - new Date(b.paymentDate),
 			sortDirections: ["descend", "ascend"],
+			render: (paymentDate) => (paymentDate ? dayjs(paymentDate).format("YYYY/MM/DD HH:mm:ss") : null),
 		},
 		{
 			title: "Payment Slip",
@@ -283,6 +286,7 @@ function Order() {
 							data-toggle="modal"
 							data-target="#modalOrderStatus"
 							onClick={() => {
+								clearForm();
 								setOrder(record);
 								setSelectedStatus(record.status);
 								record.paymentSlipIMG === null ? setIsChangeIMG(true) : setIsChangeIMG(false);
@@ -299,6 +303,7 @@ function Order() {
 							data-toggle="modal"
 							data-target="#modalOrderInfo"
 							onClick={() => {
+								clearForm();
 								setOrder(record);
 							}}>
 							<i className="ion-edit" style={{ fontSize: "18px" }}></i>
@@ -415,25 +420,10 @@ function Order() {
 		/>
 	);
 
-	const [errorForm, setErrorForm] = useState({
-		statusDetail: false,
-		address: false,
-		phone: false,
-		pacel: false,
-		paymentDate: false,
-		paymentSlipIMG: false,
-	});
-	const clearErrorBorder = (e) => {
-		setErrorForm((prev) => ({
-			...prev,
-			[e]: false,
-		}));
-	};
-
 	const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
 	const [img, setImg] = useState(null);
-	const refImg = useRef(null);
+	const refImg = useRef();
 	const [isChangeIMG, setIsChangeIMG] = useState(true);
 	const selectedFile = (inputFile) => {
 		if (inputFile !== undefined && inputFile.length > 0) {
@@ -441,14 +431,36 @@ function Order() {
 		}
 	};
 	const handleUpload = async () => {
+		try {
+			if (!img) return null;
+			const formData = new FormData();
+			formData.append("img", img);
 
+			const result = await axios.post(config.apiPath + "/order/uploadPaymentSlip", formData, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+					Authorization: localStorage.getItem("token"),
+				},
+			});
+
+			if (result.data.newName !== undefined) {
+				return result.data.newName;
+			}
+		} catch (e) {
+			Swal.fire({
+				title: "Error",
+				text: e.message,
+				icon: "error",
+				confirmButtonColor: "#dc3545",
+			});
+			return null;
+		}
 	};
 
 	const handleSave = async (mode) => {
 		try {
 			// Validate
 			let errorList = [];
-
 			if (mode === "status") {
 				order.status = selectedStatus;
 				order.statusDetail = order.statusDetail ? order.statusDetail : statusConfig[selectedStatus].statusDetail;
@@ -465,17 +477,28 @@ function Order() {
 						return;
 					}
 
-					order.paymentDate = dayjs(order.paymentDate).format("YYYY-MM-DD HH:mm:ss");
-					order.paymentSlipIMG = isChangeIMG ? await handleUpload() : order.paymentSlipIMG;
+					order.paymentDate = new Date(order.paymentDate).toISOString();
+					if (isChangeIMG) {
+						order.paymentSlipIMG = await handleUpload();
+						order.deleteIMG = true;
+					} else {
+						order.deleteIMG = false;
+					}
+				} else if (selectedStatus === "Shipped") {
+					if (!order.parcelCode) errorList["parcelCode"] = true;
 
-					const result = await axios.put(config.apiPath + "/order/orderUpdate/", order, config.headers());
-				} 
-				else if (selectedStatus === "Shipped") {
-					
+					if (Object.keys(errorList).length > 0) {
+						setErrorForm((prev) => ({
+							...prev,
+							...errorList,
+						}));
+						return;
+					}
 				}
 			} else {
+				// mode === "info"
 				if (!order.address) errorList["address"] = true;
-				if (!order.phone) errorList["phone"] = true;
+				if (!order.phone || order.phone.length !== 10 || !/^\d+$/.test(order.phone) || order.phone[0] !== '0') errorList["phone"] = true;
 
 				if (Object.keys(errorList).length > 0) {
 					setErrorForm((prev) => ({
@@ -484,8 +507,20 @@ function Order() {
 					}));
 					return;
 				}
+			}
 
-				const result = await axios.put(config.apiPath + "/order/orderUpdate/", order, config.headers());
+			const result = await axios.put(config.apiPath + "/order/orderUpdate/", order, config.headers());
+
+			if (result.data.message === "success") {
+				Swal.fire({
+					title: "Add product",
+					text: "Order saved successfully",
+					icon: "success",
+					timer: 2000, //2 sec.
+				});
+				fetchData();
+				document.getElementById("modalOrderStatus_btnClose").click();
+				document.getElementById("modalOrderInfo_btnClose").click();
 			}
 		} catch (e) {
 			Swal.fire({
@@ -495,6 +530,33 @@ function Order() {
 				confirmButtonColor: "#dc3545",
 			});
 		}
+	};
+
+	const [errorForm, setErrorForm] = useState({
+		address: false,
+		phone: false,
+		pacelCode: false,
+		paymentDate: false,
+		paymentSlipIMG: false,
+	});
+	const clearErrorBorder = (e) => {
+		setErrorForm((prev) => ({
+			...prev,
+			[e]: false,
+		}));
+	};
+	const clearForm = () => {
+		setImg(null);
+		if (refImg.current) {
+			refImg.current.value = "";
+		}
+		setErrorForm({
+			address: false,
+			phone: false,
+			parcelCode: false,
+			paymentDate: false,
+			paymentSlipIMG: false,
+		});
 	};
 
 	return (
@@ -583,13 +645,16 @@ function Order() {
 							</div>
 						</div>
 						<DatePicker
-							allowClear={true}
-							error={errorForm["paymentDate"] ? "error" : ""}
+							allowClear={false}
+							status={errorForm["paymentDate"] ? "error" : ""}
 							showTime
 							showNow
 							defaultValue={order.paymentDate ? dayjs(order.paymentDate) : null}
 							open={isDatePickerOpen}
-							onFocus={() => setIsDatePickerOpen(true)}
+							onFocus={() => {
+								clearErrorBorder("paymentDate");
+								setIsDatePickerOpen(true);
+							}}
 							onChange={(_, dateString) => {
 								setOrder({
 									...order,
@@ -602,7 +667,18 @@ function Order() {
 						/>
 						<div className={`mt-2 ${isChangeIMG ? "" : "text-center"}`}>
 							<div style={{ fontWeight: "bold" }}>Payment slip image:</div>
-							{isChangeIMG && <Input className="mt-1" type="file" ref={refImg} onChange={(e) => selectedFile(e.target.files)} error={errorForm["paymentSlipIMG"] ? "error" : ""} />}
+							{isChangeIMG ? (
+								<Input
+									className="mt-1"
+									type="file"
+									ref={refImg}
+									onChange={(e) => selectedFile(e.target.files)}
+									status={errorForm["paymentSlipIMG"] ? "error" : ""}
+									onFocus={() => {
+										clearErrorBorder("paymentSlipIMG");
+									}}
+								/>
+							) : <div ref={refImg}></div>}
 
 							{!isChangeIMG && (
 								<div class="container containerIMG mt-1" onClick={async () => await setIsChangeIMG(true)}>
@@ -633,16 +709,16 @@ function Order() {
 						</div>
 						<Input
 							type="text"
-							status={errorForm["pacel"] ? "error" : ""}
-							value={order.pacelCode}
+							status={errorForm["parcelCode"] ? "error" : ""}
+							value={order.parcelCode}
 							allowClear
 							onChange={(e) =>
 								setOrder({
 									...order,
-									pacelCode: e.target.value,
+									parcelCode: e.target.value,
 								})
 							}
-							onKeyDown={() => clearErrorBorder("pacel")}
+							onKeyDown={() => clearErrorBorder("parcelCode")}
 						/>
 					</>
 				)}
