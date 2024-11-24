@@ -12,40 +12,50 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUserInfo = async (token) => {
     try {
+      if (!token) {
+        throw new Error('No token available');
+      }
+
+      // Remove Bearer prefix if present for consistency
+      const cleanToken = token.replace('Bearer ', '');
+      
       const response = await fetch('http://localhost:3002/user/info', {
+        method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': cleanToken,
           'Content-Type': 'application/json'
         }
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setUser({
-          ...data.result,
-          role: localStorage.getItem('role')
-        });
-        return true;
-      } else {
-        const errorData = await response.json();
-        console.error('User info error:', errorData);
-        
+      if (!response.ok) {
         if (response.status === 401) {
           localStorage.removeItem('token');
           localStorage.removeItem('role');
           setUser(null);
-          message.error('Session expired. Please sign in again.');
-          navigate('/signin');
+          throw new Error('Session expired. Please sign in again.');
         }
-        return false;
+        throw new Error('Failed to get user information');
       }
+
+      const data = await response.json();
+      const role = localStorage.getItem('role');
+      
+      setUser({
+        ...data.result,
+        role: role
+      });
+      return true;
+
     } catch (error) {
-      console.error('Error fetching user info:', error);
+      console.error('Error in fetchUserInfo:', error);
+      if (error.message.includes('Session expired')) {
+        message.error(error.message);
+        navigate('/signin', { replace: true });
+      }
       return false;
     }
   };
 
-  // Initialize auth state
   useEffect(() => {
     const initAuth = async () => {
       const token = localStorage.getItem('token');
@@ -58,27 +68,75 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-  const login = async (token, role) => {
+  const login = async (token, role, userData = null) => {
     try {
-      localStorage.setItem('token', token);
+      // Remove Bearer prefix if present for consistency
+      const cleanToken = token.replace('Bearer ', '');
+      localStorage.setItem('token', cleanToken);
       localStorage.setItem('role', role);
-      
-      const success = await fetchUserInfo(token);
-      if (success) {
+  
+      if (userData) {
+        // If we have complete user data, use it directly
+        setUser({ ...userData, role });
         message.success('Successfully signed in!');
         const from = location.state?.from?.pathname || '/';
         navigate(from, { replace: true });
-      } else {
+        return;
+      }
+  
+      // Otherwise fetch complete user info
+      const response = await fetch('http://localhost:3002/user/info', {
+        method: 'GET',
+        headers: {
+          'Authorization': cleanToken,
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      if (!response.ok) {
         throw new Error('Failed to get user information');
       }
+  
+      const data = await response.json();
+      setUser({ ...data.result, role });
+      message.success('Successfully signed in!');
+      const from = location.state?.from?.pathname || '/';
+      navigate(from, { replace: true });
+  
     } catch (error) {
       localStorage.removeItem('token');
       localStorage.removeItem('role');
+      setUser(null);
       message.error(error.message || 'Failed to sign in');
       throw error;
     }
   };
-
+  
+  // Add a function to refresh user data
+  const refreshUserData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+  
+      const response = await fetch('http://localhost:3002/user/info', {
+        method: 'GET',
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to refresh user data');
+      }
+  
+      const data = await response.json();
+      const role = localStorage.getItem('role');
+      setUser({ ...data.result, role });
+    } catch (error) {
+      console.error('Error refreshing user data:', error);
+    }
+  };
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
@@ -86,17 +144,11 @@ export const AuthProvider = ({ children }) => {
     navigate('/signin');
   };
 
-  const checkIsAuthenticated = () => {
-    const token = localStorage.getItem('token');
-    return !!token;
-  };
-
   const value = {
     user,
     loading,
     login,
     logout,
-    checkIsAuthenticated,
     isAuthenticated: !!user
   };
 
@@ -118,3 +170,5 @@ export const useAuth = () => {
   }
   return context;
 };
+
+export default AuthProvider
