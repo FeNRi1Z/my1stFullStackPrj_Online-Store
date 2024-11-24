@@ -50,8 +50,8 @@ function SignIn() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          user: formData.username,
-          pass: formData.password,
+          username: formData.username,
+          password: formData.password,
         }),
       });
 
@@ -61,7 +61,17 @@ function SignIn() {
         throw new Error(data.message || 'Sign in failed');
       }
 
-      await login(data.token, data.role);
+      // Handle both admin and client responses
+      const token = data.token;
+      const role = data.role || 'client'; // Default to client if role not specified
+
+      await login(token, role);
+      
+      // Clear form data after successful login
+      setFormData({
+        username: '',
+        password: ''
+      });
 
     } catch (err) {
       console.error('Sign in error:', err);
@@ -71,6 +81,7 @@ function SignIn() {
     }
   };
 
+  // Rest of the component remains the same
   return (
     <div className="h-screen flex items-center justify-center bg-background-light dark:bg-background-dark transition-colors duration-300">
       <div className="w-full max-w-md p-8">
