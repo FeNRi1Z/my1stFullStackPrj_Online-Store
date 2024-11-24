@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { message } from 'antd';
+import { App } from 'antd';
 
 const AuthContext = createContext(null);
 
@@ -10,13 +10,18 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Add getAuthToken function
+  const getAuthToken = () => {
+    const token = localStorage.getItem('token');
+    return token ? `Bearer ${token}` : null;
+  };
+
   const fetchUserInfo = async (token) => {
     try {
       if (!token) {
         throw new Error('No token available');
       }
 
-      // Remove Bearer prefix if present for consistency
       const cleanToken = token.replace('Bearer ', '');
       
       const response = await fetch('http://localhost:3002/user/info', {
@@ -48,10 +53,6 @@ export const AuthProvider = ({ children }) => {
 
     } catch (error) {
       console.error('Error in fetchUserInfo:', error);
-      if (error.message.includes('Session expired')) {
-        message.error(error.message);
-        navigate('/signin', { replace: true });
-      }
       return false;
     }
   };
@@ -68,98 +69,107 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-  const login = async (token, role, userData = null) => {
-    try {
-      // Remove Bearer prefix if present for consistency
-      const cleanToken = token.replace('Bearer ', '');
-      localStorage.setItem('token', cleanToken);
-      localStorage.setItem('role', role);
-  
-      if (userData) {
-        // If we have complete user data, use it directly
-        setUser({ ...userData, role });
+  const AuthContent = () => {
+    const { message } = App.useApp();
+
+    const login = async (token, role, userData = null) => {
+      try {
+        const cleanToken = token.replace('Bearer ', '');
+        localStorage.setItem('token', cleanToken);
+        localStorage.setItem('role', role);
+    
+        if (userData) {
+          setUser({ ...userData, role });
+          message.success('Successfully signed in!');
+          const from = location.state?.from?.pathname || '/';
+          navigate(from, { replace: true });
+          return;
+        }
+    
+        const response = await fetch('http://localhost:3002/user/info', {
+          method: 'GET',
+          headers: {
+            'Authorization': cleanToken,
+            'Content-Type': 'application/json'
+          }
+        });
+    
+        if (!response.ok) {
+          throw new Error('Failed to get user information');
+        }
+    
+        const data = await response.json();
+        setUser({ ...data.result, role });
         message.success('Successfully signed in!');
         const from = location.state?.from?.pathname || '/';
         navigate(from, { replace: true });
-        return;
+    
+      } catch (error) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+        setUser(null);
+        message.error(error.message || 'Failed to sign in');
+        throw error;
       }
-  
-      // Otherwise fetch complete user info
-      const response = await fetch('http://localhost:3002/user/info', {
-        method: 'GET',
-        headers: {
-          'Authorization': cleanToken,
-          'Content-Type': 'application/json'
-        }
-      });
-  
-      if (!response.ok) {
-        throw new Error('Failed to get user information');
-      }
-  
-      const data = await response.json();
-      setUser({ ...data.result, role });
-      message.success('Successfully signed in!');
-      const from = location.state?.from?.pathname || '/';
-      navigate(from, { replace: true });
-  
-    } catch (error) {
+    };
+
+    const logout = () => {
       localStorage.removeItem('token');
       localStorage.removeItem('role');
       setUser(null);
-      message.error(error.message || 'Failed to sign in');
-      throw error;
-    }
-  };
-  
-  // Add a function to refresh user data
-  const refreshUserData = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-  
-      const response = await fetch('http://localhost:3002/user/info', {
-        method: 'GET',
-        headers: {
-          'Authorization': token,
-          'Content-Type': 'application/json'
-        }
-      });
-  
-      if (!response.ok) {
-        throw new Error('Failed to refresh user data');
-      }
-  
-      const data = await response.json();
-      const role = localStorage.getItem('role');
-      setUser({ ...data.result, role });
-    } catch (error) {
-      console.error('Error refreshing user data:', error);
-    }
-  };
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    setUser(null);
-    navigate('/signin');
-  };
+      navigate('/signin');
+    };
 
-  const value = {
-    user,
-    loading,
-    login,
-    logout,
-    isAuthenticated: !!user
+    const refreshUserData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+    
+        const response = await fetch('http://localhost:3002/user/info', {
+          method: 'GET',
+          headers: {
+            'Authorization': token,
+            'Content-Type': 'application/json'
+          }
+        });
+    
+        if (!response.ok) {
+          throw new Error('Failed to refresh user data');
+        }
+    
+        const data = await response.json();
+        const role = localStorage.getItem('role');
+        setUser({ ...data.result, role });
+      } catch (error) {
+        console.error('Error refreshing user data:', error);
+      }
+    };
+
+    const value = {
+      user,
+      loading,
+      login,
+      logout,
+      isAuthenticated: !!user,
+      getAuthToken,
+      refreshUserData
+    };
+
+    return (
+      <AuthContext.Provider value={value}>
+        {!loading ? children : (
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-100"></div>
+          </div>
+        )}
+      </AuthContext.Provider>
+    );
   };
 
   return (
-    <AuthContext.Provider value={value}>
-      {!loading ? children : (
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-100"></div>
-        </div>
-      )}
-    </AuthContext.Provider>
+    <App>
+      <AuthContent />
+    </App>
   );
 };
 
@@ -171,4 +181,4 @@ export const useAuth = () => {
   return context;
 };
 
-export default AuthProvider
+export default AuthProvider;
