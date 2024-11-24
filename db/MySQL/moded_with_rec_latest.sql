@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 22, 2024 at 07:29 AM
+-- Generation Time: Nov 24, 2024 at 04:59 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -118,8 +118,8 @@ CREATE TABLE `order` (
 --
 
 INSERT INTO `order` (`id`, `userId`, `orderTotal`, `status`, `statusDetail`, `address`, `phone`, `orderDate`, `paymentSlipIMG`, `paymentDate`, `parcelCode`) VALUES
-(1, 2, 7408, 'To be paid', 'Please complete the payment and confirm the payment', 'Street:  112 Soi On-Nut 13 City:   Bangkok State/province/area:    Bangkok Zip code:  10250 Country:  Thailand', '0224925138', '2024-11-20 19:27:52.819', NULL, NULL, NULL),
-(2, 4, 1202, 'To be paid', 'Please complete the payment and confirm the payment', 'Street:  292/11-2 Larnluang Si Yaek Mahanak City:  Dusit State/province/area:    Bangkok Zip code:  10300 Country:  Thailand', '0228299157', '2024-11-21 15:07:20.673', NULL, NULL, NULL);
+(1, 2, 7408, 'Shipped', 'The order has shipped, you can follow up with the parcel code', 'Street:  112 Soi On-Nut 13 City:   Bangkok State/province/area:    Bangkok Zip code:  10250 Country:  Thailand', '0347376343', '2024-11-20 19:27:52.819', '2024112411812992.jpg', '2024-11-23 18:18:09.000', 'EF582621151TH'),
+(2, 4, 1202, 'In Progress', 'Confirmed your payment, your order is being processed', 'Street:  292/11-2 Larnluang Si Yaek Mahanak City:  Dusit State/province/area:    Bangkok Zip code:  10300 Country:  Thailand', '0445364354', '2024-11-21 15:07:20.673', '2024112411645705.jpg', '2024-11-23 18:05:11.000', NULL);
 
 -- --------------------------------------------------------
 
@@ -156,9 +156,9 @@ INSERT INTO `product` (`id`, `name`, `cost`, `price`, `quantity`, `img`, `status
 (10, 'Mastering Python', 180, 350, 45, '20241121224224241.jpg', 'use', 'A comprehensive guide for programmers to master Python programming.', 14),
 (11, 'The Art of Mindfulness', 90, 150, 75, '20241121224329336.png', 'use', 'Learn techniques to achieve a peaceful and mindful life.', 15),
 (12, 'Adventures in Wonderland', 110, 220, 48, '202411221121343.png', 'use', 'A thrilling fantasy novel that takes you on an extraordinary journey.', 16),
-(13, 'History\'s Greatest Empires', 150, 250, 76, '2024112211539383.png', 'use', 'An insightful look into the rise and fall of some of the greatest empires in history.', 17),
-(14, 'Culinary Delights', 100, 200, 44, '2024112211846792.png', 'use', 'A cookbook filled with recipes from around the world.', 18),
-(15, 'The Financial Roadmap', 120, 220, 267, '202411221222584.png', 'use', 'Your guide to financial independence and wealth-building strategies.', 19);
+(13, 'History\'s Greatest Empires', 150, 250, 76, '2024112401919775.png', 'use', 'An insightful look into the rise and fall of some of the greatest empires in history.', 17),
+(14, 'Culinary Delights', 100, 200, 44, '2024112401837506.png', 'use', 'A cookbook filled with recipes from around the world.', 18),
+(15, 'The Financial Roadmap', 120, 220, 267, '2024112402640619.png', 'use', 'Your guide to financial independence and wealth-building strategies.', 19);
 
 -- --------------------------------------------------------
 
@@ -285,7 +285,7 @@ INSERT INTO `user` (`id`, `name`, `username`, `password`, `role`, `status`, `add
 (2, 'Client01', 'c01', 'c01', 'client', 'use', 'Street:  112 Soi On-Nut 13\nCity:   Bangkok\nState/province/area:    Bangkok\nZip code:  10250\nCountry:  Thailand', '0224925138', 'noIMGFile', 0, 0),
 (3, 'Client02', 'c02', 'c02', 'client', 'use', 'Street:  120/11 Moo 3, San Klang, San Kam Phaeng\nCity:   San Kam Phaeng\nState/province/area:    Chiang Mai\nZip code:  50130\nCountry:  Thailand', '0533383956', 'noIMGFile', 0, 0),
 (4, 'Client03', 'c03', 'c03', 'client', 'use', 'Street:  292/11-2 Larnluang Si Yaek MahanakCity:  DusitState/province/area:    BangkokZip code:  10300 Country:  Thailand', '0228299157', 'noIMGFile', 0, 0),
-(5, 'Clienntjkesnjkf', 'c04', 'c04', 'client', 'delete', 'Street:  52/53 Sukhumvit Khlong Toei Khlong Toei\nCity:  Long\nState/province/area:    Bangkok\nZip code:  10110\nCountry:  Thailand', '0262555171', 'noIMGFile', 0, 0);
+(5, 'Client04', 'c04', 'c04', 'client', 'delete', 'Street:  52/53 Sukhumvit Khlong Toei Khlong Toei\nCity:  Long\nState/province/area:    Bangkok\nZip code:  10110\nCountry:  Thailand', '0262555171', 'noIMGFile', 0, 0);
 
 -- --------------------------------------------------------
 
