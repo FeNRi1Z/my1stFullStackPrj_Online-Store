@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../components/ThemeProvider';
-import { ArrowRight } from 'lucide-react';
 import NavBar from '../components/Navbar.jsx';
 import SearchBox from '../components/SearchBox.jsx';
 import TabPanel from '../components/TabPanel.jsx';
@@ -24,6 +23,15 @@ const Store = () => {
     setIsSideNavOpen(false);
   };
 
+  // Function to handle search results
+  const handleSearch = (searchResults) => {
+    if (Array.isArray(searchResults)) {
+      setBooks(searchResults);
+      setIsLoading(false);
+    }
+  };
+
+  // Initial fetch of all books
   useEffect(() => {
     const fetchBooks = async () => {
       try {
@@ -52,8 +60,9 @@ const Store = () => {
 
       {/* Background Dim Overlay */}
       <div
-        className={`fixed inset-0 bg-black transition-opacity duration-300 pointer-events-none ${isSideNavOpen ? 'opacity-50' : 'opacity-0'
-          }`}
+        className={`fixed inset-0 bg-black transition-opacity duration-300 pointer-events-none ${
+          isSideNavOpen ? 'opacity-50' : 'opacity-0'
+        }`}
         style={{ zIndex: 20 }}
       />
 
@@ -73,9 +82,10 @@ const Store = () => {
 
             <div className="mt-6 sm:mt-8">
               <div className="flex justify-start">
-                <SearchBox />
+                <SearchBox onSearch={handleSearch} />
               </div>
             </div>
+
             <div className="mt-6 sm:mt-8">
               {isLoading ? (
                 <div className="flex justify-center items-center min-h-[300px] sm:min-h-[400px]">
