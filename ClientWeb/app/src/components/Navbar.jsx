@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Menu, ShoppingBag, Moon, Sun } from 'lucide-react';
+import { Menu, ShoppingBag, Moon, Sun, User } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useTheme } from './ThemeProvider';
 import { useCart } from './CartProvider';
 import { useAuth } from './AuthProvider';
 import SideNav from './SideNav';
+import ProfileDropdown from './ProfileDropdown';
 
 const ThemeToggleButton = ({ children, onClick, showThemeToggle }) => (
   showThemeToggle && (
@@ -37,10 +38,11 @@ const NavBar = ({ onCartOpen, showThemeToggle = true }) => {
   const { cartCount } = useCart();
   const { user, isAuthenticated } = useAuth();
   const [isSideNavOpen, setIsSideNavOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
   const handleProfileClick = () => {
     if (isAuthenticated) {
-      navigate('/profile');
+      setIsProfileDropdownOpen(!isProfileDropdownOpen);
     } else {
       navigate('/signin', { state: { from: location } });
     }
@@ -51,7 +53,7 @@ const NavBar = ({ onCartOpen, showThemeToggle = true }) => {
       <nav className="w-full bg-white dark:bg-background-dark shadow-sm transition-all duration-300 ease-in-out">
         <div className="mx-auto px-4 sm:px-6 md:px-8 lg:px-12 w-[95%] 2xl:w-[95%]">
           <div className="flex justify-between items-center py-4">
-            {/* Left side - Menu button (mobile) and Navigation links (desktop) */}
+            {/* Left side - Menu button and Navigation links */}
             <div className="flex items-center">
               <button
                 onClick={() => setIsSideNavOpen(true)}
@@ -97,20 +99,32 @@ const NavBar = ({ onCartOpen, showThemeToggle = true }) => {
                 )}
               </ThemeToggleButton>
 
-              {/* Profile Button/Avatar */}
-              <button
-                onClick={handleProfileClick}
-                className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-600 cursor-pointer
-                         hover:ring-2 hover:ring-primary-100 transition-all duration-200
-                         flex items-center justify-center overflow-hidden"
-                aria-label="Profile"
-              >
-                {user?.name ? (
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                    {user.name.charAt(0).toUpperCase()}
-                  </span>
-                ) : null}
-              </button>
+              {/* Profile Button/Avatar with Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={handleProfileClick}
+                  className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-600
+                           hover:ring-2 hover:ring-primary-100 
+                           transition-all duration-200
+                           flex items-center justify-center overflow-hidden"
+                  aria-label={isAuthenticated ? "Profile menu" : "Sign in"}
+                >
+                  {isAuthenticated && user?.name ? (
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                      {user.name.charAt(0).toUpperCase()}
+                    </span>
+                  ) : (
+                    <User className="h-5 w-5 text-gray-700 dark:text-gray-200" />
+                  )}
+                </button>
+
+                {isAuthenticated && (
+                  <ProfileDropdown 
+                    isOpen={isProfileDropdownOpen}
+                    onClose={() => setIsProfileDropdownOpen(false)}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>
