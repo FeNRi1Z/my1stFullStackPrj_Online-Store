@@ -119,15 +119,15 @@ const Home = () => {
           <div className="mx-auto px-4 sm:px-6 md:px-8 lg:px-12 w-[95%] 2xl:w-[85%]">
             <div className="flex flex-col space-y-6">
               {/* Store button */}
-              <div className="flex justify-start mt-2"> 
+              <div className="flex justify-start mt-2">
                 <a
                   href="/Store"
                   className="group inline-flex items-center px-6 py-3 
-                           bg-primary-100 text-white text-base font-medium 
-                           rounded-md hover:bg-primary-hover 
-                           transition-colors duration-200
-                           focus:outline-none focus:ring-2 
-                           focus:ring-primary-100 focus:ring-offset-2"
+                            bg-primary-100 text-white text-base font-medium 
+                            rounded-md hover:text-white hover:bg-primary-hover 
+                            transition-colors duration-200
+                            focus:outline-none focus:ring-2 
+                            focus:ring-primary-100 focus:ring-offset-2"
                 >
                   Go to store now
                   <ArrowUpRight className="ml-2 w-5 h-5 transform transition-transform 
