@@ -5,11 +5,11 @@ import { useTheme } from '../components/ThemeProvider';
 const SideOrderNav = () => {
   const { theme } = useTheme();
   const navItems = [
-    { icon: FileText, text: 'View orders', count: 3, href: '#' },
-    { icon: User, text: 'Personal details', href: '#' },
+    { icon: FileText, text: 'View orders', count: 3, href: '/Orders' },
+    { icon: User, text: 'Personal details', href: '/Profile' },
     { icon: Key, text: 'Change password', href: '#' },
     { icon: CreditCard, text: 'Payment methods', href: '#' },
-    { icon: MapPin, text: 'Manage addresses', href: '#' },
+    // { icon: MapPin, text: 'Manage addresses', href: '#' },
     { icon: LogOut, text: 'Log out', href: '#' },
   ];
 
