@@ -2,6 +2,120 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background-color: #000000;
+select:-moz-focusring {
+  color: transparent;
+  text-shadow: 0 0 0 #F5F5F5;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;  
+  scrollbar-width: none;  
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;          
+}
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Table scrollbar styling */
+.ant-table-body {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Custom scrollbar for better visibility */
+.ant-table-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.ant-table-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ant-table-body::-webkit-scrollbar-thumb {
+  background-color: #d9d9d9;
+  border-radius: 4px;
+}
+
+.dark .ant-table-body::-webkit-scrollbar-thumb {
+  background-color: #4d4d4d;
+}
+
+/* Ensure table header stays fixed */
+.ant-table-header {
+  overflow: hidden !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Fix table layout */
+.ant-table-wrapper {
+  height: 100%;
+}
+
+.ant-table {
+  height: 100%;
+}
+
+/* Ant Design Message Customization */
+.custom-message .ant-message-notice-content {
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideDown 0.3s ease-in-out;
+  border-width: 1px;
+  border-style: solid;
+}
+
+/* Light theme */
+.custom-message.light .ant-message-notice-content {
+  background-color: white;
+  color: #2D3142;
+  border-color: #E5E5E5;
+}
+
+.custom-message.light .anticon {
+  color: #2D3142;
+}
+
+/* Dark theme */
+.custom-message.dark .ant-message-notice-content {
+  background-color: #3D3D3D;
+  color: #F5F5F5;
+  border-color: #2B2B2B;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.custom-message.dark .anticon {
+  color: #F5F5F5;
+}
+
+/* Warning icon color override */
+.custom-message .ant-message-warning .anticon {
+  color: #EA9029;
+}
+
+/* Message container position */
+.ant-message {
+  position: fixed;
+  top: 24px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+}
+
+/* Animation */
+@keyframes slideDown {
+  0% {
+      transform: translateY(-100%);
+      opacity: 0;
+  }
+  100% {
+      transform: translateY(0);
+      opacity: 1;
+  }
 }
