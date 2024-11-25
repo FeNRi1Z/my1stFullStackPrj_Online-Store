@@ -38,66 +38,6 @@ const Checkout = () => {
 		}
 	}, [user]);
 
-	const handleAddressUpdate = async (e) => {
-		e.preventDefault();
-		const formData = new FormData(e.target);
-		const address = formData.get("address");
-
-		if (address) {
-			try {
-				const response = await fetch(config.apiPath + "/user/update", {
-					method: "PUT",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${localStorage.getItem("token")}`,
-					},
-					body: JSON.stringify({ address }),
-				});
-
-				if (!response.ok) throw new Error("Failed to update address");
-
-				setUserData((prev) => ({
-					...prev,
-					address,
-				}));
-				setAddressModalVisible(false);
-				message.success("Address updated successfully");
-			} catch (error) {
-				message.error("Failed to update address");
-			}
-		}
-	};
-
-	const handlePhoneUpdate = async (e) => {
-		e.preventDefault();
-		const formData = new FormData(e.target);
-		const phone = formData.get("phone");
-
-		if (phone && /^[+]?[\d\s-]+$/.test(phone)) {
-			try {
-				const response = await fetch(config.apiPath + "/user/update", {
-					method: "PUT",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${localStorage.getItem("token")}`,
-					},
-					body: JSON.stringify({ phone }),
-				});
-
-				if (!response.ok) throw new Error("Failed to update phone");
-
-				setUserData((prev) => ({
-					...prev,
-					phone,
-				}));
-				setPhoneModalVisible(false);
-				message.success("Phone number updated successfully");
-			} catch (error) {
-				message.error("Failed to update phone number");
-			}
-		}
-	};
-
 	const handleNextStep = async () => {
 		if (currentStep === 2) {
 			// Add debug logging
@@ -232,7 +172,7 @@ const Checkout = () => {
 							<tr key={item.id} className="border-b dark:border-gray-700 bg-white dark:bg-background-secondary-dark hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
 								<td className="py-4 px-6 min-w-[280px]">
 									<div className="flex items-center gap-4">
-										<Image width={100} height={150} src={config.apiPath + '/uploads/product_img/' + item.img} alt={item.title} className="object-cover rounded shrink-0" />
+										<Image width={100} height={150} src={config.apiPath + "/uploads/product_img/" + item.img} alt={item.title} className="object-cover rounded shrink-0" />
 										<div className="min-w-0">
 											<h3 className="text-text-dark dark:text-text-light truncate">{item.title}</h3>
 											<p className="text-secondary-50 dark:text-secondary-100 truncate">{item.author}</p>
@@ -357,7 +297,7 @@ const Checkout = () => {
 	// Modal section
 	const addressModal = (
 		<Modal isOpen={addressModalVisible} onClose={() => setAddressModalVisible(false)} title="Edit Address">
-			<form onSubmit={handleAddressUpdate}>
+			<form>
 				<div className="mb-4">
 					<label className="block text-sm font-medium text-text-dark dark:text-text-light mb-2">Address</label>
 					<textarea
@@ -392,7 +332,7 @@ const Checkout = () => {
 
 	const phoneModal = (
 		<Modal isOpen={phoneModalVisible} onClose={() => setPhoneModalVisible(false)} title="Edit Phone Number">
-			<form onSubmit={handlePhoneUpdate}>
+			<form>
 				<div className="mb-4">
 					<label className="block text-sm font-medium text-text-dark dark:text-text-light mb-2">Phone Number</label>
 					<input

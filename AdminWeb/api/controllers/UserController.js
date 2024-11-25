@@ -88,7 +88,7 @@ app.get("/info", checkSignIn, async (req, res) => {
     try {
         console.log("Fetching user info for id:", req.user.id);
         
-        const user = await prisma.user.findUnique({
+        const user = await prisma.user.findUniqueOrThrow({
             where: {
                 id: req.user.id,
                 status: "use"
@@ -101,7 +101,8 @@ app.get("/info", checkSignIn, async (req, res) => {
                 address: true,
                 phone: true,
                 cartQty: true,
-                cartTotal: true
+                cartTotal: true,
+                password: true,
             }
         });
 
@@ -246,6 +247,7 @@ app.put("/clientUpdate", checkSignIn, async (req, res) => {
                 address: req.body.address,
                 phone: req.body.phone,
                 profile: req.body.profile,
+                password: req.body.password,
             },
 			where: {
 				id: req.body.id,

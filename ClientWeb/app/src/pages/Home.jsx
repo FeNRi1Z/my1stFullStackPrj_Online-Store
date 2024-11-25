@@ -61,8 +61,8 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-background-light dark:bg-background-dark">
       {/* Fixed Navbar */}
-      {/* <div className={`fixed top-0 left-0 right-0 z-40 transition-transform duration-300 ${showNavbar ? 'translate-y-0' : '-translate-y-full'}`}> */}
-      <div className={`fixed top-0 left-0 right-0 z-40 transition-transform duration-300`}>
+      <div className={`fixed top-0 left-0 right-0 z-40 transition-transform duration-300 ${showNavbar ? 'translate-y-0' : '-translate-y-full'}`}>
+      {/* <div className={`fixed top-0 left-0 right-0 z-40 transition-transform duration-300`}> */}
         <NavBar
           onMenuClick={handleMenuClick}
           onCartOpen={() => setIsCartOpen(true)}

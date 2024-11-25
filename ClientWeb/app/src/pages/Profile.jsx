@@ -25,48 +25,48 @@ const Profile = () => {
     profile: null,
 	});
 
+  const fetchProfileData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/signin");
+        return;
+      }
+
+      const response = await fetch(config.apiPath + "/user/info", {
+        method: "GET",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          message.error("Session expired. Please sign in again.");
+          logout();
+          return;
+        }
+        throw new Error("Failed to fetch profile data");
+      }
+
+      const data = await response.json();
+      setProfileData(data.result);
+      setEditForm({
+        address: data.result.address || "",
+        phone: data.result.phone || "",
+        profile: data.result.profile || null,
+      });
+
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      message.error(error.message || "Failed to load profile data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
 	useEffect(() => {
-		const fetchProfileData = async () => {
-			try {
-				const token = localStorage.getItem("token");
-				if (!token) {
-					navigate("/signin");
-					return;
-				}
-
-				const response = await fetch(config.apiPath + "/user/info", {
-					method: "GET",
-					headers: {
-						Authorization: token,
-						"Content-Type": "application/json",
-					},
-				});
-
-				if (!response.ok) {
-					if (response.status === 401) {
-						message.error("Session expired. Please sign in again.");
-						logout();
-						return;
-					}
-					throw new Error("Failed to fetch profile data");
-				}
-
-				const data = await response.json();
-				setProfileData(data.result);
-				setEditForm({
-					address: data.result.address || "",
-					phone: data.result.phone || "",
-          profile: data.result.profile || null,
-				});
-
-			} catch (error) {
-				console.error("Error fetching profile:", error);
-				message.error(error.message || "Failed to load profile data");
-			} finally {
-				setLoading(false);
-			}
-		};
-
 		fetchProfileData();
 	}, [navigate, logout]);
 
@@ -141,6 +141,7 @@ const Profile = () => {
 			setProfileData(data.result);
       setIsChangeImg(false);
 			setIsEditing(false);
+      fetchProfileData();
 			message.success("Profile updated successfully");
 		} catch (error) {
 			console.error("Error updating profile:", error);
@@ -272,8 +273,8 @@ const Profile = () => {
 							{!isChangeImg ? (
 								<div className="w-24 h-24 sm:w-28 sm:h-28 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center transition-colors duration-200">
 									{profileData.profile && profileData.profile !== "noIMGFile" ? (
-                    <div class={isEditing ? 'containerIMG' : ''} onClick={() => {if(isEditing) setIsChangeImg(true)}}>
-											<Image src={config.apiPath + "/uploads/user_img/" + user.profile} className="img-circle elevation-2" preview={false} />
+                    <div class={isEditing ? 'containerIMG items-center justify-center' : ''} onClick={() => {if(isEditing) setIsChangeImg(true)}}>
+											<Image width={112} height={112} src={config.apiPath + "/uploads/user_img/" + profileData.profile} className="rounded-full" preview={false}/>
 											{isEditing && <div class="middle textIMG rounded-full w-fit h-fit">
 												<i className="fas fa-trash-alt"></i>
 												<div>Click to Change</div>
@@ -301,7 +302,6 @@ const Profile = () => {
                     onChange={(e) => {selectedFile(e.target.files);}}
 									/>
                   <div className="flex justify-center mt-2">
-                    <button onClick={()=>{console.log(img)}}>Clickkkkk</button>
                   </div>
 								</div>
 							)}
