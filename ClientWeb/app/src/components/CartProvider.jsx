@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { message, ConfigProvider, theme as antdTheme } from 'antd';
 import { useAuth } from './AuthProvider';
 import { useTheme } from './ThemeProvider';
@@ -13,7 +12,6 @@ export const CartProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const { isAuthenticated, getAuthToken } = useAuth();
   const { theme } = useTheme();
-  const navigate = useNavigate();
 
   // Theme styles
   const themeStyles = {

@@ -199,7 +199,6 @@ app.post("/register", async (req, res) => {
     }
 });
 
-
 app.get("/clientList", checkSignIn, async (req, res) => {
 	try {
 		const users = await prisma.user.findMany({
@@ -266,7 +265,9 @@ app.put("/clientUpdate", checkSignIn, async (req, res) => {
 
 app.post("/uploadProfile", checkSignIn, async (req, res) => {
     try {
+        console.log("Uploading profile image...", req.files);
 		if (req.files != undefined && req.files.img != undefined && ifIsImage(req.files.img.name)) {
+            console.log("Renaming and saving image...");
 			const img = req.files.img;
 			const myDate = new Date();
 			const y = myDate.getFullYear();
