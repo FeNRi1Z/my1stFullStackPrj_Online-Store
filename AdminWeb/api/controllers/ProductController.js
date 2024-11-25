@@ -111,11 +111,7 @@ app.get("/public/list", async (req, res) => {
         });
 
         const results = data.map((product) => ({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            img: product.img,
-            desc: product.desc,
+            ...product,
             author: product.author.name,
             categories: product.categories.map((pc) => pc.categoryId),
             categoriesName: product.categories.map((pc) => pc.category.name),
@@ -442,6 +438,7 @@ app.post("/upload", checkSignIn, async (req, res) => {
 // Cart related api
 
 // Get user's cart items
+
 app.get("/cart/items", checkSignIn, async (req, res) => {
     try {
         const cartItems = await prisma.productOnCart.findMany({

@@ -8,9 +8,9 @@ const SideOrderNav = () => {
     { icon: FileText, text: 'View orders', count: 3, href: '/Orders' },
     { icon: User, text: 'Personal details', href: '/Profile' },
     { icon: Key, text: 'Change password', href: '#' },
-    { icon: CreditCard, text: 'Payment methods', href: '#' },
+    // { icon: CreditCard, text: 'Payment methods', href: '#' },
     // { icon: MapPin, text: 'Manage addresses', href: '#' },
-    { icon: LogOut, text: 'Log out', href: '#' },
+    // { icon: LogOut, text: 'Log out', href: '#' },
   ];
 
   return (

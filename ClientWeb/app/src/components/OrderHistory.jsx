@@ -5,6 +5,7 @@ import OrderCard from './OrderCard';
 import { useTheme } from '../components/ThemeProvider';
 import { Loader2 } from 'lucide-react';
 import { message } from 'antd';
+import config from "../../config";
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
@@ -18,9 +19,9 @@ const OrderHistory = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch('http://localhost:3002/order/orderList', {
+      const response = await fetch(config.apiPath + '/order/orderList', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       });
 

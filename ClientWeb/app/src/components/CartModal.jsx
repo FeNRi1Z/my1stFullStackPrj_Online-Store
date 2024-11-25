@@ -5,6 +5,7 @@ import { ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from './ThemeProvider';
 import { useCart } from './CartProvider';
+import config from '../config';
 
 const CartModal = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
@@ -67,7 +68,7 @@ const CartModal = ({ isOpen, onClose }) => {
               {/* Updated image handling */}
               {record.img && record.img !== 'noIMGFile' ? (
                 <img
-                  src={`http://localhost:3002/uploads/product_img/${record.img}`}
+                  src={config.apiPath + `/uploads/product_img/${record.img}`}
                   alt={text}
                   className="w-12 h-16 sm:w-16 sm:h-24 object-cover rounded"
                   onError={(e) => {
@@ -375,7 +376,7 @@ const CartModal = ({ isOpen, onClose }) => {
             {/* Footer */}
             {cartItems.length > 0 && (
               <div 
-                className={`p-4 sm:p-6 border-t transition-all duration-300 delay-200
+                className={`p-4 sm:p-6 border-t transition-all duration-300 delay-200 rounded-bl-lg rounded-br-lg
                   ${isAnimating ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
                 style={{
                   borderColor: themeStyles.tableBorder,

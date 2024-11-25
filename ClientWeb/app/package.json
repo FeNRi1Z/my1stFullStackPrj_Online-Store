@@ -14,6 +14,7 @@
     "antd": "^5.22.2",
     "axios": "^1.7.7",
     "dayjs": "^1.11.13",
+    "flowbite": "^2.5.2",
     "lucide-react": "^0.460.0",
     "rc-menu": "^9.12.4",
     "rc-motion": "^2.9.0",

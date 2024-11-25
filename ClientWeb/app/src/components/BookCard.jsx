@@ -23,7 +23,7 @@ const BookCard = ({ cover, title, author, book }) => {
         className="flex-shrink-0 w-[150px] transition-transform duration-300 hover:scale-105 cursor-pointer"
         onClick={handleClick}
       >
-        <div className="relative w-[150px] h-[200px]">
+        <div className="relative w-[150px] h-[220px]">
           <img
             src={cover}
             alt={`Cover of ${title}`}

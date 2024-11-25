@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { message, ConfigProvider, theme as antdTheme } from 'antd';
 import { useAuth } from './AuthProvider';
 import { useTheme } from './ThemeProvider';
+import config from '../config';
 
 const CartContext = createContext();
 
@@ -11,6 +13,7 @@ export const CartProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const { isAuthenticated, getAuthToken } = useAuth();
   const { theme } = useTheme();
+  const navigate = useNavigate();
 
   // Theme styles
   const themeStyles = {
@@ -60,9 +63,9 @@ export const CartProvider = ({ children }) => {
 
       const cleanToken = token.replace('Bearer ', '');
       
-      const response = await fetch('http://localhost:3002/product/cart/items', {
+      const response = await fetch(config.apiPath + '/product/cart/items', {
         headers: {
-          'Authorization': cleanToken,
+          Authorization: cleanToken,
           'Content-Type': 'application/json'
         }
       });
@@ -116,11 +119,11 @@ export const CartProvider = ({ children }) => {
 
       const cleanToken = token.replace('Bearer ', '');
       
-      const response = await fetch('http://localhost:3002/product/cart/add', {
+      const response = await fetch(config.apiPath + '/product/cart/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': cleanToken
+          Authorization: cleanToken
         },
         body: JSON.stringify({
           productId: item.id,
@@ -152,11 +155,11 @@ export const CartProvider = ({ children }) => {
 
       const cleanToken = token.replace('Bearer ', '');
       
-      const response = await fetch('http://localhost:3002/product/cart/update', {
+      const response = await fetch(config.apiPath + '/product/cart/update', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': cleanToken
+          Authorization: cleanToken
         },
         body: JSON.stringify({
           productId: itemId,
@@ -187,10 +190,10 @@ export const CartProvider = ({ children }) => {
 
       const cleanToken = token.replace('Bearer ', '');
       
-      const response = await fetch(`http://localhost:3002/product/cart/remove/${itemId}`, {
+      const response = await fetch(config.apiPath + `/product/cart/remove/${itemId}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': cleanToken,
+          Authorization: cleanToken,
           'Content-Type': 'application/json'
         }
       });

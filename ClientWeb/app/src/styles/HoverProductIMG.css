@@ -1,0 +1,46 @@
+.containerIMG {
+  position: relative;
+  width: 50%;
+  border-radius: 50%;
+}
+
+.imageProduct {
+  opacity: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: 0.5s ease;
+  backface-visibility: hidden;
+}
+
+.middle {
+  transition: 0.5s ease;
+  opacity: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  padding: 10px;
+}
+
+.containerIMG:hover .imageProduct {
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.containerIMG:hover .middle {
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.textIMG {
+  font-size: 15px;
+  text-align: center;
+  font-weight: bold;
+  color: black;
+}
+
+.containerIMG:hover .textIMG {
+  opacity: 1;
+}

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
 import { useTheme } from '../components/ThemeProvider';
 import { message } from 'antd';
+import config from '../config';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ const Register = () => {
 
   const handleBack = () => {
     if (currentStep === 1) {
-      navigate('/SignIn');
+      navigate('/signIn');
     } else {
       setCurrentStep(currentStep - 1);
     }
@@ -44,7 +45,7 @@ const Register = () => {
         }
         return true;
       case 2:
-        if (!formData.address || !formData.phone) {
+        if (!formData.address || !formData.phone || formData.phone.length !== 10 || formData.phone[0] !== '0' || isNaN(formData.phone)) {
           message.warning('Please fill in all contact information fields');
           return false;
         }
@@ -85,17 +86,17 @@ const Register = () => {
         phone: formData.phone,
       };
 
-      try {
-        const healthCheck = await fetch('http://localhost:3002/health');
-        if (!healthCheck.ok) {
-          throw new Error('Server health check failed');
-        }
-      } catch (error) {
-        message.error('Cannot connect to server. Please ensure the server is running.');
-        return;
-      }
+      // try {
+      //   const healthCheck = await fetch(config.apiPath + '/health');
+      //   if (!healthCheck.ok) {
+      //     throw new Error('Server health check failed');
+      //   }
+      // } catch (error) {
+      //   message.error('Cannot connect to server. Please ensure the server is running.');
+      //   return;
+      // }
 
-      const response = await fetch('http://localhost:3002/user/register', {
+      const response = await fetch(config.apiPath + '/user/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +115,7 @@ const Register = () => {
       localStorage.setItem('role', data.role);
       
       message.success('Registration successful!');
-      navigate('/SignIn');
+      navigate('/signIn');
     } catch (err) {
       if (err.message.includes('Failed to fetch')) {
         message.error('Cannot connect to server. Please ensure the server is running.');
@@ -189,7 +190,8 @@ const Register = () => {
               </label>
               <input
                 id="phone"
-                type="tel"
+                type="text"
+                maxLength={10}
                 value={formData.phone}
                 onChange={handleInputChange}
                 className="w-full px-4 py-3 bg-white dark:bg-background-secondary-dark rounded-md
@@ -308,7 +310,7 @@ const Register = () => {
                          disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                {currentStep === 1 ? 'Back to Login' : 'Previous'}
+                {currentStep === 1 ? 'Back to Sign in' : 'Previous'}
               </button>
 
               <button

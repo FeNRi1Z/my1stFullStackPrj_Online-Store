@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, SlidersHorizontal, AlertCircle, X } from 'lucide-react';
 import Dialog from './Dialog';
+import config from "../config";
 
 const SearchBox = ({ onSearch }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,7 +19,7 @@ const SearchBox = ({ onSearch }) => {
       // If no search criteria, fetch all books
       try {
         setIsLoading(true);
-        const response = await fetch('http://localhost:3002/product/public/list');
+        const response = await fetch(config.apiPath + '/product/public/list');
         const data = await response.json();
         if (data && Array.isArray(data.results)) {
           onSearch(data.results);
@@ -45,7 +46,7 @@ const SearchBox = ({ onSearch }) => {
 
       // Make search request
       const response = await fetch(
-        `http://localhost:3002/product/public/search?${params.toString()}`
+        config.apiPath + `/product/public/search?${params.toString()}`
       );
 
       if (!response.ok) {
@@ -73,7 +74,7 @@ const SearchBox = ({ onSearch }) => {
 
       // Fallback to showing all books
       try {
-        const fallbackResponse = await fetch('http://localhost:3002/product/public/list');
+        const fallbackResponse = await fetch(config.apiPath + '/product/public/list');
         const fallbackData = await fallbackResponse.json();
         if (fallbackData && Array.isArray(fallbackData.results)) {
           onSearch(fallbackData.results);
@@ -105,7 +106,7 @@ const SearchBox = ({ onSearch }) => {
     
     try {
       // Fetch all books
-      const response = await fetch('http://localhost:3002/product/public/list');
+      const response = await fetch(config.apiPath + '/product/public/list');
       const data = await response.json();
       if (data && Array.isArray(data.results)) {
         onSearch(data.results);

@@ -5,6 +5,7 @@ import NavBar from '../components/Navbar.jsx';
 import BookCard from '../components/BookCard.jsx';
 import SideNav from '../components/SideNav.jsx';
 import CartModal from '../components/CartModal.jsx';
+import config from "../config";
 
 const Home = () => {
   const [isSideNavOpen, setIsSideNavOpen] = useState(false);
@@ -31,7 +32,7 @@ const Home = () => {
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const response = await fetch('http://localhost:3002/product/public/list');
+        const response = await fetch(config.apiPath + '/product/public/list');
         const data = await response.json();
         setBooks(data.results);
       } catch (error) {
@@ -60,8 +61,8 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-background-light dark:bg-background-dark">
       {/* Fixed Navbar */}
-      <div className={`fixed top-0 left-0 right-0 z-40 transition-transform duration-300 ${showNavbar ? 'translate-y-0' : '-translate-y-full'
-        }`}>
+      {/* <div className={`fixed top-0 left-0 right-0 z-40 transition-transform duration-300 ${showNavbar ? 'translate-y-0' : '-translate-y-full'}`}> */}
+      <div className={`fixed top-0 left-0 right-0 z-40 transition-transform duration-300`}>
         <NavBar
           onMenuClick={handleMenuClick}
           onCartOpen={() => setIsCartOpen(true)}
@@ -121,7 +122,7 @@ const Home = () => {
               {/* Store button */}
               <div className="flex justify-start mt-2">
                 <a
-                  href="/Store"
+                  href="/store"
                   className="group inline-flex items-center px-6 py-3 
                             bg-primary-100 text-white text-base font-medium 
                             rounded-md hover:text-white hover:bg-primary-hover 
@@ -155,14 +156,14 @@ const Home = () => {
                   {books.map((book) => (
                     <div key={book.id} className="flex justify-center">
                       <BookCard
-                        cover={`http://localhost:3002/uploads/product_img/${book.img}`}
+                        cover={config.apiPath + `/uploads/product_img/${book.img}`}
                         title={book.name}
                         author={book.author}
                         book={{
                           id: book.id,
                           desc: book.desc,
                           price: book.price,
-                          quantity: book.quantity || 99,
+                          quantity: book.quantity,
                           categories: book.categoriesName
                         }}
                       />

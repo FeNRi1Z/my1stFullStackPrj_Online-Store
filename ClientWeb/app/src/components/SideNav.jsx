@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { 
   X, FileText, User, Key, CreditCard, MapPin, LogOut,
   Home, ShoppingBag, Info, MessageSquare, LogIn 
@@ -25,7 +25,7 @@ const SideNav = ({ isOpen, onClose }) => {
     { icon: Key, label: 'Change password', to: '/change-password' },
     { icon: CreditCard, label: 'Payment methods', to: '/payment-methods' },
     { icon: MapPin, label: 'Manage addresses', to: '/addresses' },
-    { icon: LogOut, label: 'Log out', onClick: logout },
+    { icon: LogOut, label: 'Sign out', onClick: logout },
   ];
 
   const handleNavigation = (item) => {
@@ -37,7 +37,21 @@ const SideNav = ({ isOpen, onClose }) => {
     onClose();
   };
 
+  // Body scroll lock
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   return (
+    <>
+    {isOpen && <div className={`z-55 w-full h-full fixed inset-0 bg-black/50 transition-opacity duration-300 ease-in-out`} onClick={onClose} />}
     <div
       className={`
         fixed top-0 left-0 
@@ -46,12 +60,13 @@ const SideNav = ({ isOpen, onClose }) => {
         bg-white dark:bg-gray-800
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-        z-40 flex flex-col
+        z-60 flex flex-col
         text-gray-700 dark:text-gray-200
         overflow-y-auto
       `}
       style={{ borderRadius: '10px 0 0 10px' }}
     >
+      {/* Close button */}
       <div className="flex justify-end p-4">
         <button
           onClick={onClose}
@@ -105,7 +120,7 @@ const SideNav = ({ isOpen, onClose }) => {
         )}
       </nav>
     </div>
-  );
+    </>);
 };
 
 export default SideNav;

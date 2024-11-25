@@ -6,6 +6,7 @@ import TabPanel from '../components/TabPanel.jsx';
 import BookCard from '../components/BookCard.jsx';
 import SideNav from '../components/SideNav.jsx';
 import CartModal from '../components/CartModal.jsx';
+import config from '../config.js';
 
 const Store = () => {
   const [isSideNavOpen, setIsSideNavOpen] = useState(false);
@@ -35,7 +36,7 @@ const Store = () => {
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const response = await fetch('http://localhost:3002/product/public/list');
+        const response = await fetch(config.apiPath + '/product/public/list');
         const data = await response.json();
         setBooks(data.results);
       } catch (error) {
@@ -99,14 +100,14 @@ const Store = () => {
                   {books.map((book) => (
                     <div key={book.id} className="flex justify-center">
                       <BookCard
-                        cover={`http://localhost:3002/uploads/product_img/${book.img}`}
+                        cover={config.apiPath + `/uploads/product_img/${book.img}`}
                         title={book.name}
                         author={book.author}
                         book={{
                           id: book.id,
                           desc: book.desc,
                           price: book.price,
-                          quantity: book.quantity || 99,
+                          quantity: book.quantity,
                           categories: book.categoriesName
                         }}
                       />

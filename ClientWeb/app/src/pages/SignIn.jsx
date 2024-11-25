@@ -4,6 +4,7 @@ import { useTheme } from '../components/ThemeProvider';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { message } from 'antd';
 import { useAuth } from '../components/AuthProvider';
+import config from '../config';
 
 function SignIn() {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ function SignIn() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3002/user/signIn', {
+      const response = await fetch(config.apiPath + '/user/signIn', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -67,7 +68,7 @@ function SignIn() {
 
       await login(token, role);
       
-      // Clear form data after successful login
+      // Clear form data after successful sign in
       setFormData({
         username: '',
         password: ''
@@ -152,7 +153,7 @@ function SignIn() {
               {isLoading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                'Login'
+                'Sign in'
               )}
             </button>
             <button

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { App } from 'antd';
+import config from "../config";
 
 const AuthContext = createContext(null);
 
@@ -24,10 +25,10 @@ export const AuthProvider = ({ children }) => {
 
       const cleanToken = token.replace('Bearer ', '');
       
-      const response = await fetch('http://localhost:3002/user/info', {
+      const response = await fetch(config.apiPath + '/user/info', {
         method: 'GET',
         headers: {
-          'Authorization': cleanToken,
+          Authorization: cleanToken,
           'Content-Type': 'application/json'
         }
       });
@@ -86,10 +87,10 @@ export const AuthProvider = ({ children }) => {
           return;
         }
     
-        const response = await fetch('http://localhost:3002/user/info', {
+        const response = await fetch(config.apiPath + '/user/info', {
           method: 'GET',
           headers: {
-            'Authorization': cleanToken,
+            Authorization: cleanToken,
             'Content-Type': 'application/json'
           }
         });
@@ -117,7 +118,8 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem('token');
       localStorage.removeItem('role');
       setUser(null);
-      navigate('/signin');
+      message.success('Successfully signed out!');
+      navigate('/');
     };
 
     const refreshUserData = async () => {
@@ -125,10 +127,10 @@ export const AuthProvider = ({ children }) => {
         const token = localStorage.getItem('token');
         if (!token) return;
     
-        const response = await fetch('http://localhost:3002/user/info', {
+        const response = await fetch(config.apiPath + '/user/info', {
           method: 'GET',
           headers: {
-            'Authorization': token,
+            Authorization: token,
             'Content-Type': 'application/json'
           }
         });

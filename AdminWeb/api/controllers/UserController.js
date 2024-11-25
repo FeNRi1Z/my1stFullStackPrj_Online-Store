@@ -6,7 +6,13 @@ const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
 
+const ifIsImage = require("if-is-image");
+const fileUpload = require("express-fileupload");
+const fs = require("fs");
+
 const { checkSignIn } = require("../middleware/auth");
+
+app.use(fileUpload());
 
 app.post("/signIn", async (req, res) => {
     try {
@@ -50,7 +56,8 @@ app.post("/signIn", async (req, res) => {
         const tokenPayload = {
             id: user.id,
             name: user.name,
-            role: user.role
+            role: user.role,
+            profile: user.profile,
         };
 
         const token = jwt.sign(tokenPayload, process.env.TOKEN_SECRET, { expiresIn: "30d" });
@@ -66,7 +73,7 @@ app.post("/signIn", async (req, res) => {
                     id: user.id,
                     name: user.name,
                     role: user.role,
-                    profile: user.profile
+                    profile: user.profile,
                 }
             });
         }
@@ -219,8 +226,27 @@ app.put("/clientUpdate", checkSignIn, async (req, res) => {
 		if (errorList.length > 0)
 			return res.status(410).send({ errorList: errorList });
 
+        // Delete old profile image
+		if (req.body.deleteIMG) {
+            const oldData = await prisma.user.findFirst({
+                select: {
+                    profile: true,
+                },
+                where: {
+                    id: req.body.id,
+                },
+            });
+			if (fs.existsSync("./uploads/user_img/" + oldData.profile)) {
+				await fs.unlinkSync("./uploads/user_img/" + oldData.profile); // Delete old file
+			}
+		}
+
 		const user = await prisma.user.update({
-			data: req.body,
+			data: {
+                address: req.body.address,
+                phone: req.body.phone,
+                profile: req.body.profile,
+            },
 			where: {
 				id: req.body.id,
 			},
@@ -229,7 +255,41 @@ app.put("/clientUpdate", checkSignIn, async (req, res) => {
 		res.send({ message: "success", result: user });
 	} catch (e) {
 		console.log("Error: Client update", e);
+        if (fs.existsSync("./uploads/user_img/" + req.body.profile)) {
+            await fs.unlinkSync("./uploads/user_img/" + req.body.profile); // Delete old file
+        }
 		res.status(500).send({ error: e.message });
+	}
+});
+
+app.post("/uploadProfile", checkSignIn, async (req, res) => {
+    try {
+		if (req.files != undefined && req.files.img != undefined && ifIsImage(req.files.img.name)) {
+			const img = req.files.img;
+			const myDate = new Date();
+			const y = myDate.getFullYear();
+			const m = myDate.getMonth() + 1;
+			const d = myDate.getDate();
+			const h = myDate.getHours();
+			const mi = myDate.getMinutes();
+			const s = myDate.getSeconds();
+			const ms = myDate.getMilliseconds();
+
+			const arrFileName = img.name.split(".");
+			const ext = arrFileName[arrFileName.length - 1];
+
+			const newName = `${y}${m}${d}${h}${mi}${s}${ms}.${ext}`;
+
+			img.mv("./uploads/user_img/" + newName, (err) => {
+				if (err) throw err;
+				res.send({ newName: newName });
+			});
+		} else {
+			res.send({ newName: "noIMGFile" });
+		}
+	} catch (e) {
+        console.log("Error: Upload profile image", e);
+		res.status(500).send({ error: e.message, newName: "noIMGFile" });
 	}
 });
 

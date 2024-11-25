@@ -5,7 +5,7 @@ import axios from "axios";
 import dayjs from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
 
-import { Select, Input, Tag, Space, Table, Button, Image, Flex, DatePicker, ConfigProvider } from "antd";
+import { Select, Input, Tag, Space, Table, Button, Image, Flex, DatePicker } from "antd";
 import { createStyles } from "antd-style";
 import {
 	SearchOutlined,
@@ -19,13 +19,11 @@ import {
 	MinusCircleTwoTone,
 	WarningOutlined,
 } from "@ant-design/icons";
-import en from "antd/es/date-picker/locale/en_US";
 
 import config from "../../config";
 import BackOffice from "../../components/BackOffice";
 import MyModal from "../../components/MyModal";
 import "../../styles/HoverTag.css";
-import { render } from "@testing-library/react";
 
 axios.interceptors.response.use(
 	(response) => response, // Return the response normally if successful
