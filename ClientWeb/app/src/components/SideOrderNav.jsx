@@ -5,8 +5,8 @@ import { useTheme } from '../components/ThemeProvider';
 const SideOrderNav = () => {
   const { theme } = useTheme();
   const navItems = [
+    { icon: User, text: 'Edit profile', href: '/Profile' },
     { icon: FileText, text: 'View orders', count: 3, href: '/Orders' },
-    { icon: User, text: 'Personal details', href: '/Profile' },
     { icon: Key, text: 'Change password', href: '#' },
     // { icon: CreditCard, text: 'Payment methods', href: '#' },
     // { icon: MapPin, text: 'Manage addresses', href: '#' },
