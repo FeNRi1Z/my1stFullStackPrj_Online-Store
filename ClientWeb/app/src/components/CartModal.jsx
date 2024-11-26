@@ -316,7 +316,7 @@ const CartModal = ({ isOpen, onClose }) => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 prefix={<SearchOutlined className="site-form-item-icon" />}
-                className="border-white-500 hover:border-primary-100 focus:border-primary-100"
+                className="hover:border-primary-100 focus:border-primary-100"
               />
             </div>
 
