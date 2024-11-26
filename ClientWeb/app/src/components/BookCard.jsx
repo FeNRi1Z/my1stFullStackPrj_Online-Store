@@ -12,18 +12,13 @@ const BookCard = ({ cover, title, author, book }) => {
     setShowPopup(false);
   };
 
-  const handleAddToCart = (item) => {
-    // Handle here
-    console.log('Added to cart:', item);
-  };
-
   return (
     <>
       <div 
         className="flex-shrink-0 w-[150px] transition-transform duration-300 hover:scale-105 cursor-pointer"
         onClick={handleClick}
       >
-        <div className="relative w-[150px] h-[220px]">
+        <div className="relative w-[150px] h-[200px]">
           <img
             src={cover}
             alt={`Cover of ${title}`}
@@ -46,13 +41,11 @@ const BookCard = ({ cover, title, author, book }) => {
         </div>
       </div>
 
-      {showPopup && (
-        <BookDetailPopup
-          book={{ ...book, cover, title, author }}
-          onClose={handleClose}
-          onAddToCart={handleAddToCart}
-        />
-      )}
+      <BookDetailPopup
+        book={{ ...book, cover, title, author }}
+        isOpen={showPopup}
+        onClose={handleClose}
+      />
     </>
   );
 };
