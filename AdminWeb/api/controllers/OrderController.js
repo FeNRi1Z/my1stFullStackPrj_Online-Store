@@ -235,7 +235,7 @@ app.get("/myOrderList", checkSignIn, async (req, res) => {
 		const userId = req.user.id;
 
 		const orderList = await prisma.order.findMany({
-			where:{
+			where: {
 				userId: userId,
 			},
 			orderBy: {
@@ -288,6 +288,78 @@ app.get("/myOrderList", checkSignIn, async (req, res) => {
 	} catch (e) {
 		res.status(500).send({ error: e.message });
 	}
+});
+
+// Dashboard related function & api to analytics
+app.get("/stat/card", checkSignIn, async (req, res) => {
+	try {
+		const totalOrders = await prisma.order.count();
+		const ordersByStatus = await prisma.order.groupBy({
+			by: ["status"],
+			_count: true,
+		});
+
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+
+		const todayOrders = await prisma.order.count({
+			where: {
+				orderDate: {
+					gte: today,
+				},
+			},
+		});
+
+		res.status(200).json({
+			totalOrders,
+			ordersByStatus,
+			todayOrders,
+		});
+	} catch (error) {
+		console.error("Error fetching order statistics:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
+app.get("/stat/financial", checkSignIn, async (req, res) => {
+	try {
+		// 1. Calculate Total Income
+		const totalIncomeResult = await prisma.order.aggregate({
+		  _sum: { orderTotal: true },
+		  where: { status: {
+			in: ['In Progress', 'Shipped', 'Completed'],
+		  }},
+		});
+	
+		const totalIncome = totalIncomeResult._sum.orderTotal || 0;
+	
+		// 2. Calculate Total Profit
+		const profitResult = await prisma.productOnOrder.findMany({
+		  where: {
+			order: { status: {
+				in: ['In Progress', 'Shipped', 'Completed'],
+			} },
+		  },
+		  include: {
+			product: { select: { cost: true } },
+		  },
+		});
+	
+		const totalProfit = profitResult.reduce((acc, item) => {
+		  const { productPrice, quantity } = item;
+		  const { cost } = item.product;
+		  return acc + (productPrice - cost) * quantity;
+		}, 0);
+	
+		// Return response
+		res.status(200).json({
+		  totalIncome,
+		  totalProfit,
+		});
+	  } catch (error) {
+		console.error('Error fetching financial statistics:', error);
+		res.status(500).json({ error: 'Internal server error' });
+	  }
 });
 
 module.exports = app;

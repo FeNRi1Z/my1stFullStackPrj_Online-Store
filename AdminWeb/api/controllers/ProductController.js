@@ -92,125 +92,121 @@ app.get("/list", checkSignIn, async (req, res) => {
 });
 
 app.get("/public/list", async (req, res) => {
-    try {
-        const data = await prisma.product.findMany({
-            orderBy: {
-                id: "desc",
-            },
-            where: {
-                status: "use",
-            },
-            include: {
-                author: true,
-                categories: {
-                    include: {
-                        category: true,
-                    },
-                },
-            },
-        });
+	try {
+		const data = await prisma.product.findMany({
+			orderBy: {
+				id: "desc",
+			},
+			where: {
+				status: "use",
+			},
+			include: {
+				author: true,
+				categories: {
+					include: {
+						category: true,
+					},
+				},
+			},
+		});
 
-        const results = data.map((product) => ({
-            ...product,
-            author: product.author.name,
-            categories: product.categories.map((pc) => pc.categoryId),
-            categoriesName: product.categories.map((pc) => pc.category.name),
-        }));
+		const results = data.map((product) => ({
+			...product,
+			author: product.author.name,
+			categories: product.categories.map((pc) => pc.categoryId),
+			categoriesName: product.categories.map((pc) => pc.category.name),
+		}));
 
-        res.send({ results });
-    } catch (e) {
-        res.status(500).send({ error: e.message });
-    }
+		res.send({ results });
+	} catch (e) {
+		res.status(500).send({ error: e.message });
+	}
 });
 
-
 app.get("/public/search", async (req, res) => {
-    try {
-        const { name, author, minPrice, maxPrice } = req.query;
-        
-        // Build base query conditions
-        const where = {
-            status: "use"
-        };
+	try {
+		const { name, author, minPrice, maxPrice } = req.query;
 
-        // Add name search if provided
-        if (name) {
-            where.OR = [
-                { name: { contains: name } }
-            ];
-            // Include description search if desc exists
-            where.OR.push({ desc: { contains: name } });
-        }
+		// Build base query conditions
+		const where = {
+			status: "use",
+		};
 
-        // Add price range if provided
-        if (minPrice || maxPrice) {
-            where.price = {};
-            if (minPrice) where.price.gte = parseInt(minPrice);
-            if (maxPrice) where.price.lte = parseInt(maxPrice);
-        }
+		// Add name search if provided
+		if (name) {
+			where.OR = [{ name: { contains: name } }];
+			// Include description search if desc exists
+			where.OR.push({ desc: { contains: name } });
+		}
 
-        // Add author filter if provided
-        if (author) {
-            where.AND = where.AND || [];
-            where.AND.push({
-                author: {
-                    name: { contains: author }
-                }
-            });
-        }
+		// Add price range if provided
+		if (minPrice || maxPrice) {
+			where.price = {};
+			if (minPrice) where.price.gte = parseInt(minPrice);
+			if (maxPrice) where.price.lte = parseInt(maxPrice);
+		}
 
-        // Fetch products with given conditions
-        const products = await prisma.product.findMany({
-            where,
-            orderBy: {
-                id: 'desc'
-            },
-            include: {
-                author: {
-                    select: {
-                        name: true
-                    }
-                },
-                categories: {
-                    include: {
-                        category: {
-                            select: {
-                                id: true,
-                                name: true
-                            }
-                        }
-                    }
-                }
-            }
-        });
+		// Add author filter if provided
+		if (author) {
+			where.AND = where.AND || [];
+			where.AND.push({
+				author: {
+					name: { contains: author },
+				},
+			});
+		}
 
-        // Format the response
-        const results = products.map(product => ({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            img: product.img,
-            desc: product.desc,
-            quantity: product.quantity,
-            author: product.author.name,
-            categories: product.categories.map(pc => pc.category.id),
-            categoriesName: product.categories.map(pc => pc.category.name)
-        }));
+		// Fetch products with given conditions
+		const products = await prisma.product.findMany({
+			where,
+			orderBy: {
+				id: "desc",
+			},
+			include: {
+				author: {
+					select: {
+						name: true,
+					},
+				},
+				categories: {
+					include: {
+						category: {
+							select: {
+								id: true,
+								name: true,
+							},
+						},
+					},
+				},
+			},
+		});
 
-        // Send consistent response format
-        res.json({
-            status: 'success',
-            results: results
-        });
+		// Format the response
+		const results = products.map((product) => ({
+			id: product.id,
+			name: product.name,
+			price: product.price,
+			img: product.img,
+			desc: product.desc,
+			quantity: product.quantity,
+			author: product.author.name,
+			categories: product.categories.map((pc) => pc.category.id),
+			categoriesName: product.categories.map((pc) => pc.category.name),
+		}));
 
-    } catch (error) {
-        console.error('Search error:', error);
-        res.status(500).json({
-            status: 'error',
-            message: 'Failed to search books',
-            error: error.message
-        });
-    }
+		// Send consistent response format
+		res.json({
+			status: "success",
+			results: results,
+		});
+	} catch (error) {
+		console.error("Search error:", error);
+		res.status(500).json({
+			status: "error",
+			message: "Failed to search books",
+			error: error.message,
+		});
+	}
 });
 
 app.put("/update", checkSignIn, async (req, res) => {
@@ -395,7 +391,6 @@ app.post("/upload", checkSignIn, async (req, res) => {
 	}
 });
 
-
 // app.post('/uploadFromExcel', checkSignIn, (req, res) => {
 //     try {
 //         const fileExcel = req.files.fileExcel;
@@ -440,205 +435,275 @@ app.post("/upload", checkSignIn, async (req, res) => {
 // Get user's cart items
 
 app.get("/cart/items", checkSignIn, async (req, res) => {
-    try {
-        const cartItems = await prisma.productOnCart.findMany({
-            where: {
-                userId: req.user.id,
-            },
-            include: {
-                product: {
-                    include: {
-                        author: true,
-                        categories: {
-                            include: {
-                                category: true,
-                            },
-                        },
-                    },
-                },
-            },
-        });
+	try {
+		const cartItems = await prisma.productOnCart.findMany({
+			where: {
+				userId: req.user.id,
+			},
+			include: {
+				product: {
+					include: {
+						author: true,
+						categories: {
+							include: {
+								category: true,
+							},
+						},
+					},
+				},
+			},
+		});
 
-        const results = cartItems.map((cartItem) => ({
-            id: cartItem.product.id,
-            name: cartItem.product.name,
-            price: cartItem.product.price,
-            img: cartItem.product.img,
-            desc: cartItem.product.desc,
-            quantity: cartItem.quantity,
-            author: cartItem.product.author.name,
-            categories: cartItem.product.categories.map((pc) => pc.categoryId),
-            categoriesName: cartItem.product.categories.map((pc) => pc.category.name),
-        }));
+		const results = cartItems.map((cartItem) => ({
+			id: cartItem.product.id,
+			name: cartItem.product.name,
+			price: cartItem.product.price,
+			img: cartItem.product.img,
+			desc: cartItem.product.desc,
+			quantity: cartItem.quantity,
+			author: cartItem.product.author.name,
+			categories: cartItem.product.categories.map((pc) => pc.categoryId),
+			categoriesName: cartItem.product.categories.map((pc) => pc.category.name),
+		}));
 
-        // Get the total quantity for the cart badge
-        const cartQty = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-        const cartTotal = cartItems.reduce((sum, item) => sum + (item.quantity * item.product.price), 0);
+		// Get the total quantity for the cart badge
+		const cartQty = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+		const cartTotal = cartItems.reduce((sum, item) => sum + item.quantity * item.product.price, 0);
 
-        // Update user's cart summary
-        await prisma.user.update({
-            where: { id: req.user.id },
-            data: { 
-                cartQty,
-                cartTotal
-            }
-        });
+		// Update user's cart summary
+		await prisma.user.update({
+			where: { id: req.user.id },
+			data: {
+				cartQty,
+				cartTotal,
+			},
+		});
 
-        res.send({ 
-            results,
-            cartQty,
-            cartTotal
-        });
-    } catch (e) {
-        res.status(500).send({ error: e.message });
-    }
+		res.send({
+			results,
+			cartQty,
+			cartTotal,
+		});
+	} catch (e) {
+		res.status(500).send({ error: e.message });
+	}
 });
 
 // Add item to cart
 app.post("/cart/add", checkSignIn, async (req, res) => {
-    try {
-        const { productId, quantity } = req.body;
+	try {
+		const { productId, quantity } = req.body;
 
-        // Check if product exists and is in stock
-        const product = await prisma.product.findFirst({
-            where: {
-                id: productId,
-                status: "use",
-            },
-        });
+		// Check if product exists and is in stock
+		const product = await prisma.product.findFirst({
+			where: {
+				id: productId,
+				status: "use",
+			},
+		});
 
-        if (!product) {
-            return res.status(404).send({ error: "Product not found" });
-        }
+		if (!product) {
+			return res.status(404).send({ error: "Product not found" });
+		}
 
-        // Update or create cart entry
-        await prisma.productOnCart.upsert({
-            where: {
-                userId_productId: {
-                    userId: req.user.id,
-                    productId: productId,
-                },
-            },
-            update: {
-                quantity: {
-                    increment: quantity,
-                },
-            },
-            create: {
-                userId: req.user.id,
-                productId: productId,
-                quantity: quantity,
-            },
-        });
+		// Update or create cart entry
+		await prisma.productOnCart.upsert({
+			where: {
+				userId_productId: {
+					userId: req.user.id,
+					productId: productId,
+				},
+			},
+			update: {
+				quantity: {
+					increment: quantity,
+				},
+			},
+			create: {
+				userId: req.user.id,
+				productId: productId,
+				quantity: quantity,
+			},
+		});
 
-        // Update user's cart summary
-        const updatedCart = await prisma.productOnCart.findMany({
-            where: { userId: req.user.id },
-            include: { product: true }
-        });
+		// Update user's cart summary
+		const updatedCart = await prisma.productOnCart.findMany({
+			where: { userId: req.user.id },
+			include: { product: true },
+		});
 
-        const cartQty = updatedCart.reduce((sum, item) => sum + item.quantity, 0);
-        const cartTotal = updatedCart.reduce((sum, item) => sum + (item.quantity * item.product.price), 0);
+		const cartQty = updatedCart.reduce((sum, item) => sum + item.quantity, 0);
+		const cartTotal = updatedCart.reduce((sum, item) => sum + item.quantity * item.product.price, 0);
 
-        await prisma.user.update({
-            where: { id: req.user.id },
-            data: { 
-                cartQty,
-                cartTotal
-            }
-        });
+		await prisma.user.update({
+			where: { id: req.user.id },
+			data: {
+				cartQty,
+				cartTotal,
+			},
+		});
 
-        res.send({ 
-            message: "Added to cart",
-            cartQty,
-            cartTotal
-        });
-    } catch (e) {
-        res.status(500).send({ error: e.message });
-    }
+		res.send({
+			message: "Added to cart",
+			cartQty,
+			cartTotal,
+		});
+	} catch (e) {
+		res.status(500).send({ error: e.message });
+	}
 });
 
 // Update cart item quantity
 app.put("/cart/update", checkSignIn, async (req, res) => {
+	try {
+		const { productId, quantity } = req.body;
+
+		await prisma.productOnCart.update({
+			where: {
+				userId_productId: {
+					userId: req.user.id,
+					productId: productId,
+				},
+			},
+			data: {
+				quantity: quantity,
+			},
+		});
+
+		// Update user's cart summary
+		const updatedCart = await prisma.productOnCart.findMany({
+			where: { userId: req.user.id },
+			include: { product: true },
+		});
+
+		const cartQty = updatedCart.reduce((sum, item) => sum + item.quantity, 0);
+		const cartTotal = updatedCart.reduce((sum, item) => sum + item.quantity * item.product.price, 0);
+
+		await prisma.user.update({
+			where: { id: req.user.id },
+			data: {
+				cartQty,
+				cartTotal,
+			},
+		});
+
+		res.send({
+			message: "Cart updated",
+			cartQty,
+			cartTotal,
+		});
+	} catch (e) {
+		res.status(500).send({ error: e.message });
+	}
+});
+
+// Remove item from cart
+app.delete("/cart/remove/:productId", checkSignIn, async (req, res) => {
+	try {
+		await prisma.productOnCart.delete({
+			where: {
+				userId_productId: {
+					userId: req.user.id,
+					productId: parseInt(req.params.productId),
+				},
+			},
+		});
+
+		// Update user's cart summary
+		const updatedCart = await prisma.productOnCart.findMany({
+			where: { userId: req.user.id },
+			include: { product: true },
+		});
+
+		const cartQty = updatedCart.reduce((sum, item) => sum + item.quantity, 0);
+		const cartTotal = updatedCart.reduce((sum, item) => sum + item.quantity * item.product.price, 0);
+
+		await prisma.user.update({
+			where: { id: req.user.id },
+			data: {
+				cartQty,
+				cartTotal,
+			},
+		});
+
+		res.send({
+			message: "Item removed from cart",
+			cartQty,
+			cartTotal,
+		});
+	} catch (e) {
+		res.status(500).send({ error: e.message });
+	}
+});
+
+
+
+// Dashboard related function & api to analytics
+const getTop10SellingProducts = async () => {
+	const currentDate = new Date();
+	const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+	const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
+	const topProducts = await prisma.productOnOrder.groupBy({
+		by: ["productId"],
+		_sum: { quantity: true },
+		where: {
+			order: {
+				orderDate: {
+					gte: startOfMonth,
+					lte: endOfMonth,
+				},
+			},
+		},
+		orderBy: {
+			_sum: { quantity: "desc" },
+		},
+		take: 10, // Top 10 products
+	});
+
+	const productsWithDetails = await Promise.all(
+		topProducts.map(async (product) => {
+			const productDetails = await prisma.product.findUnique({
+				where: { id: product.productId },
+			});
+			return {
+				...productDetails,
+				quantitySold: product._sum.quantity,
+			};
+		})
+	);
+
+	return productsWithDetails;
+};
+
+app.get("/stat/topProduct", checkSignIn, async (req, res) => {
     try {
-        const { productId, quantity } = req.body;
+        const topProducts = await getTop10SellingProducts();
 
-        await prisma.productOnCart.update({
-            where: {
-                userId_productId: {
-                    userId: req.user.id,
-                    productId: productId,
-                },
-            },
-            data: {
-                quantity: quantity,
-            },
-        });
-
-        // Update user's cart summary
-        const updatedCart = await prisma.productOnCart.findMany({
-            where: { userId: req.user.id },
-            include: { product: true }
-        });
-
-        const cartQty = updatedCart.reduce((sum, item) => sum + item.quantity, 0);
-        const cartTotal = updatedCart.reduce((sum, item) => sum + (item.quantity * item.product.price), 0);
-
-        await prisma.user.update({
-            where: { id: req.user.id },
-            data: { 
-                cartQty,
-                cartTotal
-            }
-        });
-
-        res.send({ 
-            message: "Cart updated",
-            cartQty,
-            cartTotal
-        });
+        res.send({ results: topProducts });
     } catch (e) {
         res.status(500).send({ error: e.message });
     }
 });
 
-// Remove item from cart
-app.delete("/cart/remove/:productId", checkSignIn, async (req, res) => {
+app.get("/stat/card", checkSignIn, async (req, res) => {
     try {
-        await prisma.productOnCart.delete({
-            where: {
-                userId_productId: {
-                    userId: req.user.id,
-                    productId: parseInt(req.params.productId),
-                },
-            },
+        const totalProducts = await prisma.product.count();
+        const activeProducts = await prisma.product.count({ where: { status: 'use' } });
+        const inactiveProducts = await prisma.product.count({ where: { status: 'delete' } });
+        const outOfStockProducts = await prisma.product.findMany({ where: { quantity: 0 } });
+    
+        res.status(200).json({
+          totalProducts,
+          activeProducts,
+          inactiveProducts,
+          outOfStock: outOfStockProducts.length,
+          outOfStockProducts: outOfStockProducts.map((product) => product.id),
         });
-
-        // Update user's cart summary
-        const updatedCart = await prisma.productOnCart.findMany({
-            where: { userId: req.user.id },
-            include: { product: true }
-        });
-
-        const cartQty = updatedCart.reduce((sum, item) => sum + item.quantity, 0);
-        const cartTotal = updatedCart.reduce((sum, item) => sum + (item.quantity * item.product.price), 0);
-
-        await prisma.user.update({
-            where: { id: req.user.id },
-            data: { 
-                cartQty,
-                cartTotal
-            }
-        });
-
-        res.send({ 
-            message: "Item removed from cart",
-            cartQty,
-            cartTotal
-        });
-    } catch (e) {
-        res.status(500).send({ error: e.message });
-    }
+      } catch (error) {
+        console.error('Error fetching product statistics:', error);
+        res.status(500).json({ error: 'Internal server error' });
+      }
 });
 
 module.exports = app;

@@ -309,6 +309,38 @@ function Order() {
 					</>
 				);
 			},
+			filters: [
+				{
+					text: "To be paid",
+					value: "To be paid",
+				},
+				{
+					text: "Paid",
+					value: "Paid",
+				},
+				{
+					text: "Problem",
+					value: "Problem",
+				},
+				{
+					text: "In Progress",
+					value: "In Progress",
+				},
+				{
+					text: "Shipped",
+					value: "Shipped",
+				},
+				{
+					text: "Completed",
+					value: "Completed",
+				},
+				{
+					text: "Cancelled",
+					value: "Cancelled",
+				},
+			],
+			filterSearch: true,
+			onFilter: (value, record) => record.status.indexOf(value) === 0,
 		},
 	];
 	const expandColumns = [
@@ -496,7 +528,7 @@ function Order() {
 			} else {
 				// mode === "info"
 				if (!order.address) errorList["address"] = true;
-				if (!order.phone || order.phone.length !== 10 || !/^\d+$/.test(order.phone) || order.phone[0] !== '0') errorList["phone"] = true;
+				if (!order.phone || order.phone.length !== 10 || !/^\d+$/.test(order.phone) || order.phone[0] !== "0") errorList["phone"] = true;
 
 				if (Object.keys(errorList).length > 0) {
 					setErrorForm((prev) => ({
@@ -676,7 +708,9 @@ function Order() {
 										clearErrorBorder("paymentSlipIMG");
 									}}
 								/>
-							) : <div ref={refImg}></div>}
+							) : (
+								<div ref={refImg}></div>
+							)}
 
 							{!isChangeIMG && (
 								<div class="container containerIMG mt-1" onClick={async () => await setIsChangeIMG(true)}>
