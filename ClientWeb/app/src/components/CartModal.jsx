@@ -290,7 +290,7 @@ const CartModal = ({ isOpen, onClose }) => {
           >
             {/* Header */}
             <div 
-              className={`p-4 sm:p-6 border-b transition-opacity duration-300 delay-75
+              className={`p-4 sm:p-6 transition-opacity duration-300 delay-75
                 ${isAnimating ? 'opacity-100' : 'opacity-0'}`}
               style={{ borderColor: themeStyles.tableBorder }}
             >
@@ -316,7 +316,7 @@ const CartModal = ({ isOpen, onClose }) => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 prefix={<SearchOutlined className="site-form-item-icon" />}
-                className="hover:border-primary-100 focus:border-primary-100"
+                className="border-white-500 hover:border-primary-100 focus:border-primary-100"
               />
             </div>
 
