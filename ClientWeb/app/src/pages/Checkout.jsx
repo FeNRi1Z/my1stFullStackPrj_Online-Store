@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
 import { useCart } from "../components/CartProvider";
 import ScrollableTable from "../components/ScrollableTable";
@@ -409,6 +409,8 @@ const Checkout = () => {
 		</Modal>
 	);
 
+	const previousURL = localStorage.getItem('previousURL');
+
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark p-4 transition-colors duration-300">
 			<div className="w-full max-w-4xl rounded-lg shadow-lg">
@@ -433,7 +435,7 @@ const Checkout = () => {
 					<div className="flex justify-between mt-4">
 						{currentStep !== 3 && (
 							<button
-								onClick={() => (currentStep === 1 ? navigate(-1) : setCurrentStep((prev) => prev - 1))}
+								onClick={() => currentStep === 1 ? navigate(`${previousURL}`) : setCurrentStep((prev) => prev - 1)}
 								className="flex items-center px-6 py-2 bg-white dark:bg-background-secondary-dark 
                              text-text-dark dark:text-text-light rounded-md 
                              border border-gray-200 dark:border-gray-700

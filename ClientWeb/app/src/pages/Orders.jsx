@@ -3,11 +3,13 @@ import React, { useState } from 'react';
 import NavBar from '../components/Navbar.jsx';
 import SideOrderNav from '../components/SideOrderNav';
 import OrderCard from '../components/OrderCard';
+import CartModal from '../components/CartModal.jsx';
 import { mockOrders } from '../assets/mockData.js';
 import { useTheme } from '../components/ThemeProvider';
 
 const OrderHistory = () => {
   const [setIsSideNavOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const { theme } = useTheme();
 
   return (
@@ -16,6 +18,7 @@ const OrderHistory = () => {
       <div className="fixed top-0 left-0 right-0 z-50">
         <NavBar
           onMenuClick={() => setIsSideNavOpen(true)}
+          onCartOpen={() => setIsCartOpen(true)}
         />
       </div>
 
@@ -44,6 +47,10 @@ const OrderHistory = () => {
           </div>
         </div>
       </div>
+      <CartModal
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+      />
     </div>
   );
 };
