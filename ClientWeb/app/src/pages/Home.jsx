@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useTheme } from '../components/ThemeProvider';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
+import { useTheme } from '../components/ThemeProvider';
 import NavBar from '../components/Navbar.jsx';
 import BookCard from '../components/BookCard.jsx';
 import SideNav from '../components/SideNav.jsx';
 import CartModal from '../components/CartModal.jsx';
-import config from "../config";
+import config from '../config.js';
 
 const Home = () => {
   const [isSideNavOpen, setIsSideNavOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [showNavbar, setShowNavbar] = useState(false);
   const [books, setBooks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { theme } = useTheme();
@@ -29,6 +28,7 @@ const Home = () => {
     setIsSideNavOpen(false);
   };
 
+  // Initial fetch of all books
   useEffect(() => {
     const fetchBooks = async () => {
       try {
@@ -45,24 +45,10 @@ const Home = () => {
     fetchBooks();
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (storeRef.current) {
-        const storeRect = storeRef.current.getBoundingClientRect();
-        setShowNavbar(storeRect.top <= 0);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-
   return (
     <div className="min-h-screen bg-background-light dark:bg-background-dark">
       {/* Fixed Navbar */}
-      {/* <div className={`fixed top-0 left-0 right-0 z-40 transition-transform duration-300 ${showNavbar ? 'translate-y-0' : '-translate-y-full'}`}> */}
-      <div className={`fixed top-0 left-0 right-0 z-40 transition-transform duration-300`}>
+      <div className="fixed top-0 left-0 right-0 z-40">
         <NavBar
           onMenuClick={handleMenuClick}
           onCartOpen={() => setIsCartOpen(true)}
@@ -78,7 +64,7 @@ const Home = () => {
 
       {/* Main Content */}
       <div className="relative" onClick={() => isSideNavOpen && handleSideNavClose()}>
-        {/* Landing Section */}
+        {/* Home Section */}
         <section
           ref={landingRef}
           className="min-h-screen flex flex-col items-center justify-center px-4"
@@ -114,33 +100,13 @@ const Home = () => {
             </button>
           </div>
         </section>
-
         {/* Store Section */}
-        <section ref={storeRef} className="min-h-screen pt-24 pb-12">
-          <div className="mx-auto px-4 sm:px-6 md:px-8 lg:px-12 w-[95%] 2xl:w-[85%]">
-            <div className="flex flex-col space-y-6">
-              {/* Store button */}
-              <div className="flex justify-start mt-2">
-                <a
-                  href="/store"
-                  className="group inline-flex items-center px-6 py-3 
-                            bg-primary-100 text-white text-base font-medium 
-                            rounded-md hover:text-white hover:bg-primary-hover 
-                            transition-colors duration-200
-                            focus:outline-none focus:ring-2 
-                            focus:ring-primary-100 focus:ring-offset-2"
-                >
-                  Go to store now
-                  <ArrowUpRight className="ml-2 w-5 h-5 transform transition-transform 
-                                      group-hover:translate-x-1 group-hover:-translate-y-1" />
-                </a>
-              </div>
-
-
-              {/* Newly Come header */}
-              <h2 className="text-2xl sm:text-3xl font-bold text-text-dark dark:text-text-light transition-colors duration-200">
+        <section ref={storeRef} className="min-h-screen pt-16 pb-12">
+          <div className="mx-auto px-4 sm:px-6 md:px-8 lg:px-12 w-[95%] 2xl:w-[95%]">
+            <div className="mt-8 space-y-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-text-dark dark:text-text-light transition-colors duration-200">
                 Newly Come
-              </h2>
+              </h1>
             </div>
 
             <div className="mt-6 sm:mt-8">
@@ -173,6 +139,7 @@ const Home = () => {
               )}
             </div>
 
+            {/* Empty state */}
             {!isLoading && books.length === 0 && (
               <div className="flex flex-col items-center justify-center min-h-[300px] sm:min-h-[400px] text-center">
                 <p className="text-lg text-text-dark dark:text-text-light mb-4">
@@ -184,6 +151,19 @@ const Home = () => {
               </div>
             )}
           </div>
+          <div className='mx-auto mr-6 mt-6 px-4 sm:px-6 md:px-8 lg:px-12 w-[95%] 2xl:w-[95%]'><a
+            href="/store"
+            className="group inline-flex items-center px-6 py-3 
+                            bg-primary-100 text-white text-base font-medium 
+                            rounded-md hover:text-white hover:bg-primary-hover 
+                            transition-colors duration-200
+                            focus:outline-none focus:ring-2   
+                            focus:ring-primary-100 focus:ring-offset-2"
+          >
+            Go to store now
+            <ArrowUpRight className="ml-2 w-5 h-5 transform transition-transform 
+                                      group-hover:translate-x-1 group-hover:-translate-y-1" />
+          </a></div>
         </section>
       </div>
 
