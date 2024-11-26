@@ -60,7 +60,7 @@ const Register = () => {
   const handleNext = (e) => {
     // Prevent any form submission when clicking next
     e?.preventDefault();
-    
+
     if (validateStep()) {
       setCurrentStep(currentStep + 1);
     }
@@ -68,7 +68,7 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // validate username and password in submission
     if (!formData.username || !formData.password) {
       message.warning('Please fill in all account information fields');
@@ -104,7 +104,7 @@ const Register = () => {
         },
         body: JSON.stringify(requestData),
       });
-      
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -113,7 +113,7 @@ const Register = () => {
 
       localStorage.setItem('token', data.token);
       localStorage.setItem('role', data.role);
-      
+
       message.success('Registration successful!');
       navigate('/signIn');
     } catch (err) {
@@ -145,9 +145,10 @@ const Register = () => {
                 value={formData.firstName}
                 onChange={handleInputChange}
                 className="w-full px-4 py-3 bg-white dark:bg-background-secondary-dark rounded-md
-                         text-text-dark dark:text-text-light placeholder-text-disabled
-                         border-none focus:outline-none focus:ring-2 focus:ring-primary-100"
-              />
+                            text-text-dark dark:text-text-light placeholder-text-disabled
+                            border border-gray-300 dark:border-none
+                            focus:outline-none focus:ring-2 focus:ring-primary-100"
+                />
 
               <label className="text-text-disabled dark:text-text-disabled self-center" htmlFor="surname">
                 Surname
@@ -158,9 +159,10 @@ const Register = () => {
                 value={formData.surname}
                 onChange={handleInputChange}
                 className="w-full px-4 py-3 bg-white dark:bg-background-secondary-dark rounded-md
-                         text-text-dark dark:text-text-light placeholder-text-disabled
-                         border-none focus:outline-none focus:ring-2 focus:ring-primary-100"
-              />
+                            text-text-dark dark:text-text-light placeholder-text-disabled
+                            border border-gray-300 dark:border-none
+                            focus:outline-none focus:ring-2 focus:ring-primary-100"
+                />
             </div>
           </div>
         );
@@ -181,9 +183,10 @@ const Register = () => {
                 value={formData.address}
                 onChange={handleInputChange}
                 className="w-full px-4 py-3 bg-white dark:bg-background-secondary-dark rounded-md
-                         text-text-dark dark:text-text-light placeholder-text-disabled
-                         border-none focus:outline-none focus:ring-2 focus:ring-primary-100"
-              />
+                            text-text-dark dark:text-text-light placeholder-text-disabled
+                            border border-gray-300 dark:border-none
+                            focus:outline-none focus:ring-2 focus:ring-primary-100"
+                />
 
               <label className="text-text-disabled dark:text-text-disabled self-center" htmlFor="phone">
                 Phone
@@ -195,9 +198,10 @@ const Register = () => {
                 value={formData.phone}
                 onChange={handleInputChange}
                 className="w-full px-4 py-3 bg-white dark:bg-background-secondary-dark rounded-md
-                         text-text-dark dark:text-text-light placeholder-text-disabled
-                         border-none focus:outline-none focus:ring-2 focus:ring-primary-100"
-              />
+                            text-text-dark dark:text-text-light placeholder-text-disabled
+                            border border-gray-300 dark:border-none
+                            focus:outline-none focus:ring-2 focus:ring-primary-100"
+                />
             </div>
           </div>
         );
@@ -218,9 +222,10 @@ const Register = () => {
                 value={formData.username}
                 onChange={handleInputChange}
                 className="w-full px-4 py-3 bg-white dark:bg-background-secondary-dark rounded-md
-                         text-text-dark dark:text-text-light placeholder-text-disabled
-                         border-none focus:outline-none focus:ring-2 focus:ring-primary-100"
-              />
+                            text-text-dark dark:text-text-light placeholder-text-disabled
+                            border border-gray-300 dark:border-none
+                            focus:outline-none focus:ring-2 focus:ring-primary-100"
+                />
 
               <label className="text-text-disabled dark:text-text-disabled self-center" htmlFor="password">
                 Password
@@ -232,9 +237,9 @@ const Register = () => {
                   value={formData.password}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 bg-white dark:bg-background-secondary-dark rounded-md
-                           text-text-dark dark:text-text-light placeholder-text-disabled
-                           border-none focus:outline-none focus:ring-2 focus:ring-primary-100
-                           pr-12"
+                            text-text-dark dark:text-text-light placeholder-text-disabled
+                            border border-gray-300 dark:border-none
+                            focus:outline-none focus:ring-2 focus:ring-primary-100"
                 />
                 <button
                   type="button"
@@ -262,7 +267,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark p-4 transition-colors duration-300">
-  <div className="w-full max-w-xl bg-white/80 dark:bg-background-dark/80 shadow-xl rounded-lg">
+      <div className="w-full max-w-xl bg-white/80 dark:bg-background-dark/80 shadow-xl rounded-lg">
         {/* Header Section */}
         <div className="px-8 pt-8 pb-6">
           <h1 className="text-text-dark dark:text-text-light text-4xl font-bold text-center">
