@@ -6,6 +6,8 @@ import ScrollableTable from "../components/ScrollableTable";
 import { PenLine, ArrowRight, ArrowLeft, ChevronRight, CheckCircle, Loader2 } from "lucide-react";
 import { message, Image } from "antd";
 import config from "../config";
+import axios from "axios";
+import dayjs from "dayjs";
 
 const Checkout = () => {
 	const [currentStep, setCurrentStep] = useState(1);
@@ -13,7 +15,6 @@ const Checkout = () => {
 	const [addressModalVisible, setAddressModalVisible] = useState(false);
 	const [phoneModalVisible, setPhoneModalVisible] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
-	const [orderId, setOrderId] = useState(null);
 
 	const navigate = useNavigate();
 	const { user } = useAuth();
@@ -26,6 +27,8 @@ const Checkout = () => {
 		phone: "",
 	});
 
+	const [orderData, setOrderData] = useState();
+
 	// Fetch user data on component mount
 	useEffect(() => {
 		if (user) {
@@ -37,66 +40,6 @@ const Checkout = () => {
 			});
 		}
 	}, [user]);
-
-	const handleAddressUpdate = async (e) => {
-		e.preventDefault();
-		const formData = new FormData(e.target);
-		const address = formData.get("address");
-
-		if (address) {
-			try {
-				const response = await fetch(config.apiPath + "/user/update", {
-					method: "PUT",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${localStorage.getItem("token")}`,
-					},
-					body: JSON.stringify({ address }),
-				});
-
-				if (!response.ok) throw new Error("Failed to update address");
-
-				setUserData((prev) => ({
-					...prev,
-					address,
-				}));
-				setAddressModalVisible(false);
-				message.success("Address updated successfully");
-			} catch (error) {
-				message.error("Failed to update address");
-			}
-		}
-	};
-
-	const handlePhoneUpdate = async (e) => {
-		e.preventDefault();
-		const formData = new FormData(e.target);
-		const phone = formData.get("phone");
-
-		if (phone && /^[+]?[\d\s-]+$/.test(phone)) {
-			try {
-				const response = await fetch(config.apiPath + "/user/update", {
-					method: "PUT",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${localStorage.getItem("token")}`,
-					},
-					body: JSON.stringify({ phone }),
-				});
-
-				if (!response.ok) throw new Error("Failed to update phone");
-
-				setUserData((prev) => ({
-					...prev,
-					phone,
-				}));
-				setPhoneModalVisible(false);
-				message.success("Phone number updated successfully");
-			} catch (error) {
-				message.error("Failed to update phone number");
-			}
-		}
-	};
 
 	const handleNextStep = async () => {
 		if (currentStep === 2) {
@@ -118,42 +61,36 @@ const Checkout = () => {
 				return;
 			}
 
-			if (!userData.phone?.trim()) {
+			if (!userData.phone?.trim() || userData.phone.length !== 10 || userData.phone[0] !== "0" || isNaN(userData.phone)) {
 				message.warning("Please provide a contact phone number");
 				return;
 			}
 
+			const dataBody = {
+				address: userData.address,
+				phone: userData.phone,
+				orderItems: cartItems.map((item) => ({
+					productId: parseInt(item.id),
+					quantity: parseInt(item.quantity),
+				})),
+			};
+
 			setIsLoading(true);
 			try {
-				const response = await fetch(config.apiPath + "/order/orderCreate", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${localStorage.getItem("token")}`,
-					},
-					body: JSON.stringify({
-						cartItems,
-						paymentMethod,
-						address: userData.address,
-						phone: userData.phone,
-					}),
-				});
+				const response = await axios.post(config.apiPath + "/order/orderCreate", dataBody, config.headers());
 
-				const data = await response.json();
-
-				if (!response.ok) {
-					throw new Error(data.error || "Failed to create order");
+				if (response.status === 200) {
+					clearCart(); // Clear the cart after successful order
+					setOrderData(response.data.newOrder);
+					setCurrentStep((prev) => prev + 1);
 				}
-
-				setOrderId(data.orderId);
-				clearCart(); // Clear the cart after successful order
-				setCurrentStep((prev) => prev + 1);
 			} catch (error) {
 				console.error("Order creation error:", error);
 				message.error(error.message || "Failed to create order");
 			} finally {
 				setIsLoading(false);
 			}
+		} else if (currentStep === 3) {
 		} else {
 			setCurrentStep((prev) => prev + 1);
 		}
@@ -232,7 +169,7 @@ const Checkout = () => {
 							<tr key={item.id} className="border-b dark:border-gray-700 bg-white dark:bg-background-secondary-dark hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
 								<td className="py-4 px-6 min-w-[280px]">
 									<div className="flex items-center gap-4">
-										<Image width={100} height={150} src={config.apiPath + '/uploads/product_img/' + item.img} alt={item.title} className="object-cover rounded shrink-0" />
+										<Image width={100} height={150} src={config.apiPath + "/uploads/product_img/" + item.img} alt={item.title} className="object-cover rounded shrink-0" />
 										<div className="min-w-0">
 											<h3 className="text-text-dark dark:text-text-light truncate">{item.title}</h3>
 											<p className="text-secondary-50 dark:text-secondary-100 truncate">{item.author}</p>
@@ -254,10 +191,18 @@ const Checkout = () => {
 		switch (currentStep) {
 			case 1:
 				return (
-					<div className="space-y-4 w-full">
-						<h2 className="text-text-dark dark:text-text-light text-xl font-semibold mb-4">Confirm Items</h2>
-						<div className="bg-white dark:bg-background-secondary-dark rounded-lg shadow">{renderItems()}</div>
-					</div>
+					<>
+						<div className="space-y-4 w-full">
+							<h2 className="text-text-dark dark:text-text-light text-xl font-semibold mb-4">Confirm Items</h2>
+							<div className="bg-white dark:bg-background-secondary-dark rounded-lg shadow">{renderItems()}</div>
+						</div>
+						<div className="space-y-3 w-full mt-4">
+							<div className="flex justify-between items-center bg-white dark:bg-background-secondary-dark rounded-lg shadow p-4">
+								<span className="text-text-dark dark:text-text-light font-semibold">Order Total:</span>
+								<span className="text-text-dark dark:text-text-light text-xl font-bold">${cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2)}</span>
+							</div>
+						</div>
+					</>
 				);
 
 			case 2:
@@ -270,7 +215,11 @@ const Checkout = () => {
 									<div className="relative p-4 rounded-lg bg-gray-50 dark:bg-background-dark">
 										<div className="font-medium mb-2 text-text-dark dark:text-text-light">Address</div>
 										<div className="text-secondary-50 dark:text-secondary-100">{userData.address}</div>
-										<button onClick={() => setAddressModalVisible(true)} className="absolute top-2 right-2 p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full">
+										<button
+											onClick={() => {
+												setAddressModalVisible(true);
+											}}
+											className="absolute top-2 right-2 p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full">
 											<PenLine className="w-4 h-4 text-text-dark dark:text-text-light" />
 										</button>
 									</div>
@@ -281,7 +230,11 @@ const Checkout = () => {
 								<div className="relative p-4 rounded-lg bg-gray-50 dark:bg-background-dark">
 									<div className="font-medium mb-2 text-text-dark dark:text-text-light">Phone</div>
 									<div className="text-secondary-50 dark:text-secondary-100">{userData.phone}</div>
-									<button onClick={() => setPhoneModalVisible(true)} className="absolute top-2 right-2 p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full">
+									<button
+										onClick={() => {
+											setPhoneModalVisible(true);
+										}}
+										className="absolute top-2 right-2 p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full">
 										<PenLine className="w-4 h-4 text-text-dark dark:text-text-light" />
 									</button>
 								</div>
@@ -341,10 +294,10 @@ const Checkout = () => {
 							<CheckCircle className="w-16 h-16 text-green-500" />
 							<div className="text-center">
 								<h2 className="text-2xl font-bold mb-2 text-text-dark dark:text-text-light">Order Success</h2>
-								<p className="text-text-dark dark:text-text-light">Order ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
-								<p className="text-text-dark dark:text-text-light">Order Date: {new Date().toLocaleDateString()}</p>
+								<p className="text-text-dark dark:text-text-light">Order ID: {orderData.id}</p>
+								<p className="text-text-dark dark:text-text-light">Order Date: {dayjs(orderData.orderDate).format('YYYY/MM/DD HH:mm:ss')}</p>
 							</div>
-							{paymentMethod === "qr" && <p className="text-secondary-50 dark:text-secondary-100">Please upload payment slip at order history</p>}
+							{paymentMethod === "qr" && <p className="text-secondary-50 dark:text-secondary-100">Please upload payment slip to your order</p>}
 						</div>
 					</div>
 				);
@@ -354,21 +307,42 @@ const Checkout = () => {
 		}
 	};
 
+	const handleAddressChange = () => {
+		const address = document.getElementById("addressModal").value;
+		setUserData({ ...userData, address });
+		setAddressModalVisible(false);
+	};
+
+	const handlePhoneChange = () => {
+		const phone = document.getElementById("phoneModal").value;
+		setUserData({ ...userData, phone });
+		setPhoneModalVisible(false);
+	};
+
 	// Modal section
 	const addressModal = (
-		<Modal isOpen={addressModalVisible} onClose={() => setAddressModalVisible(false)} title="Edit Address">
-			<form onSubmit={handleAddressUpdate}>
+		<Modal isOpen={addressModalVisible} title="Edit Address">
+			<form>
 				<div className="mb-4">
-					<label className="block text-sm font-medium text-text-dark dark:text-text-light mb-2">Address</label>
+					<div className="flex justify-between">
+						<label className="block text-sm font-medium text-text-dark dark:text-text-light mb-2">Address</label>
+						<button
+							type="text"
+							onClick={() => setUserData({ ...userData, address: user.address })}
+							className="text-gray-600 dark:text-gray-300 hover:text-primary-100 dark:hover:text-primary-100 underline text-sm mb-2">
+							Default
+						</button>
+					</div>
 					<textarea
+						id="addressModal"
 						name="address"
 						rows="4"
 						defaultValue={userData.address}
+						pleaseholder="Enter your address"
 						className="w-full px-3 py-2 border rounded-md 
                                  dark:bg-background-dark dark:border-gray-700
                                  text-text-dark dark:text-text-light
                                  focus:outline-none focus:ring-2 focus:ring-primary-100"
-						required
 					/>
 				</div>
 				<div className="flex justify-end space-x-4">
@@ -380,7 +354,7 @@ const Checkout = () => {
 						Cancel
 					</button>
 					<button
-						type="submit"
+						onClick={() => handleAddressChange()}
 						className="px-4 py-2 bg-primary-100 text-white rounded-md
                                  hover:bg-primary-hover active:bg-primary-active">
 						Save
@@ -391,20 +365,29 @@ const Checkout = () => {
 	);
 
 	const phoneModal = (
-		<Modal isOpen={phoneModalVisible} onClose={() => setPhoneModalVisible(false)} title="Edit Phone Number">
-			<form onSubmit={handlePhoneUpdate}>
+		<Modal isOpen={phoneModalVisible} title="Edit Phone Number">
+			<form>
 				<div className="mb-4">
-					<label className="block text-sm font-medium text-text-dark dark:text-text-light mb-2">Phone Number</label>
+					<div className="flex justify-between">
+						<label className="block text-sm font-medium text-text-dark dark:text-text-light mb-2">Phone</label>
+						<button
+							type="text"
+							onClick={() => setUserData({ ...userData, phone: user.phone })}
+							className="text-gray-600 dark:text-gray-300 hover:text-primary-100 dark:hover:text-primary-100 underline text-sm mb-2">
+							Default
+						</button>
+					</div>
 					<input
+						id="phoneModal"
 						type="text"
+						maxLength={10}
 						name="phone"
+						placeholder="Enter your phone number"
 						defaultValue={userData.phone}
-						pattern="^[+]?[\d\s-]+$"
 						className="w-full px-3 py-2 border rounded-md 
                                  dark:bg-background-dark dark:border-gray-700
                                  text-text-dark dark:text-text-light
                                  focus:outline-none focus:ring-2 focus:ring-primary-100"
-						required
 					/>
 				</div>
 				<div className="flex justify-end space-x-4">
@@ -416,7 +399,7 @@ const Checkout = () => {
 						Cancel
 					</button>
 					<button
-						type="submit"
+						onClick={() => handlePhoneChange()}
 						className="px-4 py-2 bg-primary-100 text-white rounded-md
                                  hover:bg-primary-hover active:bg-primary-active">
 						Save
@@ -433,7 +416,7 @@ const Checkout = () => {
 					<h1 className="text-text-dark dark:text-text-light text-4xl font-bold text-center">Checkout</h1>
 
 					<div className="mt-6">
-						<div className="grid grid-cols-3 mb-2">
+						<div className="grid grid-cols-3 mb-3">
 							<span className={`text-sm text-left ${currentStep >= 1 ? "text-primary-100" : "text-text-disabled"}`}>Confirm Items</span>
 							<span className={`text-sm text-center ${currentStep >= 2 ? "text-primary-100" : "text-text-disabled"}`}>Payment</span>
 							<span className={`text-sm text-right ${currentStep >= 3 ? "text-primary-100" : "text-text-disabled"}`}>Complete</span>
@@ -447,17 +430,19 @@ const Checkout = () => {
 				<div className="px-8 pb-6">
 					<div className="min-h-[480px]">{renderStep()}</div>
 
-					<div className="flex justify-between mt-6">
-						<button
-							onClick={() => (currentStep === 1 ? navigate(-1) : setCurrentStep((prev) => prev - 1))}
-							className="flex items-center px-6 py-2 bg-white dark:bg-background-secondary-dark 
+					<div className="flex justify-between mt-4">
+						{currentStep !== 3 && (
+							<button
+								onClick={() => (currentStep === 1 ? navigate(-1) : setCurrentStep((prev) => prev - 1))}
+								className="flex items-center px-6 py-2 bg-white dark:bg-background-secondary-dark 
                              text-text-dark dark:text-text-light rounded-md 
                              border border-gray-200 dark:border-gray-700
                              hover:bg-gray-100 dark:hover:bg-gray-700
                              focus:outline-none transition-colors">
-							<ArrowLeft className="w-4 h-4 mr-2" />
-							{currentStep === 1 ? "Cancel" : "Previous"}
-						</button>
+								<ArrowLeft className="w-4 h-4 mr-2" />
+								{currentStep === 1 ? "Cancel" : "Previous"}
+							</button>
+						)}
 
 						{currentStep < 3 && (
 							<button
@@ -470,14 +455,25 @@ const Checkout = () => {
 							</button>
 						)}
 						{currentStep === 3 && (
-							<button
-								onClick={() => navigate("/Orders")}
-								className="flex items-center px-6 py-2 bg-primary-100 text-white rounded-md
+							<div className="flex justify-between items-center">
+								<button
+									onClick={() => navigate("/store")}
+									className="flex items-center px-6 py-2 bg-white dark:bg-background-secondary-dark 
+								 text-text-dark dark:text-text-light rounded-md 
+								 border border-gray-200 dark:border-gray-700
+								 hover:bg-gray-100 dark:hover:bg-gray-700
+								 focus:outline-none transition-colors mr-3">
+									Continue Shopping
+								</button>
+								<button
+									onClick={() => navigate("/orders")}
+									className="flex items-center px-6 py-2 bg-primary-100 text-white rounded-md
                                  hover:bg-primary-hover active:bg-primary-active
                                  focus:outline-none transition-colors">
-								Order history
-								<ChevronRight className="w-4 h-4 ml-2" />
-							</button>
+									My Orders
+									<ChevronRight className="w-4 h-4 ml-2" />
+								</button>
+							</div>
 						)}
 					</div>
 				</div>
