@@ -7,13 +7,61 @@ select:-moz-focusring {
   text-shadow: 0 0 0 #F5F5F5;
 }
 
+/* Apply scrollbar styles to all scrollable elements */
+html, body, div, section, main, aside {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: #F5F5F5;
+  }
+
+  &.dark &::-webkit-scrollbar-track,
+  .dark &::-webkit-scrollbar-track {
+    background-color: #2B2B2B;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(31, 41, 55, 0.5);
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(31, 41, 55, 0.8);
+  }
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(31, 41, 55, 0.5) #F5F5F5;
+}
+
+.dark * {
+  scrollbar-color: rgba(31, 41, 55, 0.5) #2B2B2B;
+}
+
+/* Hide scrollbar by default */
 .scrollbar-hide {
-  -ms-overflow-style: none;  
-  scrollbar-width: none;  
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;          
+  display: none;
+}
+
+/* Show scrollbar only when scrolling */
+.scrollbar-auto {
+  -ms-overflow-style: auto;
+  scrollbar-width: auto;
+}
+
+.scrollbar-auto::-webkit-scrollbar {
+  display: block;
 }
 
 
