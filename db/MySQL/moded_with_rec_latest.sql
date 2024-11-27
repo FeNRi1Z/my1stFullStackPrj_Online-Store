@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 27, 2024 at 01:39 PM
+-- Generation Time: Nov 27, 2024 at 03:32 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -131,7 +131,8 @@ INSERT INTO `order` (`id`, `userId`, `orderTotal`, `status`, `statusDetail`, `ad
 (12, 5, 333, 'To be paid', 'Please complete the payment and confirm the payment', 'Street:  52/53 Sukhumvit Khlong Toei Khlong Toei\nCity:  Long\nState/province/area:    Bangkok\nZip code:  10110\nCountry:  Thailand', '0262555171', '2024-11-25 20:10:31.971', NULL, NULL, NULL),
 (13, 6, 900, 'To be paid', 'Please complete the payment and confirm the payment', 'Street:  19/8 Soi Latphrao 23 Latyao\nCity:   Bangkok\nState/province/area:    Bangkok\nZip code:  10900\nCountry:  Thailand', '0945737600', '2024-11-26 07:30:25.006', NULL, NULL, NULL),
 (14, 4, 1313, 'Completed', 'The order has been completed, thank you for shopping with us', 'Street:  120/3 Soi Prompong (Sukhumvit 39) Sukhumvit Road\nCity:  Wattana\nState/province/area:    Bangkok\nZip code:  10110\nCountry:  Thailand', '0262587543', '2024-11-27 09:22:16.952', '20241127162320514.jpg', '2024-11-27 09:23:16.000', 'ET345235534TH'),
-(15, 5, 1363, 'To be paid', 'Please complete the payment and confirm the payment', 'Street:  52/53 Sukhumvit Khlong Toei Khlong Toei\nCity:  Long\nState/province/area:    Bangkok\nZip code:  10110\nCountry:  Thailand', '0262555171', '2024-11-27 09:28:15.908', NULL, NULL, NULL);
+(15, 5, 1363, 'To be paid', 'Please complete the payment and confirm the payment', 'Street:  52/53 Sukhumvit Khlong Toei Khlong Toei\nCity:  Long\nState/province/area:    Bangkok\nZip code:  10110\nCountry:  Thailand', '0262555171', '2024-11-27 09:28:15.908', NULL, NULL, NULL),
+(16, 6, 690, 'Shipped', 'The order has shipped, you can follow up with the parcel code', 'Street:  19/8 Soi Latphrao 23 Latyao\nCity:   Bangkok\nState/province/area:    Bangkok\nZip code:  10900\nCountry:  Thailand', '0945737600', '2024-11-27 14:06:58.908', '20241127211148875.jpg', '2024-11-27 14:11:40.000', 'ET343245424TH');
 
 -- --------------------------------------------------------
 
@@ -164,13 +165,13 @@ INSERT INTO `product` (`id`, `name`, `cost`, `price`, `quantity`, `img`, `status
 (6, 'Echoes of Silence 2', 1156, 1300, 101, '20241121223916898.png', 'use', 'A new haunting tale of personal discovery and more emotional resilience.', 8),
 (7, 'The Digital Revolution', 776, 863, 106, '20241121223923171.png', 'use', 'Exploring the transformative impact of technology on modern society.', 4),
 (8, 'Shadows of Yesterday', 804, 900, 234, '20241121223927889.png', 'use', 'A gripping mystery that unravels decades-old secrets.', 6),
-(9, 'The Secrets of the Universe', 120, 250, 50, '2024112122417140.png', 'use', 'An intriguing exploration of the cosmos and the mysteries it holds.', 12),
+(9, 'The Secrets of the Universe', 120, 250, 49, '2024112122417140.png', 'use', 'An intriguing exploration of the cosmos and the mysteries it holds.', 12),
 (10, 'Mastering Python', 180, 350, 0, '20241121224224241.jpg', 'use', 'A comprehensive guide for programmers to master Python programming.', 14),
 (11, 'The Art of Mindfulness', 90, 150, 74, '20241121224329336.png', 'use', 'Learn techniques to achieve a peaceful and mindful life.', 15),
 (12, 'Adventures in Wonderland', 110, 220, 44, '202411221121343.png', 'use', 'A thrilling fantasy novel that takes you on an extraordinary journey.', 16),
 (13, 'History\'s Greatest Empires', 150, 250, 75, '2024112411405819.png', 'use', 'An insightful look into the rise and fall of some of the greatest empires in history.', 17),
 (14, 'Culinary Delights', 100, 200, 41, '20241124113957672.png', 'use', 'A cookbook filled with recipes from around the world.', 18),
-(15, 'The Financial Roadmap', 120, 220, 266, '20241124113948507.png', 'use', 'Your guide to financial independence and wealth-building strategies.', 19);
+(15, 'The Financial Roadmap', 120, 220, 264, '20241124113948507.png', 'use', 'Your guide to financial independence and wealth-building strategies.', 19);
 
 -- --------------------------------------------------------
 
@@ -302,7 +303,9 @@ INSERT INTO `productonorder` (`orderId`, `productId`, `productPrice`, `quantity`
 (14, 9, 250, 1, 120),
 (14, 14, 200, 1, 100),
 (15, 2, 500, 1, 235),
-(15, 7, 863, 1, 776);
+(15, 7, 863, 1, 776),
+(16, 9, 250, 1, 120),
+(16, 15, 220, 2, 120);
 
 -- --------------------------------------------------------
 
@@ -334,7 +337,7 @@ INSERT INTO `user` (`id`, `name`, `username`, `password`, `role`, `status`, `add
 (3, 'Client02', 'c02', 'c02', 'client', 'use', 'Street:  120/11 Moo 3, San Klang, San Kam Phaeng\nCity:   San Kam Phaeng\nState/province/area:    Chiang Mai\nZip code:  50130\nCountry:  Thailand', '0372358534', 'noIMGFile', 0, 0),
 (4, 'Client03', 'c03', 'c03', 'client', 'use', 'Street:  292/11-2 Larnluang Si Yaek MahanakCity:  DusitState/province/area:    BangkokZip code:  10300 Country:  Thailand', '0228299157', '2024112625539222.jpg', 0, 0),
 (5, 'Client04', 'c04', 'c04', 'client', 'use', 'Street:  52/53 Sukhumvit Khlong Toei Khlong Toei\nCity:  Long\nState/province/area:    Bangkok\nZip code:  10110\nCountry:  Thailand', '0262555171', '2024112631048415.jpg', 0, 0),
-(6, 'Phakawat Rattanasopa', 'pr', 'pr', 'client', 'use', 'Street:  19/8 Soi Latphrao 23 Latyao\nCity:   Bangkok\nState/province/area:    Bangkok\nZip code:  10900\nCountry:  Thailand', '0945737600', '20241125213448768.jpg', 0, 0);
+(6, 'Phakawat Rattanasopa', 'pr', 'pr', 'client', 'use', 'Street:  19/8 Soi Latphrao 23 Latyao\nCity:   Bangkok\nState/province/area:    Bangkok\nZip code:  10900\nCountry:  Thailand', '0945737600', '20241127211426814.jpg', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -446,7 +449,7 @@ ALTER TABLE `category`
 -- AUTO_INCREMENT for table `order`
 --
 ALTER TABLE `order`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `product`
