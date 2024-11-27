@@ -427,6 +427,7 @@ function User() {
 				pagination={{
 					pageSize: 10,
 					hideOnSinglePage: false,
+					position: ["bottomLeft"],
 				}}
 			/>
 		</BackOffice>

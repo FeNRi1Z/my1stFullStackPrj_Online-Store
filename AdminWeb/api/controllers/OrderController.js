@@ -49,6 +49,7 @@ app.post("/orderCreate", checkSignIn, async (req, res) => {
 				return {
 					productId: item.productId,
 					productPrice: product.price,
+					productCost: product.cost,
 					quantity: item.quantity,
 				};
 			})
@@ -122,6 +123,7 @@ app.get("/orderList", checkSignIn, async (req, res) => {
 					select: {
 						productId: true,
 						productPrice: true,
+						productCost: true,
 						quantity: true,
 						product: {
 							include: {
@@ -251,6 +253,7 @@ app.get("/myOrderList", checkSignIn, async (req, res) => {
 					select: {
 						productId: true,
 						productPrice: true,
+						productCost: true,
 						quantity: true,
 						product: {
 							include: {
@@ -325,41 +328,152 @@ app.get("/stat/financial", checkSignIn, async (req, res) => {
 	try {
 		// 1. Calculate Total Income
 		const totalIncomeResult = await prisma.order.aggregate({
-		  _sum: { orderTotal: true },
-		  where: { status: {
-			in: ['In Progress', 'Shipped', 'Completed'],
-		  }},
+			_sum: { orderTotal: true },
+			where: {
+				status: {
+					in: ["In Progress", "Shipped", "Completed"],
+				},
+			},
 		});
-	
+
 		const totalIncome = totalIncomeResult._sum.orderTotal || 0;
-	
+
 		// 2. Calculate Total Profit
 		const profitResult = await prisma.productOnOrder.findMany({
-		  where: {
-			order: { status: {
-				in: ['In Progress', 'Shipped', 'Completed'],
-			} },
-		  },
-		  include: {
-			product: { select: { cost: true } },
-		  },
+			where: {
+				order: {
+					status: {
+						in: ["In Progress", "Shipped", "Completed"],
+					},
+				},
+			},
 		});
-	
+
 		const totalProfit = profitResult.reduce((acc, item) => {
-		  const { productPrice, quantity } = item;
-		  const { cost } = item.product;
-		  return acc + (productPrice - cost) * quantity;
+			const { productPrice, productCost, quantity } = item;
+			return acc + (productPrice - productCost) * quantity;
 		}, 0);
-	
+
 		// Return response
 		res.status(200).json({
-		  totalIncome,
-		  totalProfit,
+			totalIncome,
+			totalProfit,
 		});
-	  } catch (error) {
-		console.error('Error fetching financial statistics:', error);
-		res.status(500).json({ error: 'Internal server error' });
-	  }
+	} catch (error) {
+		console.error("Error fetching financial statistics:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
+app.get("/stat/incomeProfitMonthly", checkSignIn, async (req, res) => {
+	try {
+		const year = new Date().getFullYear();
+		if (!year || isNaN(year)) {
+			return res.status(400).json({ error: "Invalid year parameter" });
+		}
+
+		const startDate = new Date(`${year}-01-01T00:00:00Z`);
+		const endDate = new Date(`${year}-12-31T23:59:59Z`);
+
+		// Calculate monthly income (sum of orderTotal from Order table)
+		const incomeData = await prisma.order.findMany({
+			where: {
+				status: {
+					in: ["In Progress", "Shipped", "Completed"],
+				},
+				orderDate: {
+					gte: startDate,
+					lte: endDate,
+				},
+			},
+			select: {
+				orderTotal: true,
+				orderDate: true,
+			},
+		});
+
+		const monthlyIncome = Array(12).fill(0);
+		incomeData.forEach((order) => {
+			const month = new Date(order.orderDate).getMonth();
+			monthlyIncome[month] += order.orderTotal || 0;
+		});
+
+		// Calculate monthly profit
+		const profitData = await prisma.productOnOrder.findMany({
+			where: {
+				order: {
+					status: {
+						in: ["In Progress", "Shipped", "Completed"],
+					},
+					orderDate: {
+						gte: startDate,
+						lte: endDate,
+					},
+				},
+			},
+			select: {
+				quantity: true,
+				productPrice: true,
+				productCost: true,
+				order: {
+					select: {
+						orderDate: true,
+					},
+				},
+			},
+		});
+
+		const monthlyProfit = Array(12).fill(0);
+		profitData.forEach((item) => {
+			const month = new Date(item.order.orderDate).getMonth(); // Get month (0-11)
+			const profitPerItem = (item.productPrice - item.productCost) * item.quantity;
+			monthlyProfit[month] += profitPerItem;
+		});
+
+		const results = {
+			year,
+			monthlyIncome, // [January Income, February Income, ...]
+			monthlyProfit, // [January Profit, February Profit, ...]
+		};
+
+		res.status(200).json({results: results});
+	} catch (error) {
+		console.error("Error fetching income and profit statistics:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
+app.get('/stat/orderMonthly', checkSignIn, async (req, res) => {
+    try {
+        const year = new Date().getFullYear();
+        const orders = await prisma.order.findMany({
+            where: {
+                orderDate: {
+                    gte: new Date(`${year}-01-01`),
+                    lt: new Date(`${year + 1}-01-01`),
+                },
+            },
+            select: {
+                orderDate: true,
+            },
+        });
+
+        const monthlyOrders = Array(12).fill(0);
+
+        // Count orders for each month
+        orders.forEach((order) => {
+            const month = new Date(order.orderDate).getMonth();
+            monthlyOrders[month] += 1;
+        });
+
+        res.json({
+            year,
+            monthlyOrders,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch monthly orders' });
+    }
 });
 
 module.exports = app;

@@ -340,7 +340,7 @@ function Order() {
 				},
 			],
 			filterSearch: true,
-			onFilter: (value, record) => record.status.indexOf(value) === 0,
+			onFilter: (value, record) => record.status.includes(value) === true,
 		},
 	];
 	const expandColumns = [
@@ -612,6 +612,7 @@ function Order() {
 				pagination={{
 					pageSize: 10,
 					hideOnSinglePage: false,
+					position: ["bottomLeft"],
 				}}
 				rowKey={(record) => record.id}
 				expandable={{

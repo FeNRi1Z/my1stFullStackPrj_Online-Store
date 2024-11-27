@@ -32,21 +32,21 @@ const TopSellingProducts = () => {
 
   return (
     <div className="container mt-4">
-      <h4 className="text-center mb-4" style={{fontWeight:'bold'}}>Top 10 Most Sold Product This Month</h4>
+      <h4 className="text-center mb-4" style={{fontWeight:'normal'}}>Top 10 Most Sold Product This Month</h4>
       <div className="table-responsive">
-        <table className="table table-responsive-sm table-hover table-striped align-middle table-bordered">
+        <table className="table table-responsive-sm table-hover table-striped align-middle table-bordered table-responsive-xl table-responsive-md table-responsive-lg">
           <thead className="table-secondary">
             <tr>
               <th width='5px' className="text-center">Rank</th>
-              <th width='75px' className="text-left">Product Name</th>
-              <th width='10px' className="text-center">Quantity Sold</th>
+              <th width='50px' className="text-left">Product Name</th>
+              <th width='5px' className="text-center">Quantity Sold</th>
             </tr>
           </thead>
           <tbody>
             {topProducts.map((product, index) => (
               <tr key={product.id} className={index === 0 ? "table-success" : index === 1 ? "table-warning" : ""}>
                 <td><div width='5px' className='text-center'>{index + 1}</div></td>
-                <td><div width='75px' className='text-left'>{product.name}</div></td>
+                <td><div width='50px' className='text-left'>{product.name}</div></td>
                 <td><div width='5px' className='text-center'>{product.quantitySold}</div></td>
               </tr>
             ))}

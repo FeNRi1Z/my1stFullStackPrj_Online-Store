@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-import { Col, Row, Card, message, Typography, Popover, Statistic, ConfigProvider, Button, List, Skeleton, Tag } from "antd";
+import { Col, Row, Card, message, Typography, Popover, Statistic, ConfigProvider, Button, List, Tag } from "antd";
 import {
 	TeamOutlined,
 	UserOutlined,
@@ -17,12 +17,17 @@ import {
 	SendOutlined,
 	RiseOutlined,
 } from "@ant-design/icons";
+import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
+import { Pie } from "react-chartjs-2";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 import config from "../../config";
 import BackOffice from "../../components/BackOffice";
 import TopSellingProducts from "../../components/TopProductInMonth";
+import GraphStat from "../../components/GraphStat";
 
 const { Text } = Typography;
+Chart.register(ArcElement, Tooltip, Legend, ChartDataLabels);
 
 axios.interceptors.response.use(
 	(response) => response, // Return the response normally if successful
@@ -38,6 +43,16 @@ axios.interceptors.response.use(
 function Home() {
 	const [userCardData, setUserCardData] = useState({});
 	const [productCardData, setProductCardData] = useState({});
+	const chartData = {
+		labels: ["Active", "Inactive"],
+		datasets: [
+			{
+				data: [productCardData.activeProducts, productCardData.inactiveProducts],
+				backgroundColor: ["#245501", "#d90429"],
+				borderWidth: 1,
+			},
+		],
+	};
 	const [orderCardData, setOrderCardData] = useState({});
 	const [financialCardData, setFinancialCardData] = useState({});
 
@@ -167,34 +182,61 @@ function Home() {
 				<Popover
 					placement="bottom"
 					content={
-						<Row gutter={16} justify={"space-evenly"}>
-							<Col span={"100%"}>
-								<Card bordered={true}>
-									<Statistic
-										title="Available"
-										value={productCardData.activeProducts}
-										valueStyle={{
-											color: "#245501",
-										}}
-										prefix={<CheckCircleOutlined />}
-										suffix="product"
-									/>
-								</Card>
-							</Col>
-							<Col span={"100%"}>
-								<Card bordered={true}>
-									<Statistic
-										title="Unavailable"
-										value={productCardData.inactiveProducts}
-										valueStyle={{
-											color: "#cf1322",
-										}}
-										prefix={<CloseCircleOutlined />}
-										suffix="product"
-									/>
-								</Card>
-							</Col>
-						</Row>
+						// <Row gutter={16} justify={"space-evenly"}>
+						// 	<Col span={"100%"}>
+						// 		<Card bordered={true}>
+						// 			<Statistic
+						// 				title="Available"
+						// 				value={productCardData.activeProducts}
+						// 				valueStyle={{
+						// 					color: "#245501",
+						// 				}}
+						// 				prefix={<CheckCircleOutlined />}
+						// 				suffix="product"
+						// 			/>
+						// 		</Card>
+						// 	</Col>
+						// 	<Col span={"100%"}>
+						// 		<Card bordered={true}>
+						// 			<Statistic
+						// 				title="Unavailable"
+						// 				value={productCardData.inactiveProducts}
+						// 				valueStyle={{
+						// 					color: "#cf1322",
+						// 				}}
+						// 				prefix={<CloseCircleOutlined />}
+						// 				suffix="product"
+						// 			/>
+						// 		</Card>
+						// 	</Col>
+						// </Row>
+						<div style={{ width: "200px", height: "200px", margin: "auto" }}>
+							<Pie
+								data={chartData}
+								options={{
+									plugins: {
+										legend: {
+											position: "bottom",
+										},
+										tooltip: {
+											callbacks: {
+												label: (tooltipItem) => `${chartData.labels[tooltipItem.dataIndex]}: ${chartData.datasets[0].data[tooltipItem.dataIndex]}`,
+											},
+										},
+										datalabels: {
+											color: "#ffffff",
+											font: {
+												size: 20,
+												weight: "bold",
+											},
+											formatter: (value, context) => {
+												return value;
+											},
+										},
+									},
+								}}
+							/>
+						</div>
 					}>
 					<Card
 						hoverable={true}
@@ -347,20 +389,20 @@ function Home() {
 							<>
 								<Row justify="space-between" align="middle" style={{ padding: "0 0" }}>
 									<Col offset={3} style={{ textAlign: "right" }}>
-										<Text style={{ fontSize: "20px", fontWeight:'bold' }}>Income</Text>
+										<Text style={{ fontSize: "20px", fontWeight: "bold" }}>Income</Text>
 									</Col>
 									<Col offset={1} style={{ textAlign: "left" }}>
-										<Text strong style={{ fontSize: "31.3px", fontWeight:'bolder' }}>
+										<Text strong style={{ fontSize: "31.3px", fontWeight: "bolder" }}>
 											{financialCardData.totalIncome}$
 										</Text>
 									</Col>
 								</Row>
 								<Row justify="space-between" align="middle" style={{ padding: "0 0" }}>
 									<Col offset={3} style={{ textAlign: "right" }}>
-										<Text style={{ fontSize: "20px", fontWeight:'bold' }}>Profit</Text>
+										<Text style={{ fontSize: "20px", fontWeight: "bold" }}>Profit</Text>
 									</Col>
 									<Col offset={1} style={{ textAlign: "left" }}>
-										<Text strong style={{ fontSize: "31.5px", fontWeight:'bolder' }}>
+										<Text strong style={{ fontSize: "31.5px", fontWeight: "bolder" }}>
 											{financialCardData.totalProfit}$
 										</Text>
 									</Col>
@@ -384,30 +426,30 @@ function Home() {
 					Mod-Ed Dashboard
 				</div>
 			</div>
-			<Row gutter={20}>
-				<Col xs={2} sm={4} md={6}>
-					{userCard()}
-				</Col>
-				<Col xs={2} sm={4} md={6}>
-					{productCard()}
-				</Col>
-				<Col xs={2} sm={4} md={6}>
-					{orderCard()}
-				</Col>
-				<Col xs={2} sm={4} md={6}>
-					{financialCard()}
-				</Col>
-			</Row>
-			<Row className="mt-3" justify="space-between">
-				<Col>
-					{"Graph here"}
-				</Col>
-				<Col xs={2} sm={4} md={8}>
-					<Card style={{width: '100%'}} hoverable={true}>
-						<TopSellingProducts />
-					</Card>
-				</Col>
-			</Row>
+			<div>
+				<Row gutter={20}>
+					<Col xs={2} sm={4} md={6}>
+						{userCard()}
+					</Col>
+					<Col xs={2} sm={4} md={6}>
+						{productCard()}
+					</Col>
+					<Col xs={2} sm={4} md={6}>
+						{orderCard()}
+					</Col>
+					<Col xs={2} sm={4} md={6}>
+						{financialCard()}
+					</Col>
+				</Row>
+				<Row gutter={20} wrap={false} className="mt-3" justify={"space-between"}>
+					<GraphStat />
+					<Col xs={{flex: "5%",}} sm={{flex: "10%",}} md={{flex: "15%",}} lg={{flex: "20%",}} xl={{flex: "30%",}}>
+						<Card style={{ width: "100%", height: "100%" }} hoverable={true}>
+							<TopSellingProducts />
+						</Card>
+					</Col>
+				</Row>
+			</div>
 		</BackOffice>
 	);
 }
