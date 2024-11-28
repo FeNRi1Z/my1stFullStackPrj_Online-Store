@@ -124,22 +124,25 @@ app.get("/public/list", async (req, res) => {
 });
 
 
+// ProductController.js - Update the search endpoint
+// ProductController.js - Update the search endpoint
 app.get("/public/search", async (req, res) => {
     try {
-        const { name, author, minPrice, maxPrice } = req.query;
+        console.log('Received search request with query params:', req.query);
         
+        const { name, author, minPrice, maxPrice, categories } = req.query;
+
         // Build base query conditions
         const where = {
-            status: "use"
+            status: "use",
         };
 
         // Add name search if provided
         if (name) {
             where.OR = [
-                { name: { contains: name } }
+                { name: { contains: name } },
+                { desc: { contains: name } }
             ];
-            // Include description search if desc exists
-            where.OR.push({ desc: { contains: name } });
         }
 
         // Add price range if provided
@@ -151,20 +154,30 @@ app.get("/public/search", async (req, res) => {
 
         // Add author filter if provided
         if (author) {
-            where.AND = where.AND || [];
-            where.AND.push({
-                author: {
-                    name: { contains: author }
-                }
-            });
+            where.author = {
+                name: { contains: author }
+            };
         }
+
+        // Add category filter - key change here
+        if (categories) {
+            where.categories = {
+                some: {
+                    category: {
+                        name: {
+                            // Handle both single category and array of categories
+                            in: Array.isArray(categories) ? categories : [categories]
+                        }
+                    }
+                }
+            };
+        }
+
+        console.log('Final where clause:', JSON.stringify(where, null, 2));
 
         // Fetch products with given conditions
         const products = await prisma.product.findMany({
             where,
-            orderBy: {
-                id: 'desc'
-            },
             include: {
                 author: {
                     select: {
@@ -173,16 +186,13 @@ app.get("/public/search", async (req, res) => {
                 },
                 categories: {
                     include: {
-                        category: {
-                            select: {
-                                id: true,
-                                name: true
-                            }
-                        }
+                        category: true
                     }
                 }
             }
         });
+
+        console.log(`Found ${products.length} products matching filters`);
 
         // Format the response
         const results = products.map(product => ({
@@ -197,10 +207,9 @@ app.get("/public/search", async (req, res) => {
             categoriesName: product.categories.map(pc => pc.category.name)
         }));
 
-        // Send consistent response format
         res.json({
             status: 'success',
-            results: results
+            results
         });
 
     } catch (error) {

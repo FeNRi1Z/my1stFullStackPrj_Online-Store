@@ -230,4 +230,64 @@ app.post("/uploadPaymentSlip", checkSignIn, async (req, res) => {
 	}
 });
 
+app.get("/myOrderList", checkSignIn, async (req, res) => {
+	try {
+		const userId = req.user.id;
+
+		const orderList = await prisma.order.findMany({
+			where:{
+				userId: userId,
+			},
+			orderBy: {
+				id: "desc",
+			},
+			include: {
+				user: {
+					select: {
+						name: true,
+					},
+				},
+				orderItems: {
+					select: {
+						productId: true,
+						productPrice: true,
+						quantity: true,
+						product: {
+							include: {
+								author: true,
+								categories: {
+									include: {
+										category: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		});
+
+		const transOrderList = orderList.map((order) => ({
+			...order,
+			paymentDate: order.paymentDate ? order.paymentDate : null,
+			name: order.user.name,
+			user: undefined, // Remove original user key
+			orderItems: order.orderItems.map((item) => ({
+				...item,
+				totalPrice: item.productPrice * item.quantity, // Add totalPrice key
+				name: item.product.name,
+				img: item.product.img,
+				desc: item.product.desc,
+				author: item.product.author.name,
+				categoriesName: item.product.categories.map((pc) => pc.category.name),
+				product: undefined, // Remove original product key
+			})),
+		}));
+
+		res.send({ results: transOrderList });
+	} catch (e) {
+		res.status(500).send({ error: e.message });
+	}
+});
+
 module.exports = app;
