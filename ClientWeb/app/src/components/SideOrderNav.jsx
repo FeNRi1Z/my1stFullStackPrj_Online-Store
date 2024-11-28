@@ -1,16 +1,18 @@
 import React from 'react';
-import { FileText, User, Key, CreditCard, MapPin, LogOut } from 'lucide-react';
+import { FileText, User, Key } from 'lucide-react';
 import { useTheme } from '../components/ThemeProvider';
 
-const SideOrderNav = () => {
+const SideOrderNav = ({ totalOrderCount }) => {
   const { theme } = useTheme();
   const navItems = [
     { icon: User, text: 'Edit profile', href: '/Profile' },
-    { icon: FileText, text: 'View orders', count: 3, href: '/Orders' },
+    { 
+      icon: FileText, 
+      text: 'View orders', 
+      count: totalOrderCount > 0 ? totalOrderCount : null,
+      href: '/Orders' 
+    },
     { icon: Key, text: 'Change password', href: '#' },
-    // { icon: CreditCard, text: 'Payment methods', href: '#' },
-    // { icon: MapPin, text: 'Manage addresses', href: '#' },
-    // { icon: LogOut, text: 'Log out', href: '#' },
   ];
 
   return (

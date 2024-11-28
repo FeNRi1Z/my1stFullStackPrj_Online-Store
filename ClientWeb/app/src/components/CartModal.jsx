@@ -28,9 +28,11 @@ const CartModal = ({ isOpen, onClose }) => {
     setTimeout(onClose, 300);
   };
 
+  // Define Color Pallete
   const primaryColor = '#EA9029';
   const primaryHover = '#D68324';
 
+  //Custom theme
   const themeStyles = {
     background: theme === 'dark' ? '#2B2B2B' : '#F5F5F5',
     text: theme === 'dark' ? '#F5F5F5' : '#2D3142',
@@ -128,7 +130,6 @@ const CartModal = ({ isOpen, onClose }) => {
         ),
       }
     ];
-
     if (screenWidth < 640) {
       baseColumns.push({
         title: 'Total',
@@ -265,13 +266,12 @@ const CartModal = ({ isOpen, onClose }) => {
       }}
     >
       <div 
-        className={`fixed inset-0 z-50 overflow-y-auto
-          transition-opacity duration-300 ease-in-out
-          ${isAnimating ? 'opacity-100' : 'opacity-0'}`}
+        className={`fixed inset-0 bg-black/10 backdrop-blur-sm transition-opacity duration-300 ease-in-out z-[98]
+          ${isAnimating ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
       >
         {/* Backdrop */}
         <div
-          className={`fixed inset-0 bg-black transition-opacity duration-300 ease-in-out
+          className={`fixed inset-0 backdrop-blur-sm bg-black transition-opacity duration-300 ease-in-out
             ${isAnimating ? 'bg-opacity-50' : 'bg-opacity-0'}`}
           onClick={handleClose}
         />
@@ -353,7 +353,7 @@ const CartModal = ({ isOpen, onClose }) => {
                       paddingLeft: '24px',
                       paddingRight: '24px',
                     }}
-                    className="hover:bg-primary-hover text-white"
+                     className="!text-white hover:!text-white"
                   >
                     Continue Shopping
                   </Button>

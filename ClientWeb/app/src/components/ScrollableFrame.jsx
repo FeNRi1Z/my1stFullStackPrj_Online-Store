@@ -150,7 +150,7 @@ const ScrollableFrame = ({ title, books }) => {
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
         >
-          <div className="flex gap-6 px-4 py-2 min-h-full">
+          <div className="flex gap-6 px-8 py-2 min-h-full">
             {books.map((book) => (
               <BookCard
                 key={book.id}

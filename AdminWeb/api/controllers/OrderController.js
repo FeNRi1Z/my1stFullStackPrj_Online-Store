@@ -14,7 +14,96 @@ const { checkSignIn } = require("../middleware/auth");
 app.use(fileUpload());
 
 app.post("/orderCreate", checkSignIn, async (req, res) => {
-    
+	try {
+		console.log("/orderCreate req.body", req.body);
+		// Extract user ID from the authenticated session
+		const userId = req.user.id;
+
+		// Validate request body
+		const { orderItems, address, phone } = req.body;
+		if (!orderItems || !Array.isArray(orderItems) || orderItems.length === 0) {
+			return res.status(400).send({ error: "Invalid or missing order items" });
+		}
+		if (!address || !phone) {
+			return res.status(400).send({ error: "Address and phone are required" });
+		}
+
+		// Prepare orderTotal and validate product availability
+		let orderTotal = 0;
+
+		// Validate and calculate total
+		const validatedItems = await Promise.all(
+			orderItems.map(async (item) => {
+				const product = await prisma.product.findUnique({
+					where: { id: item.productId },
+				});
+
+				if (!product || product.quantity < item.quantity) {
+					throw new Error(`Product ${item.productId} is unavailable or insufficient in stock`);
+				}
+
+				// Add to total price
+				orderTotal += product.price * item.quantity;
+
+				// Return validated item for further processing
+				return {
+					productId: item.productId,
+					productPrice: product.price,
+					quantity: item.quantity,
+				};
+			})
+		);
+
+		// Create the order
+		const newOrder = await prisma.order.create({
+			data: {
+				userId: userId,
+				orderTotal: orderTotal,
+				address: address,
+				phone: phone,
+				orderItems: {
+					create: validatedItems,
+				},
+			},
+			include: {
+				orderItems: true,
+			},
+		});
+
+		// Update product quantities
+		await Promise.all(
+			validatedItems.map(async (item) => {
+				await prisma.product.update({
+					where: { id: item.productId },
+					data: {
+						quantity: { decrement: item.quantity },
+					},
+				});
+			})
+		);
+
+		// Delete ProductOnCart entries for the user
+		await prisma.productOnCart.deleteMany({
+			where: {
+				userId: userId,
+				productId: { in: validatedItems.map((item) => item.productId) },
+			},
+		});
+
+		// Update cartQty and cartTotal for the user
+		await prisma.user.update({
+			where: { id: userId },
+			data: {
+				cartQty: 0,
+				cartTotal: 0,
+			},
+		});
+
+		res.status(200).send({ message: "Order created successfully", newOrder: newOrder });
+	} catch (e) {
+		console.error("Error creating order:", e);
+		res.status(500).send({ error: e.message });
+	}
 });
 
 app.get("/orderList", checkSignIn, async (req, res) => {
@@ -51,7 +140,7 @@ app.get("/orderList", checkSignIn, async (req, res) => {
 
 		const transOrderList = orderList.map((order) => ({
 			...order,
-            paymentDate: order.paymentDate ? order.paymentDate : null,
+			paymentDate: order.paymentDate ? order.paymentDate : null,
 			userName: order.user.name,
 			user: undefined, // Remove original user key
 			orderItems: order.orderItems.map((item) => ({

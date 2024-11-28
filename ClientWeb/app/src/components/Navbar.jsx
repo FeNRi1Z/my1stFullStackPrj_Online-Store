@@ -50,7 +50,7 @@ const NavBar = ({ onCartOpen, showThemeToggle = true }) => {
 	return (
 		<>
 			<nav className="w-full bg-white dark:bg-background-dark shadow-sm transition-all duration-300 ease-in-out">
-				<div className="mx-auto px-4 sm:px-6 md:px-8 lg:px-12 w-[95%] 2xl:w-[95%]">
+				<div className="mx-auto px-4 sm:px-6 md:px-8 lg:px-2 w-[95%] 2xl:w-[95%]">
 					<div className="flex justify-between items-center py-4">
 						{/* Left side - Menu button and Navigation links */}
 						<div className="flex items-center">
@@ -72,7 +72,7 @@ const NavBar = ({ onCartOpen, showThemeToggle = true }) => {
 
 						{/* Right side - Icons group */}
 						<div className="flex items-center gap-4">
-							{/* Shopping Cart Button */}
+							{/* Cart Button */}
 							<button
 								onClick={onCartOpen}
 								className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-background-secondary-dark 

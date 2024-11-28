@@ -3,6 +3,7 @@ import BookDetailPopup from './BookDetailPopup';
 
 const BookCard = ({ cover, title, author, book }) => {
   const [showPopup, setShowPopup] = useState(false);
+  // console.log(book) //Debugging data from list api.
 
   const handleClick = () => {
     setShowPopup(true);
@@ -42,7 +43,13 @@ const BookCard = ({ cover, title, author, book }) => {
       </div>
 
       <BookDetailPopup
-        book={{ ...book, cover, title, author }}
+        book={{
+          ...book,
+          cover,
+          title,
+          author,
+          categoriesName: book.categories || []
+        }}
         isOpen={showPopup}
         onClose={handleClose}
       />

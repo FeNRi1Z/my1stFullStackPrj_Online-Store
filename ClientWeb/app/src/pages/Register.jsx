@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
 import { useTheme } from '../components/ThemeProvider';
-import { message } from 'antd';
+import { App } from 'antd';
 import config from '../config';
 
 const Register = () => {
@@ -11,6 +11,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const { message } = App.useApp();
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -85,16 +86,6 @@ const Register = () => {
         address: formData.address,
         phone: formData.phone,
       };
-
-      // try {
-      //   const healthCheck = await fetch(config.apiPath + '/health');
-      //   if (!healthCheck.ok) {
-      //     throw new Error('Server health check failed');
-      //   }
-      // } catch (error) {
-      //   message.error('Cannot connect to server. Please ensure the server is running.');
-      //   return;
-      // }
 
       const response = await fetch(config.apiPath + '/user/register', {
         method: 'POST',

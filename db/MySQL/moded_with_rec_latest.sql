@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 24, 2024 at 04:59 AM
+-- Generation Time: Nov 26, 2024 at 06:50 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -119,7 +119,16 @@ CREATE TABLE `order` (
 
 INSERT INTO `order` (`id`, `userId`, `orderTotal`, `status`, `statusDetail`, `address`, `phone`, `orderDate`, `paymentSlipIMG`, `paymentDate`, `parcelCode`) VALUES
 (1, 2, 7408, 'Shipped', 'The order has shipped, you can follow up with the parcel code', 'Street:  112 Soi On-Nut 13 City:   Bangkok State/province/area:    Bangkok Zip code:  10250 Country:  Thailand', '0347376343', '2024-11-20 19:27:52.819', '2024112411812992.jpg', '2024-11-23 18:18:09.000', 'EF582621151TH'),
-(2, 4, 1202, 'In Progress', 'Confirmed your payment, your order is being processed', 'Street:  292/11-2 Larnluang Si Yaek Mahanak City:  Dusit State/province/area:    Bangkok Zip code:  10300 Country:  Thailand', '0445364354', '2024-11-21 15:07:20.673', '2024112411645705.jpg', '2024-11-23 18:05:11.000', NULL);
+(2, 4, 1202, 'In Progress', 'Confirmed your payment, your order is being processed', 'Street:  292/11-2 Larnluang Si Yaek Mahanak City:  Dusit State/province/area:    Bangkok Zip code:  10300 Country:  Thailand', '0445364354', '2024-11-21 15:07:20.673', '2024112411645705.jpg', '2024-11-23 18:05:11.000', NULL),
+(3, 2, 2538, 'To be paid', 'Please complete the payment and confirm the payment', '123 Main St, Springfield', '0834567890', '2024-11-25 17:29:37.326', NULL, NULL, NULL),
+(4, 2, 2915, 'To be paid', 'Please complete the payment and confirm the payment', 'Street:  112 Soi On-Nut 13\nCity:   Bangkok\nState/province/area:    Bangkok\nZip code:  10250\nCountry:  Thailand', '0224925138', '2024-11-25 19:30:21.857', NULL, NULL, NULL),
+(6, 2, 2104, 'To be paid', 'Please complete the payment and confirm the payment', 'Street:  126/33 Soi Ekamai Sukhumvit 63 Road City: Bangkok State/province/area: Bangkok Zip code: 10110 Country: Thailand', '0834567890', '2024-11-25 19:38:55.375', NULL, NULL, NULL),
+(7, 6, 1546, 'To be paid', 'Please complete the payment and confirm the payment', 'Street:  19/8 Soi Latphrao 23 Latyao\nCity:   Bangkok\nState/province/area:    Bangkok\nZip code:  10900\nCountry:  Thailand', '0945737600', '2024-11-25 19:41:03.323', NULL, NULL, NULL),
+(8, 4, 1619, 'To be paid', 'Please complete the payment and confirm the payment', 'Street:  292/11-2 Larnluang Si Yaek MahanakCity:  DusitState/province/area:    BangkokZip code:  10300 Country:  Thailand', '0654788766', '2024-11-25 19:56:48.430', NULL, NULL, NULL),
+(9, 4, 220, 'To be paid', 'Please complete the payment and confirm the payment', 'Street:  292/11-2 Larnluang Si Yaek MahanakCity:  DusitState/province/area:    BangkokZip code:  10300 Country:  Thailand', '0228299157', '2024-11-25 20:01:33.975', NULL, NULL, NULL),
+(10, 3, 1150, 'To be paid', 'Please complete the payment and confirm the payment', 'Street:  Somdej Chao Phraya Khlong San\nCity:   Bangkok\nState/province/area:    Bangkok\nZip code:  10600\nCountry:  Thailand', '0565464656', '2024-11-25 20:04:45.804', NULL, NULL, NULL),
+(11, 5, 1650, 'To be paid', 'Please complete the payment and confirm the payment', 'Street:  52/53 Sukhumvit Khlong Toei Khlong Toei\nCity:  Long\nState/province/area:    Bangkok\nZip code:  10110\nCountry:  Thailand', '0262555171', '2024-11-25 20:07:59.030', NULL, NULL, NULL),
+(12, 5, 333, 'To be paid', 'Please complete the payment and confirm the payment', 'Street:  52/53 Sukhumvit Khlong Toei Khlong Toei\nCity:  Long\nState/province/area:    Bangkok\nZip code:  10110\nCountry:  Thailand', '0262555171', '2024-11-25 20:10:31.971', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -144,21 +153,21 @@ CREATE TABLE `product` (
 --
 
 INSERT INTO `product` (`id`, `name`, `cost`, `price`, `quantity`, `img`, `status`, `desc`, `authorId`) VALUES
-(1, 'Echoes of Silence', 234, 569, 297, '20241121223840174.png', 'use', 'A haunting tale of personal discovery and emotional resilience.', 8),
-(2, 'The Science of Success', 235, 500, 244, '20241121223848471.png', 'use', 'Evidence-based approaches to personal and professional achievement.', 4),
-(3, 'Quantum Horizon', 1200, 1400, 280, '20241121223856232.png', 'use', 'A mind-bending journey through the frontiers of quantum physics.', 3),
-(4, 'Coding Masterclass', 417, 575, 357, '2024112122390781.png', 'use', 'Comprehensive guide to modern programming techniques and best practices.', 11),
-(5, 'Emotional Intelligence', 234, 333, 564, '2024112122397749.png', 'use', 'Practical strategies for understanding and improving emotional awareness.', 7),
+(1, 'Echoes of Silence', 234, 569, 294, '20241121223840174.png', 'use', 'A haunting tale of personal discovery and emotional resilience.', 8),
+(2, 'The Science of Success', 235, 500, 243, '20241121223848471.png', 'use', 'Evidence-based approaches to personal and professional achievement.', 4),
+(3, 'Quantum Horizon', 1200, 1400, 276, '20241121223856232.png', 'use', 'A mind-bending journey through the frontiers of quantum physics.', 3),
+(4, 'Coding Masterclass', 417, 575, 352, '2024112122390781.png', 'use', 'Comprehensive guide to modern programming techniques and best practices.', 11),
+(5, 'Emotional Intelligence', 234, 333, 560, '2024112122397749.png', 'use', 'Practical strategies for understanding and improving emotional awareness.', 7),
 (6, 'Echoes of Silence 2', 1156, 1300, 101, '20241121223916898.png', 'use', 'A new haunting tale of personal discovery and more emotional resilience.', 8),
-(7, 'The Digital Revolution', 776, 863, 110, '20241121223923171.png', 'use', 'Exploring the transformative impact of technology on modern society.', 4),
+(7, 'The Digital Revolution', 776, 863, 108, '20241121223923171.png', 'use', 'Exploring the transformative impact of technology on modern society.', 4),
 (8, 'Shadows of Yesterday', 804, 900, 235, '20241121223927889.png', 'use', 'A gripping mystery that unravels decades-old secrets.', 6),
-(9, 'The Secrets of the Universe', 120, 250, 55, '2024112122417140.png', 'use', 'An intriguing exploration of the cosmos and the mysteries it holds.', 12),
-(10, 'Mastering Python', 180, 350, 45, '20241121224224241.jpg', 'use', 'A comprehensive guide for programmers to master Python programming.', 14),
-(11, 'The Art of Mindfulness', 90, 150, 75, '20241121224329336.png', 'use', 'Learn techniques to achieve a peaceful and mindful life.', 15),
-(12, 'Adventures in Wonderland', 110, 220, 48, '202411221121343.png', 'use', 'A thrilling fantasy novel that takes you on an extraordinary journey.', 16),
-(13, 'History\'s Greatest Empires', 150, 250, 76, '2024112401919775.png', 'use', 'An insightful look into the rise and fall of some of the greatest empires in history.', 17),
-(14, 'Culinary Delights', 100, 200, 44, '2024112401837506.png', 'use', 'A cookbook filled with recipes from around the world.', 18),
-(15, 'The Financial Roadmap', 120, 220, 267, '2024112402640619.png', 'use', 'Your guide to financial independence and wealth-building strategies.', 19);
+(9, 'The Secrets of the Universe', 120, 250, 51, '2024112122417140.png', 'use', 'An intriguing exploration of the cosmos and the mysteries it holds.', 12),
+(10, 'Mastering Python', 180, 350, 44, '20241121224224241.jpg', 'use', 'A comprehensive guide for programmers to master Python programming.', 14),
+(11, 'The Art of Mindfulness', 90, 150, 74, '20241121224329336.png', 'use', 'Learn techniques to achieve a peaceful and mindful life.', 15),
+(12, 'Adventures in Wonderland', 110, 220, 44, '202411221121343.png', 'use', 'A thrilling fantasy novel that takes you on an extraordinary journey.', 16),
+(13, 'History\'s Greatest Empires', 150, 250, 75, '2024112411405819.png', 'use', 'An insightful look into the rise and fall of some of the greatest empires in history.', 17),
+(14, 'Culinary Delights', 100, 200, 42, '20241124113957672.png', 'use', 'A cookbook filled with recipes from around the world.', 18),
+(15, 'The Financial Roadmap', 120, 220, 266, '20241124113948507.png', 'use', 'Your guide to financial independence and wealth-building strategies.', 19);
 
 -- --------------------------------------------------------
 
@@ -254,7 +263,28 @@ INSERT INTO `productonorder` (`orderId`, `productId`, `productPrice`, `quantity`
 (1, 12, 220, 1),
 (2, 1, 569, 1),
 (2, 5, 333, 1),
-(2, 11, 150, 2);
+(2, 11, 150, 2),
+(3, 1, 569, 2),
+(3, 3, 1400, 1),
+(4, 3, 1400, 1),
+(4, 4, 575, 1),
+(4, 9, 250, 2),
+(4, 12, 220, 2),
+(6, 4, 575, 1),
+(6, 5, 333, 2),
+(6, 7, 863, 1),
+(7, 5, 333, 1),
+(7, 7, 863, 1),
+(7, 10, 350, 1),
+(8, 1, 569, 1),
+(8, 2, 500, 1),
+(8, 11, 150, 1),
+(8, 14, 200, 2),
+(9, 15, 220, 1),
+(10, 4, 575, 2),
+(11, 3, 1400, 1),
+(11, 13, 250, 1),
+(12, 5, 333, 1);
 
 -- --------------------------------------------------------
 
@@ -282,10 +312,11 @@ CREATE TABLE `user` (
 
 INSERT INTO `user` (`id`, `name`, `username`, `password`, `role`, `status`, `address`, `phone`, `profile`, `cartQty`, `cartTotal`) VALUES
 (1, 'Dew', 'admin', 'admin', 'admin', 'use', NULL, NULL, 'ChippyEmma.jpg', 0, 0),
-(2, 'Client01', 'c01', 'c01', 'client', 'use', 'Street:  112 Soi On-Nut 13\nCity:   Bangkok\nState/province/area:    Bangkok\nZip code:  10250\nCountry:  Thailand', '0224925138', 'noIMGFile', 0, 0),
-(3, 'Client02', 'c02', 'c02', 'client', 'use', 'Street:  120/11 Moo 3, San Klang, San Kam Phaeng\nCity:   San Kam Phaeng\nState/province/area:    Chiang Mai\nZip code:  50130\nCountry:  Thailand', '0533383956', 'noIMGFile', 0, 0),
-(4, 'Client03', 'c03', 'c03', 'client', 'use', 'Street:  292/11-2 Larnluang Si Yaek MahanakCity:  DusitState/province/area:    BangkokZip code:  10300 Country:  Thailand', '0228299157', 'noIMGFile', 0, 0),
-(5, 'Client04', 'c04', 'c04', 'client', 'delete', 'Street:  52/53 Sukhumvit Khlong Toei Khlong Toei\nCity:  Long\nState/province/area:    Bangkok\nZip code:  10110\nCountry:  Thailand', '0262555171', 'noIMGFile', 0, 0);
+(2, 'Client01', 'c01', 'c01', 'client', 'use', 'Street:  112 Soi On-Nut 13\nCity:   Bangkok\nState/province/area:    Bangkok\nZip code:  10250\nCountry:  Thailand', '0224925138', '20241125224014284.png', 0, 0),
+(3, 'Client02', 'c02', 'c02', 'client', 'use', 'Street:  120/11 Moo 3, San Klang, San Kam Phaeng\nCity:   San Kam Phaeng\nState/province/area:    Chiang Mai\nZip code:  50130\nCountry:  Thailand', '0372358534', 'noIMGFile', 0, 0),
+(4, 'Client03', 'c03', 'c03', 'client', 'use', 'Street:  292/11-2 Larnluang Si Yaek MahanakCity:  DusitState/province/area:    BangkokZip code:  10300 Country:  Thailand', '0228299157', '2024112625539222.jpg', 0, 0),
+(5, 'Client04', 'c04', 'c04', 'client', 'use', 'Street:  52/53 Sukhumvit Khlong Toei Khlong Toei\nCity:  Long\nState/province/area:    Bangkok\nZip code:  10110\nCountry:  Thailand', '0262555171', '2024112631048415.jpg', 0, 0),
+(6, 'Phakawat Rattanasopa', 'pr', 'pr', 'client', 'use', 'Street:  19/8 Soi Latphrao 23 Latyao\nCity:   Bangkok\nState/province/area:    Bangkok\nZip code:  10900\nCountry:  Thailand', '0945737600', '20241125213448768.jpg', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -395,7 +426,7 @@ ALTER TABLE `category`
 -- AUTO_INCREMENT for table `order`
 --
 ALTER TABLE `order`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `product`
@@ -407,7 +438,7 @@ ALTER TABLE `product`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Constraints for dumped tables

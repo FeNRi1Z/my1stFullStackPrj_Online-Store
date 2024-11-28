@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../components/ThemeProvider';
 import NavBar from '../components/Navbar.jsx';
 import SearchBox from '../components/SearchBox.jsx';
-import TabPanel from '../components/TabPanel.jsx';
 import BookCard from '../components/BookCard.jsx';
 import SideNav from '../components/SideNav.jsx';
 import CartModal from '../components/CartModal.jsx';

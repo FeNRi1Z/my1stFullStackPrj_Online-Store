@@ -3,9 +3,11 @@ import { Minus, Plus } from 'lucide-react';
 import { useCart } from './CartProvider';
 
 const BookDetailPopup = ({ book, onClose, isOpen }) => {
-  const [quantity, setQuantity] = useState(1);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const [isEditing, setIsEditing] = useState(false);
   const { addToCart } = useCart();
+  const isOutOfStock = book.quantity < 1;
 
   useEffect(() => {
     if (isOpen) {
@@ -30,6 +32,26 @@ const BookDetailPopup = ({ book, onClose, isOpen }) => {
     }
   };
 
+  const handleQuantityChange = (e) => {
+    const newValue = parseInt(e.target.value, 10);
+    if (!isNaN(newValue)) {
+      if (newValue < 1) {
+        setQuantity(1);
+      } else if (newValue > book.quantity) {
+        setQuantity(book.quantity);
+      } else {
+        setQuantity(newValue);
+      }
+    }
+  };
+
+  const handleQuantityBlur = () => {
+    setIsEditing(false);
+    if (isNaN(quantity) || quantity < 1) {
+      setQuantity(1);
+    }
+  };
+
   const handleAddToCart = () => {
     const cartItem = {
       id: book.id,
@@ -46,31 +68,28 @@ const BookDetailPopup = ({ book, onClose, isOpen }) => {
     handleClose();
   };
 
-  // Early return if not open and not animating
   if (!isOpen && !isAnimating) return null;
 
   return (
-    <div 
-      className={`fixed inset-0 z-50 flex items-center justify-center
-                  transition-opacity duration-300 ease-out
-                  ${isAnimating ? 'opacity-100' : 'opacity-0'}`}
-      onClick={handleClose}
+    <div
+      className={`fixed inset-0 z-[98] flex items-center justify-center
+                ${isAnimating ? '' : 'pointer-events-none'}`}
     >
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black/50"
+      <div
+        className={`fixed inset-0 backdrop-blur-[4px] bg-black/50 
+                   ${isAnimating ? 'opacity-100' : 'opacity-0'}`}
+        style={{ transition: 'opacity 300ms ease-in-out' }}
+        onClick={handleClose}
         aria-hidden="true"
       />
 
-      {/* Modal content */}
-      <div 
+      <div
         className={`relative bg-white dark:bg-background-secondary-dark rounded-lg p-6 max-w-3xl w-full mx-4 
-                    shadow-xl border border-gray-200 dark:border-gray-800
-                    transform transition-all duration-300 ease-out
-                    ${isAnimating ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-8 opacity-0 scale-95'}`}
+                  shadow-xl border border-gray-200 dark:border-gray-800
+                  transform transition-all duration-300 ease-out
+                  ${isAnimating ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-8 opacity-0 scale-95'}`}
         onClick={e => e.stopPropagation()}
       >
-        {/* Close button */}
         <button
           onClick={handleClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 
@@ -83,7 +102,6 @@ const BookDetailPopup = ({ book, onClose, isOpen }) => {
         </button>
 
         <div className="flex flex-col md:flex-row gap-6">
-          {/* Left side */}
           <div className="flex-shrink-0">
             <div className="w-[200px] h-[280px] relative">
               <img
@@ -99,10 +117,21 @@ const BookDetailPopup = ({ book, onClose, isOpen }) => {
               <p className="text-gray-600 dark:text-gray-400">
                 {book.author}
               </p>
+              {/* Update category rendering to use categories array directly */}
+              <div className="flex flex-wrap gap-2 mt-2">
+                {book.categories?.map((category, index) => (
+                  <span 
+                    key={index}
+                    className="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-700 
+                             text-gray-700 dark:text-gray-300 rounded-full"
+                  >
+                    {category}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Right side */}
           <div className="flex-1 flex flex-col justify-between">
             <div>
               <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
@@ -116,35 +145,52 @@ const BookDetailPopup = ({ book, onClose, isOpen }) => {
             <div className="mt-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  {/* Quantity controls */}
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={handleDecrement}
-                      className={`p-1 rounded-full ${
-                        quantity <= 1 
-                          ? 'text-gray-600 cursor-not-allowed' 
+                  {isOutOfStock ? (
+                    <span className="text-lg font-semibold text-text-dark dark:text-text-light">Price per unit:</span>
+                  ) : (
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={handleDecrement}
+                        className={`p-1 rounded-full ${quantity <= 1
+                          ? 'text-gray-600 cursor-not-allowed'
                           : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 text-primary-100'
-                      }`}
-                      disabled={quantity <= 1}
-                    >
-                      <Minus className="w-5 h-5" />
-                    </button>
-                    <span className="w-8 text-center text-gray-900 dark:text-white">
-                      {quantity}
-                    </span>
-                    <button
-                      onClick={handleIncrement}
-                      className={`p-1 rounded-full ${
-                        quantity >= book.quantity 
-                          ? 'text-gray-600 cursor-not-allowed' 
+                          }`}
+                        disabled={quantity <= 1}
+                      >
+                        <Minus className="w-5 h-5" />
+                      </button>
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          value={quantity}
+                          onChange={handleQuantityChange}
+                          onBlur={handleQuantityBlur}
+                          className="w-16 text-center border rounded-md dark:bg-gray-800 dark:text-white"
+                          min="1"
+                          max={book.quantity}
+                          autoFocus
+                        />
+                      ) : (
+                        <span 
+                          className="w-8 text-center text-gray-900 dark:text-white cursor-pointer"
+                          onDoubleClick={() => setIsEditing(true)}
+                        >
+                          {quantity}
+                        </span>
+                      )}
+                      <button
+                        onClick={handleIncrement}
+                        className={`p-1 rounded-full ${quantity >= book.quantity
+                          ? 'text-gray-600 cursor-not-allowed'
                           : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 text-primary-100'
-                      }`}
-                      disabled={quantity >= book.quantity}
-                    >
-                      <Plus className="w-5 h-5" />
-                    </button>
-                  </div>
-                  
+                          }`}
+                        disabled={quantity >= book.quantity}
+                      >
+                        <Plus className="w-5 h-5" />
+                      </button>
+                    </div>
+                  )}
+
                   <span className="text-lg font-semibold text-gray-900 dark:text-white">
                     ${(book.price * quantity).toFixed(2)}
                   </span>
@@ -152,10 +198,14 @@ const BookDetailPopup = ({ book, onClose, isOpen }) => {
 
                 <button
                   onClick={handleAddToCart}
-                  className="px-6 py-2 bg-primary-100 text-white rounded-lg hover:bg-primary-hover 
-                           active:bg-primary-active transition-colors duration-200"
+                  disabled={isOutOfStock}
+                  className={`px-6 py-2 rounded-lg transition-colors duration-200
+                            ${isOutOfStock 
+                              ? 'bg-gray-400 cursor-not-allowed text-white'
+                              : 'bg-primary-100 text-white hover:bg-primary-hover active:bg-primary-active'
+                            }`}
                 >
-                  Add to cart
+                  {isOutOfStock ? 'Out of Stock' : 'Add to cart'}
                 </button>
               </div>
             </div>

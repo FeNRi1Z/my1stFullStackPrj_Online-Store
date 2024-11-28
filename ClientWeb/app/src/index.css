@@ -7,44 +7,41 @@ select:-moz-focusring {
   text-shadow: 0 0 0 #F5F5F5;
 }
 
-/* Apply scrollbar styles to all scrollable elements */
-html, body, div, section, main, aside {
-  &::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
 
-  &::-webkit-scrollbar-track {
-    background-color: #F5F5F5;
-  }
-
-  &.dark &::-webkit-scrollbar-track,
-  .dark &::-webkit-scrollbar-track {
-    background-color: #2B2B2B;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(31, 41, 55, 0.5);
-    border-radius: 6px;
-    transition: background-color 0.2s ease;
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(31, 41, 55, 0.8);
-  }
+&::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-/* For Firefox */
-* {
+&::-webkit-scrollbar-track {
+  background-color: #F5F5F5;
+}
+
+&.dark &::-webkit-scrollbar-track,
+.dark &::-webkit-scrollbar-track {
+  background-color: #3D3D3D;
+}
+
+&::-webkit-scrollbar-thumb {
+  background-color: rgba(31, 41, 55, 0.5);
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+&::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(31, 41, 55, 0.8);
+}
+
+wwwww* {
   scrollbar-width: thin;
   scrollbar-color: rgba(31, 41, 55, 0.5) #F5F5F5;
 }
 
 .dark * {
-  scrollbar-color: rgba(31, 41, 55, 0.5) #2B2B2B;
+  scrollbar-width: thin;
+  scrollbar-color: #3d3d3d #2d2d2d ;
 }
 
-/* Hide scrollbar by default */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -54,7 +51,6 @@ html, body, div, section, main, aside {
   display: none;
 }
 
-/* Show scrollbar only when scrolling */
 .scrollbar-auto {
   -ms-overflow-style: auto;
   scrollbar-width: auto;
@@ -69,13 +65,11 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Table scrollbar styling */
 .ant-table-body {
   overflow-y: auto !important;
   overflow-x: hidden !important;
 }
 
-/* Custom scrollbar for better visibility */
 .ant-table-body::-webkit-scrollbar {
   width: 8px;
 }
@@ -93,14 +87,12 @@ html {
   background-color: #4d4d4d;
 }
 
-/* Ensure table header stays fixed */
 .ant-table-header {
   overflow: hidden !important;
   margin-bottom: 0 !important;
   padding-bottom: 0 !important;
 }
 
-/* Fix table layout */
 .ant-table-wrapper {
   height: 100%;
 }
@@ -109,7 +101,6 @@ html {
   height: 100%;
 }
 
-/* Ant Design Message Customization */
 .custom-message .ant-message-notice-content {
   padding: 12px 16px;
   border-radius: 8px;
@@ -119,7 +110,6 @@ html {
   border-style: solid;
 }
 
-/* Light theme */
 .custom-message.light .ant-message-notice-content {
   background-color: white;
   color: #2D3142;
@@ -130,7 +120,6 @@ html {
   color: #2D3142;
 }
 
-/* Dark theme */
 .custom-message.dark .ant-message-notice-content {
   background-color: #3D3D3D;
   color: #F5F5F5;
@@ -142,12 +131,10 @@ html {
   color: #F5F5F5;
 }
 
-/* Warning icon color override */
 .custom-message .ant-message-warning .anticon {
   color: #EA9029;
 }
 
-/* Message container position */
 .ant-message {
   position: fixed;
   top: 24px;
@@ -156,14 +143,14 @@ html {
   margin: 0 auto;
 }
 
-/* Animation */
 @keyframes slideDown {
   0% {
-      transform: translateY(-100%);
-      opacity: 0;
+    transform: translateY(-100%);
+    opacity: 0;
   }
+
   100% {
-      transform: translateY(0);
-      opacity: 1;
+    transform: translateY(0);
+    opacity: 1;
   }
 }

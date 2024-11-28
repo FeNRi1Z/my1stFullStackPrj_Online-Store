@@ -39,7 +39,7 @@ const Dialog = ({ isOpen, onClose, children }) => {
 
   return (
     <div 
-      className={`fixed inset-0 z-50 overflow-y-auto transition-opacity duration-300
+      className={`fixed inset-0 z-50 backdrop-blur-[4px] bg-black/30  overflow-y-auto transition-opacity duration-300
         ${isAnimating ? 'opacity-100' : 'opacity-0'}`}
       aria-labelledby="dialog-title"
       role="dialog"

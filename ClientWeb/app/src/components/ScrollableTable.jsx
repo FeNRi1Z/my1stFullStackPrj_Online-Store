@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ScrollableTable = ({ children, maxHeight = '400px' }) => {
+const ScrollableTable = ({ children, maxHeight = '300px' }) => {
     return (
         <div className="custom-scrollbar relative rounded-lg overflow-hidden">
             <style jsx>{`

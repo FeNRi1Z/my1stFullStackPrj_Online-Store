@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { message, ConfigProvider, theme as antdTheme } from 'antd';
+import { App, ConfigProvider, theme as antdTheme } from 'antd';
 import { useAuth } from './AuthProvider';
 import { useTheme } from './ThemeProvider';
 import config from '../config';
@@ -13,38 +13,49 @@ export const CartProvider = ({ children }) => {
   const { isAuthenticated, getAuthToken } = useAuth();
   const { theme } = useTheme();
 
-  // Theme styles
-  const themeStyles = {
-    background: theme === 'dark' ? '#2B2B2B' : '#F5F5F5',
-    text: theme === 'dark' ? '#F5F5F5' : '#2D3142',
-    cardBg: theme === 'dark' ? '#3D3D3D' : '#FFFFFF',
+  return (
+    <App>
+      <ConfigProvider
+        theme={{
+          algorithm: theme === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+        }}
+      >
+        <CartContextContent
+          cartItems={cartItems}
+          setCartItems={setCartItems}
+          cartCount={cartCount}
+          setCartCount={setCartCount}
+          loading={loading}
+          setLoading={setLoading}
+          isAuthenticated={isAuthenticated}
+          getAuthToken={getAuthToken}
+        >
+          {children}
+        </CartContextContent>
+      </ConfigProvider>
+    </App>
+  );
+};
+
+// Separate component to use App.useApp() inside App context
+const CartContextContent = ({
+  children,
+  cartItems,
+  setCartItems,
+  cartCount,
+  setCartCount,
+  loading,
+  setLoading,
+  isAuthenticated,
+  getAuthToken
+}) => {
+  const { message } = App.useApp();
+
+  const updateCartCount = (items) => {
+    const count = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
+    setCartCount(count);
   };
 
-  const primaryColor = '#EA9029';
-  const primaryHover = '#D68324';
-
-  // Custom theme token for antd components
-  const customToken = {
-    colorPrimary: primaryColor,
-    colorPrimaryHover: primaryHover,
-    colorPrimaryActive: primaryHover,
-    colorBgContainer: themeStyles.cardBg,
-    colorText: themeStyles.text,
-    colorBgElevated: themeStyles.cardBg,
-    controlItemBgHover: theme === 'dark' ? '#4A4A4A' : '#F0F0F0',
-  };
-
-  // Message instance
-  const [messageApi, contextHolder] = message.useMessage();
-
-  // Wrapper for message calls
-  const showMessage = {
-    success: (content) => messageApi.success(content),
-    error: (content) => messageApi.error(content),
-    warning: (content) => messageApi.warning(content),
-  };
-
-  // Load cart data from API
   const fetchCart = async () => {
     if (!isAuthenticated) {
       setCartItems([]);
@@ -60,39 +71,32 @@ export const CartProvider = ({ children }) => {
       }
 
       const cleanToken = token.replace('Bearer ', '');
-      
+
       const response = await fetch(config.apiPath + '/product/cart/items', {
         headers: {
           Authorization: cleanToken,
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (response.status === 401) {
-        showMessage.error('Please sign in to view your cart');
+        message.error('Please sign in to view your cart');
         return;
       }
-      
+
       if (!response.ok) throw new Error('Failed to fetch cart');
-      
+
       const data = await response.json();
       setCartItems(data.results || []);
       updateCartCount(data.results || []);
     } catch (error) {
       console.error('Error fetching cart:', error);
-      showMessage.error('Failed to load cart items');
+      message.error('Failed to load cart items');
     } finally {
       setLoading(false);
     }
   };
 
-  // Update cart count from items
-  const updateCartCount = (items) => {
-    const count = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
-    setCartCount(count);
-  };
-
-  // Load cart when auth state changes
   useEffect(() => {
     if (isAuthenticated) {
       fetchCart();
@@ -105,7 +109,7 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = async (item) => {
     if (!isAuthenticated) {
-      showMessage.warning('Please sign in to add items to cart');
+      message.warning('Please sign in to add items to cart');
       return;
     }
 
@@ -116,7 +120,7 @@ export const CartProvider = ({ children }) => {
       }
 
       const cleanToken = token.replace('Bearer ', '');
-      
+
       const response = await fetch(config.apiPath + '/product/cart/add', {
         method: 'POST',
         headers: {
@@ -130,17 +134,17 @@ export const CartProvider = ({ children }) => {
       });
 
       if (response.status === 401) {
-        showMessage.error('Please sign in to add items');
+        message.error('Please sign in to add items');
         return;
       }
 
       if (!response.ok) throw new Error('Failed to add item to cart');
 
       await fetchCart();
-      showMessage.success('Item added to cart');
+      message.success('Item added to cart');
     } catch (error) {
       console.error('Error adding to cart:', error);
-      showMessage.error('Failed to add item to cart');
+      message.error('Failed to add item to cart');
     }
   };
 
@@ -152,7 +156,7 @@ export const CartProvider = ({ children }) => {
       }
 
       const cleanToken = token.replace('Bearer ', '');
-      
+
       const response = await fetch(config.apiPath + '/product/cart/update', {
         method: 'PUT',
         headers: {
@@ -166,16 +170,16 @@ export const CartProvider = ({ children }) => {
       });
 
       if (response.status === 401) {
-        showMessage.error('Please sign in to update cart');
+        message.error('Please sign in to update cart');
         return;
       }
 
       if (!response.ok) throw new Error('Failed to update cart');
 
-      await fetchCart(); 
+      await fetchCart();
     } catch (error) {
       console.error('Error updating cart:', error);
-      showMessage.error('Failed to update quantity');
+      message.error('Failed to update quantity');
     }
   };
 
@@ -187,7 +191,7 @@ export const CartProvider = ({ children }) => {
       }
 
       const cleanToken = token.replace('Bearer ', '');
-      
+
       const response = await fetch(config.apiPath + `/product/cart/remove/${itemId}`, {
         method: 'DELETE',
         headers: {
@@ -197,17 +201,17 @@ export const CartProvider = ({ children }) => {
       });
 
       if (response.status === 401) {
-        showMessage.error('Please sign in to remove items');
+        message.error('Please sign in to remove items');
         return;
       }
 
       if (!response.ok) throw new Error('Failed to remove item');
 
       await fetchCart();
-      showMessage.success('Item removed from cart');
+      message.success('Item removed from cart');
     } catch (error) {
       console.error('Error removing item:', error);
-      showMessage.error('Failed to remove item');
+      message.error('Failed to remove item');
     }
   };
 
@@ -217,27 +221,21 @@ export const CartProvider = ({ children }) => {
   };
 
   return (
-    <ConfigProvider
-      theme={{
-        algorithm: theme === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
-        token: customToken,
-      }}
-    >
-      {contextHolder}
-      <CartContext.Provider 
-        value={{ 
-          cartItems, 
-          cartCount, 
-          addToCart, 
-          updateQuantity, 
-          removeItem, 
+    <App>
+      <CartContext.Provider
+        value={{
+          cartItems,
+          cartCount,
+          addToCart,
+          updateQuantity,
+          removeItem,
           clearCart,
-          loading 
+          loading
         }}
       >
         {children}
       </CartContext.Provider>
-    </ConfigProvider>
+    </App>
   );
 };
 
