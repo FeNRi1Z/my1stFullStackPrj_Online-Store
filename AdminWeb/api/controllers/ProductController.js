@@ -17,7 +17,7 @@ app.use(fileUpload());
 app.post("/create", checkSignIn, async (req, res) => {
 	try {
 		const errorList = [];
-		if (!req.body.name) errorList.push(name);
+		if (!req.body.name) errorList.push("name");
 		if (!req.body.cost || req.body.cost < 0) errorList.push("cost");
 		if (!req.body.price || req.body.price < 0) errorList.push("price");
 		if (!req.body.quantity || req.body.quantity < 0) errorList.push("quantity");
