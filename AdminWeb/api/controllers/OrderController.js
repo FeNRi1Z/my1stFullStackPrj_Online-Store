@@ -15,8 +15,6 @@ app.use(fileUpload());
 
 app.post("/orderCreate", checkSignIn, async (req, res) => {
 	try {
-		console.log("/orderCreate req.body", req.body);
-		// Extract user ID from the authenticated session
 		const userId = req.user.id;
 
 		// Validate request body
@@ -475,5 +473,13 @@ app.get('/stat/orderMonthly', checkSignIn, async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch monthly orders' });
     }
 });
+
+
+app.post("/mockUpOrderCreate", checkSignIn, async (req, res) => {
+	
+});
+
+
+
 
 module.exports = app;

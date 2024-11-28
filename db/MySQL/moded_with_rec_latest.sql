@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 27, 2024 at 03:32 PM
+-- Generation Time: Nov 27, 2024 at 08:24 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -38,6 +38,7 @@ CREATE TABLE `author` (
 
 INSERT INTO `author` (`id`, `name`) VALUES
 (1, 'Unknown'),
+(2, 'Bob A Man'),
 (3, 'Emily Chang'),
 (4, 'Michael Rodriguez'),
 (5, 'Sarah Kim'),
@@ -53,7 +54,14 @@ INSERT INTO `author` (`id`, `name`) VALUES
 (16, 'Oliver Bennett'),
 (17, 'Margaret Hill'),
 (18, 'Emily Carter'),
-(19, 'Andrew Kim');
+(19, 'Andrew Kim'),
+(20, 'Norton Juster'),
+(21, 'Anthony Burgess'),
+(22, 'John Steinbeck'),
+(23, 'K. A. Applegate'),
+(24, 'Ray Bradbury'),
+(25, 'David Sedaris'),
+(26, 'Dorothy Eden');
 
 -- --------------------------------------------------------
 
@@ -91,7 +99,24 @@ INSERT INTO `category` (`id`, `name`) VALUES
 (18, 'Lifestyle'),
 (19, 'Adventure'),
 (20, 'Cooking'),
-(21, 'Finance');
+(21, 'Finance'),
+(22, 'Adventure fiction'),
+(23, 'Short story'),
+(24, 'Magic realism'),
+(25, 'Physics'),
+(26, 'Healthy'),
+(27, 'Fairytale'),
+(28, 'Western'),
+(29, 'Math'),
+(30, 'Language'),
+(31, 'Crafts'),
+(32, 'Hobbies'),
+(33, 'Home'),
+(34, 'Garden'),
+(35, 'Cartoon'),
+(36, 'Architecture'),
+(37, 'Humor'),
+(38, 'Sports');
 
 -- --------------------------------------------------------
 
@@ -437,13 +462,13 @@ ALTER TABLE `_prisma_migrations`
 -- AUTO_INCREMENT for table `author`
 --
 ALTER TABLE `author`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `category`
 --
 ALTER TABLE `category`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT for table `order`

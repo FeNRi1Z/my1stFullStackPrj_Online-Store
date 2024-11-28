@@ -742,6 +742,7 @@ function Order() {
 						</div>
 						<Input
 							type="text"
+							maxLength={13}
 							status={errorForm["parcelCode"] ? "error" : ""}
 							value={order.parcelCode}
 							allowClear

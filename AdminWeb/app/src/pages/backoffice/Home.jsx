@@ -443,8 +443,8 @@ function Home() {
 				</Row>
 				<Row gutter={20} wrap={false} className="mt-3" justify={"space-between"}>
 					<GraphStat />
-					<Col xs={{flex: "5%",}} sm={{flex: "10%",}} md={{flex: "15%",}} lg={{flex: "20%",}} xl={{flex: "30%",}}>
-						<Card style={{ width: "100%", height: "100%" }} hoverable={true}>
+					<Col xs={{flex: "5%",}} sm={{flex: "10%",}} md={{flex: "15%",}} lg={{flex: "20%",}} xl={{flex: "34%",}}>
+						<Card style={{ width: "98%", height: "100%" }} hoverable={true}>
 							<TopSellingProducts />
 						</Card>
 					</Col>

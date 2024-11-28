@@ -79,7 +79,7 @@ const GraphStat = () => {
 				flex: "50%",
 			}}
 			xl={{
-				flex: "70%",
+				flex: "66%",
 			}}>
 			<Card
 				style={{ width: "100%", height: "100%" }}

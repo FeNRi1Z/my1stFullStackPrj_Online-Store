@@ -314,7 +314,7 @@ function Product() {
 			if (selectedCategory === undefined) errorListInFront.push("category");
 			if (!product.cost || product.cost < 0) errorListInFront.push("cost");
 			if (!product.price || product.price < 0) errorListInFront.push("price");
-			if (!product.quantity || product.quantity < 0) errorListInFront.push("quantity");
+			if (product.quantity < 0) errorListInFront.push("quantity");
 			console.log("errorList: " + errorListInFront);
 			if (errorListInFront.length > 0) throw new Error("410");
 

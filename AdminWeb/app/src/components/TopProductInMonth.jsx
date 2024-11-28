@@ -38,7 +38,7 @@ const TopSellingProducts = () => {
           <thead className="table-secondary">
             <tr>
               <th width='5px' className="text-center">Rank</th>
-              <th width='50px' className="text-left">Product Name</th>
+              <th width='50px' className="text-left wrapper">Product Name</th>
               <th width='5px' className="text-center">Quantity Sold</th>
             </tr>
           </thead>
