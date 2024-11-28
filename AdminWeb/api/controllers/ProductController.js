@@ -125,7 +125,6 @@ app.get("/public/list", async (req, res) => {
 
 
 // ProductController.js - Update the search endpoint
-// ProductController.js - Update the search endpoint
 app.get("/public/search", async (req, res) => {
     try {
         console.log('Received search request with query params:', req.query);
