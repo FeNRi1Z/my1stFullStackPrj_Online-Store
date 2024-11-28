@@ -1,11 +1,11 @@
 function Navbar() {
     return <>
-        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-            <ul class="navbar-nav">
+        <nav class="main-header navbar navbar-dark sticky-top">
+            {/* <ul class="navbar-nav">
                 <li class="nav-item">
                     <li class="nav-link" data-widget="pushmenu" role="button"><i class="fas fa-bars"></i></li>
                 </li>
-            </ul>
+            </ul> */}
 
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">

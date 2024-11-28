@@ -11,9 +11,13 @@
     "antd": "^5.22.2",
     "antd-style": "^3.7.1",
     "axios": "^1.7.7",
+    "chart.js": "^4.4.6",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "flowbite": "^2.5.2",
+    "flowbite-react": "^0.10.2",
     "mdb-react-ui-kit": "^9.0.0",
     "react": "^18.3.1",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
     "react-highlight-words": "^0.20.0",
     "react-phone-number-input": "^3.4.9",
@@ -47,6 +51,7 @@
     ]
   },
   "devDependencies": {
+    "eslint-config-react-app": "^7.0.1",
     "tailwindcss": "^3.4.14"
   }
 }

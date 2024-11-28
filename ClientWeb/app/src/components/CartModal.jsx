@@ -1,32 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Input, Button, ConfigProvider, theme as antdTheme, Tooltip, Spin } from 'antd';
-import { SearchOutlined, MinusOutlined, PlusOutlined, CloseOutlined } from '@ant-design/icons';
-import { ShoppingBag } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useTheme } from './ThemeProvider';
-import { useCart } from './CartProvider';
-import config from '../config';
+import React, { useState, useEffect } from "react";
+import { Table, Input, Button, ConfigProvider, theme as antdTheme, Tooltip, Spin } from "antd";
+import { SearchOutlined, MinusOutlined, PlusOutlined, CloseOutlined } from "@ant-design/icons";
+import { ShoppingBag } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useTheme } from "./ThemeProvider";
+import { useCart } from "./CartProvider";
+import config from "../config";
 
 const CartModal = ({ isOpen, onClose }) => {
-  const navigate = useNavigate();
-  const { theme } = useTheme();
-  const { cartItems, updateQuantity, removeItem, cartCount, loading } = useCart();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+	const navigate = useNavigate();
+	const { theme } = useTheme();
+	const { cartItems, updateQuantity, removeItem, cartCount, loading } = useCart();
+	const [searchQuery, setSearchQuery] = useState("");
+	const [isAnimating, setIsAnimating] = useState(false);
+	const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-  // Initialize animation state when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      setIsAnimating(true);
-    }
-  }, [isOpen]);
+	// Initialize animation state when modal opens
+	useEffect(() => {
+		if (isOpen) {
+			setIsAnimating(true);
+		}
+	}, [isOpen]);
 
-  // Handle closing animation
-  const handleClose = () => {
-    setIsAnimating(false);
-    setTimeout(onClose, 300);
-  };
+	// Handle closing animation
+	const handleClose = () => {
+		setIsAnimating(false);
+		setTimeout(onClose, 300);
+	};
 
   // Define Color Pallete
   const primaryColor = '#EA9029';
@@ -41,11 +41,8 @@ const CartModal = ({ isOpen, onClose }) => {
     tableHeader: theme === 'dark' ? '#333333' : '#FAFAFA',
   };
 
-  // Filter items based on search query
-  const filteredItems = cartItems.filter(item =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.author.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+	// Filter items based on search query
+	const filteredItems = cartItems.filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.author.toLowerCase().includes(searchQuery.toLowerCase()));
 
   // Responsive columns
   const getColumns = (screenWidth) => {
@@ -174,67 +171,58 @@ const CartModal = ({ isOpen, onClose }) => {
       );
     }
 
-    baseColumns.push({
-      title: '',
-      key: 'action',
-      width: screenWidth < 640 ? '10%' : '8%',
-      align: 'center',
-      render: (_, record) => (
-        <Button
-          type="text"
-          danger
-          size="small"
-          icon={<CloseOutlined />}
-          onClick={() => removeItem(record.id)}
-          className="flex items-center justify-center"
-        />
-      ),
-    });
+		baseColumns.push({
+			title: "",
+			key: "action",
+			width: screenWidth < 640 ? "10%" : "8%",
+			align: "center",
+			render: (_, record) => <Button type="text" danger size="small" icon={<CloseOutlined />} onClick={() => removeItem(record.id)} className="flex items-center justify-center" />,
+		});
 
-    return baseColumns;
-  };
+		return baseColumns;
+	};
 
-  // Window resize handler
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+	// Window resize handler
+	useEffect(() => {
+		const handleResize = () => setWindowWidth(window.innerWidth);
+		window.addEventListener("resize", handleResize);
+		return () => window.removeEventListener("resize", handleResize);
+	}, []);
 
-  // Body scroll lock
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
+	// Body scroll lock
+	useEffect(() => {
+		if (isOpen) {
+			document.body.style.overflow = "hidden";
+		} else {
+			document.body.style.overflow = "unset";
+		}
+		return () => {
+			document.body.style.overflow = "unset";
+		};
+	}, [isOpen]);
 
-  if (!isOpen && !isAnimating) return null;
+	if (!isOpen && !isAnimating) return null;
 
-  const customToken = {
-    colorPrimary: primaryColor,
-    colorPrimaryHover: primaryHover,
-    colorPrimaryActive: primaryHover,
-    colorBgContainer: themeStyles.cardBg,
-    colorText: themeStyles.text,
-    colorBorder: themeStyles.tableBorder,
-    colorBgElevated: themeStyles.cardBg,
-    controlItemBgHover: theme === 'dark' ? '#4A4A4A' : '#F0F0F0',
-    colorIcon: themeStyles.text,
-    colorIconHover: primaryColor,
-    colorPrimaryBorder: primaryColor,
-    colorPrimaryBorderHover: primaryHover,
-    colorBorderHover: primaryColor,
-    colorPrimaryText: primaryColor,
-    colorPrimaryTextHover: primaryHover,
-    tableHeaderBg: themeStyles.tableHeader,
-    controlOutlineWidth: 2,
-    controlOutline: primaryColor + '20',
-  };
+	const customToken = {
+		colorPrimary: primaryColor,
+		colorPrimaryHover: primaryHover,
+		colorPrimaryActive: primaryHover,
+		colorBgContainer: themeStyles.cardBg,
+		colorText: themeStyles.text,
+		colorBorder: themeStyles.tableBorder,
+		colorBgElevated: themeStyles.cardBg,
+		controlItemBgHover: theme === "dark" ? "#4A4A4A" : "#F0F0F0",
+		colorIcon: themeStyles.text,
+		colorIconHover: primaryColor,
+		colorPrimaryBorder: primaryColor,
+		colorPrimaryBorderHover: primaryHover,
+		colorBorderHover: primaryColor,
+		colorPrimaryText: primaryColor,
+		colorPrimaryTextHover: primaryHover,
+		tableHeaderBg: themeStyles.tableHeader,
+		controlOutlineWidth: 2,
+		controlOutline: primaryColor + "20",
+	};
 
   return (
     <ConfigProvider
@@ -276,11 +264,11 @@ const CartModal = ({ isOpen, onClose }) => {
           onClick={handleClose}
         />
 
-        {/* Modal Container */}
-        <div className="flex items-center justify-center min-h-screen p-2 sm:p-4">
-          {/* Modal Content */}
-          <div
-            className={`relative w-full max-w-4xl rounded-lg shadow-xl
+				{/* Modal Container */}
+				<div className="flex items-center justify-center min-h-screen p-2 sm:p-4">
+					{/* Modal Content */}
+					<div
+						className={`relative w-full max-w-4xl rounded-lg shadow-xl
               transition-all duration-300 ease-in-out transform
               ${isAnimating ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-4 opacity-0 scale-95'}`}
             style={{
@@ -305,20 +293,19 @@ const CartModal = ({ isOpen, onClose }) => {
               </h1>
             </div>
 
-            {/* Search Bar */}
-            <div 
-              className={`px-4 sm:px-6 py-3 sm:py-4 border-b transition-opacity duration-300 delay-100
-                ${isAnimating ? 'opacity-100' : 'opacity-0'}`}
-              style={{ borderColor: themeStyles.tableBorder }}
-            >
-              <Input
-                placeholder="Search in cart..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                prefix={<SearchOutlined className="site-form-item-icon" />}
-                className="hover:border-primary-100 focus:border-primary-100"
-              />
-            </div>
+						{/* Search Bar */}
+						<div
+							className={`px-4 sm:px-6 py-3 sm:py-4 border-b transition-opacity duration-300 delay-100
+                ${isAnimating ? "opacity-100" : "opacity-0"}`}
+							style={{ borderColor: themeStyles.tableBorder }}>
+							<Input
+								placeholder="Search in cart..."
+								value={searchQuery}
+								onChange={(e) => setSearchQuery(e.target.value)}
+								prefix={<SearchOutlined className="site-form-item-icon" />}
+								className="hover:border-primary-100 focus:border-primary-100"
+							/>
+						</div>
 
             {/* Cart Content */}
             <div 
@@ -373,43 +360,43 @@ const CartModal = ({ isOpen, onClose }) => {
               )}
             </div>
 
-            {/* Footer */}
-            {cartItems.length > 0 && (
-              <div 
-                className={`p-4 sm:p-6 border-t transition-all duration-300 delay-200 rounded-bl-lg rounded-br-lg
-                  ${isAnimating ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-                style={{
-                  borderColor: themeStyles.tableBorder,
-                  backgroundColor: themeStyles.cardBg
-                }}
-              >
-                <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 justify-between items-center">
-                  <div className="text-base sm:text-lg font-medium" style={{ color: themeStyles.text }}>
-                    Total: ${cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}
-                  </div>
-                  <Button
-                    type="primary"
-                    onClick={() => {
-                      handleClose();
-                      navigate('/checkout');
-                    }}
-                    className="w-full sm:w-auto !text-white hover:!text-white bg-[#EA9029] hover:bg-[#D68324] font-medium"
-                    style={{
-                      height: '40px',
-                      paddingLeft: '24px',
-                      paddingRight: '24px',
-                    }}
-                  >
-                    Proceed to Checkout
-                  </Button>
-                  </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </ConfigProvider>
-  );
+						{/* Footer */}
+						{cartItems.length > 0 && (
+							<div
+								className={`p-4 sm:p-6 border-t transition-all duration-300 delay-200 rounded-bl-lg rounded-br-lg
+                  ${isAnimating ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+								style={{
+									borderColor: themeStyles.tableBorder,
+									backgroundColor: themeStyles.cardBg,
+								}}>
+								<div className="flex flex-col sm:flex-row gap-4 sm:gap-0 justify-between items-center">
+									<div className="text-base sm:text-lg font-medium" style={{ color: themeStyles.text }}>
+										Total: ${cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
+									</div>
+									<Button
+										type="primary"
+										onClick={() => {
+											const currentURL = window.location.pathname + window.location.search;
+											localStorage.setItem("previousURL", currentURL);
+											handleClose();
+											navigate("/checkout");
+										}}
+										className="w-full sm:w-auto !text-white hover:!text-white bg-[#EA9029] hover:bg-[#D68324] font-medium"
+										style={{
+											height: "40px",
+											paddingLeft: "24px",
+											paddingRight: "24px",
+										}}>
+										Proceed to Checkout
+									</Button>
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+			</div>
+		</ConfigProvider>
+	);
 };
 
 export default CartModal;

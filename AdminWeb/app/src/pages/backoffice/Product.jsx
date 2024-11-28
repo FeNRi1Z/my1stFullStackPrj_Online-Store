@@ -314,7 +314,7 @@ function Product() {
 			if (selectedCategory === undefined) errorListInFront.push("category");
 			if (!product.cost || product.cost < 0) errorListInFront.push("cost");
 			if (!product.price || product.price < 0) errorListInFront.push("price");
-			if (!product.quantity || product.quantity < 0) errorListInFront.push("quantity");
+			if (product.quantity < 0) errorListInFront.push("quantity");
 			console.log("errorList: " + errorListInFront);
 			if (errorListInFront.length > 0) throw new Error("410");
 
@@ -597,44 +597,6 @@ function Product() {
         </button> */}
 			</div>
 
-			{/* <table className='mt-3 table table-responsive-sm table-bordered table-striped table-hover table-head-fixed'>
-            <thead className='table-light'>
-                <tr>
-                    <th width='150px'>Cover</th>
-                    <th>Name</th>
-                    <th width='150px'>Description</th>
-                    <th>Author</th>
-                    <th>Categories</th>
-                    <th width='75px' className='text-right'>Cost</th>
-                    <th width='75px' className='text-right'>Price</th>
-                    <th width='80px' className='text-right'>Quantity</th>
-                    <th width='120px' className='text-center'>Modify</th>
-                </tr>
-            </thead>
-            <tbody>
-                {products.length > 0 ? products.map(item =>
-                    <tr key={item.id}>
-                        <td>{showImage(item)}</td>
-                        <td><div className='text-truncate' style={{ maxWidth: '150px' }}>{item.name}</div></td>
-                        <td><div className='text-truncate' style={{ maxWidth: '150px' }}>{item.desc}</div></td>
-                        <td><div className='text-truncate' style={{ maxWidth: '150px' }}>{item.author}</div></td>
-                        <td><Flex wrap gap='0.01rem'>{item.categoriesName.map(tag => <Tag color='geekblue' style={{ color: 'black' }}>{tag}</Tag>)}</Flex></td>
-                        <td className='text-right'>{item.cost}</td>
-                        <td className='text-right'>{item.price}</td>
-                        <td className='text-right'>{item.quantity}</td>
-                        <td className='text-center'>
-                            <button className='btn btn-primary mr-2' style={{ width: '40px', height: '40px' }} data-toggle='modal' data-target='#modalProduct' onClick={() => { clearForm(); clearErrorForm(); setIsEdit(true); setProduct(item); setSelectedAuthor(item.authorId); setSelectedCategory(item.categories) }}>
-                                <i className='ion-edit' style={{ fontSize: '15px' }}></i> 
-                            </button>
-                            <button className='btn btn-danger' style={{ width: '40px', height: '40px' }} onClick={() => handleRemove(item)}>
-                                <i className='ion-android-delete' style={{ fontSize: '18px' }}></i> 
-                            </button>
-                        </td>
-                    </tr>
-                ) : <></>}
-            </tbody>
-        </table> */}
-
 			<Table
 				id="productTable"
 				className={styles.customTable}
@@ -651,6 +613,7 @@ function Product() {
 				pagination={{
 					pageSize: 10,
 					hideOnSinglePage: false,
+					position: ["bottomLeft"],
 				}}
 			/>
 

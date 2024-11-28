@@ -90,6 +90,7 @@ model ProductOnOrder {
   orderId      Int
   productId    Int
   productPrice Int
+  productCost  Int     
   quantity     Int     @default(1)
   order        Order   @relation(fields: [orderId], references: [id])
   product      Product @relation(fields: [productId], references: [id])

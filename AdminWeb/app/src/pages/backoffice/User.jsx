@@ -158,12 +158,12 @@ function User() {
 			...getColumnSearchProps("id"),
 		},
 		{
-			width: "100px",
+			width: "60px",
 			title: "Profile",
 			dataIndex: "profile",
 			key: "profile",
 			className: "text-center",
-			render: (profile) => <Image height={100} width={"full"} className="rounded-circle" src={config.apiPath + "/uploads/user_img/" + profile} fallback="default_profile.jpg" />,
+			render: (profile) => <Image height={100} width={'100%'} className="rounded-circle" src={config.apiPath + "/uploads/user_img/" + profile} fallback="default_profile.jpg" />,
 		},
 		{
 			fixed: "left",
@@ -427,6 +427,7 @@ function User() {
 				pagination={{
 					pageSize: 10,
 					hideOnSinglePage: false,
+					position: ["bottomLeft"],
 				}}
 			/>
 		</BackOffice>
