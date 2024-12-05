@@ -65,7 +65,7 @@ const OrderHistory = ({ onOrderCountUpdate, getAuthToken }) => {
 
   useEffect(() => {
     const activeOrderCount = orders.filter(
-      order => !['completed','cancelled'].includes(order.status.toLowerCase())
+      order => ['to be paid'].includes(order.status.toLowerCase())
     ).length;
     
     onOrderCountUpdate(activeOrderCount);

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { User, Package, LogOut, ChevronRight } from 'lucide-react';
 import { useAuth } from '../auth/AuthProvider';
 
@@ -21,10 +21,12 @@ const MenuItem = ({ icon: Icon, label, onClick, hasChevron = true }) => {
   );
 };
 
-const ProfileDropdown = ({ isOpen, onClose }) => {
+const ProfileDropdown = ({ isOpen, onClose, onViewChange }) => {
   const dropdownRef = useRef(null);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isOrdersPage = location.pathname === '/orders';
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -41,6 +43,24 @@ const ProfileDropdown = ({ isOpen, onClose }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen, onClose]);
+
+  const handleProfileClick = () => {
+    if (isOrdersPage) {
+      onViewChange?.('profile');
+    } else {
+      navigate('/orders', { state: { initialView: 'profile' } });
+    }
+    onClose();
+  };
+
+  const handleOrdersClick = () => {
+    if (isOrdersPage) {
+      onViewChange?.('orders');
+    } else {
+      navigate('/orders', { state: { initialView: 'orders' } });
+    }
+    onClose();
+  };
 
   if (!isOpen) return null;
 
@@ -67,18 +87,12 @@ const ProfileDropdown = ({ isOpen, onClose }) => {
         <MenuItem 
           icon={User} 
           label="Edit my account" 
-          onClick={() => {
-            navigate('/profile');
-            onClose();
-          }}
+          onClick={handleProfileClick}
         />
         <MenuItem 
           icon={Package} 
           label="My orders" 
-          onClick={() => {
-            navigate('/orders');
-            onClose();
-          }}
+          onClick={handleOrdersClick}
         />
         <MenuItem 
           icon={LogOut} 
