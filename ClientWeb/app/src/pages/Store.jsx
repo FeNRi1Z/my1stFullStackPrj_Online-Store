@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useTheme } from '../components/ThemeProvider';
-import NavBar from '../components/Navbar.jsx';
-import SearchBox from '../components/SearchBox.jsx';
-import TabPanel from '../components/TabPanel.jsx';
-import BookCard from '../components/BookCard.jsx';
-import SideNav from '../components/SideNav.jsx';
-import CartModal from '../components/CartModal.jsx';
+import React, { useState, useEffect, useRef , useCallback} from 'react';
+import { useTheme } from '../components/theme/ThemeProvider.jsx';
+import NavBar from '../components/layout/Navbar.jsx';
+import SearchBox from '../components/search/SearchBox.jsx';
+import BookCard from '../components/book/BookCard.jsx';
+import SideNav from '../components/layout/SideNav.jsx';
+import CartModal from '../components/cart/CartModal.jsx';
 import config from '../config.js';
 
 const Store = () => {
@@ -25,12 +24,12 @@ const Store = () => {
   };
 
   // Function to handle search results
-  const handleSearch = (searchResults) => {
+  const handleSearch = useCallback((searchResults) => {
     if (Array.isArray(searchResults)) {
       setBooks(searchResults);
       setIsLoading(false);
     }
-  };
+  }, []);
 
   // Initial fetch of all books
   useEffect(() => {

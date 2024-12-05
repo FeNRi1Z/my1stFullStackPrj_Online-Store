@@ -1,14 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import { ThemeProvider } from './components/ThemeProvider';
-import { CartProvider } from './components/CartProvider';
+import { ThemeProvider } from './components/theme/ThemeProvider';
+import { CartProvider } from './components/cart/CartProvider';
 import {
   createBrowserRouter,
   RouterProvider,
   Outlet
 } from 'react-router-dom';
-import { AuthProvider } from './components/AuthProvider';
+import { AuthProvider } from './components/auth/AuthProvider';
 
 import Home from './pages/Home';
 import SignIn from './pages/SignIn';
@@ -17,7 +17,7 @@ import Store from './pages/Store';
 import Profile from './pages/Profile';
 import Orders from './pages/Orders';
 import Checkout from './pages/Checkout';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 // Root layout component that provides context
 const RootLayout = () => {

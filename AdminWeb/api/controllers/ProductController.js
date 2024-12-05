@@ -123,21 +123,26 @@ app.get("/public/list", async (req, res) => {
 	}
 });
 
+
+// ProductController.js - Update the search endpoint
 app.get("/public/search", async (req, res) => {
-	try {
-		const { name, author, minPrice, maxPrice } = req.query;
+    try {
+        console.log('Received search request with query params:', req.query);
+        
+        const { name, author, minPrice, maxPrice, categories } = req.query;
 
-		// Build base query conditions
-		const where = {
-			status: "use",
-		};
+        // Build base query conditions
+        const where = {
+            status: "use",
+        };
 
-		// Add name search if provided
-		if (name) {
-			where.OR = [{ name: { contains: name } }];
-			// Include description search if desc exists
-			where.OR.push({ desc: { contains: name } });
-		}
+        // Add name search if provided
+        if (name) {
+            where.OR = [
+                { name: { contains: name } },
+                { desc: { contains: name } }
+            ];
+        }
 
 		// Add price range if provided
 		if (minPrice || maxPrice) {
@@ -146,40 +151,47 @@ app.get("/public/search", async (req, res) => {
 			if (maxPrice) where.price.lte = parseInt(maxPrice);
 		}
 
-		// Add author filter if provided
-		if (author) {
-			where.AND = where.AND || [];
-			where.AND.push({
-				author: {
-					name: { contains: author },
-				},
-			});
-		}
+        // Add author filter if provided
+        if (author) {
+            where.author = {
+                name: { contains: author }
+            };
+        }
 
-		// Fetch products with given conditions
-		const products = await prisma.product.findMany({
-			where,
-			orderBy: {
-				id: "desc",
-			},
-			include: {
-				author: {
-					select: {
-						name: true,
-					},
-				},
-				categories: {
-					include: {
-						category: {
-							select: {
-								id: true,
-								name: true,
-							},
-						},
-					},
-				},
-			},
-		});
+        // Add category filter - key change here
+        if (categories) {
+            where.categories = {
+                some: {
+                    category: {
+                        name: {
+                            // Handle both single category and array of categories
+                            in: Array.isArray(categories) ? categories : [categories]
+                        }
+                    }
+                }
+            };
+        }
+
+        console.log('Final where clause:', JSON.stringify(where, null, 2));
+
+        // Fetch products with given conditions
+        const products = await prisma.product.findMany({
+            where,
+            include: {
+                author: {
+                    select: {
+                        name: true
+                    }
+                },
+                categories: {
+                    include: {
+                        category: true
+                    }
+                }
+            }
+        });
+
+        console.log(`Found ${products.length} products matching filters`);
 
 		// Format the response
 		const results = products.map((product) => ({
@@ -194,19 +206,19 @@ app.get("/public/search", async (req, res) => {
 			categoriesName: product.categories.map((pc) => pc.category.name),
 		}));
 
-		// Send consistent response format
-		res.json({
-			status: "success",
-			results: results,
-		});
-	} catch (error) {
-		console.error("Search error:", error);
-		res.status(500).json({
-			status: "error",
-			message: "Failed to search books",
-			error: error.message,
-		});
-	}
+        res.json({
+            status: 'success',
+            results
+        });
+
+    } catch (error) {
+        console.error('Search error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to search books',
+            error: error.message
+        });
+    }
 });
 
 app.put("/update", checkSignIn, async (req, res) => {
@@ -645,14 +657,14 @@ const getTop10SellingProducts = async () => {
 	const topProducts = await prisma.productOnOrder.groupBy({
 		by: ["productId"],
 		_sum: { quantity: true },
-		where: {
-			order: {
-				orderDate: {
-					gte: startOfMonth,
-					lte: endOfMonth,
-				},
-			},
-		},
+		// where: {
+		// 	order: {
+		// 		orderDate: {
+		// 			gte: startOfMonth,
+		// 			lte: endOfMonth,
+		// 		},
+		// 	},
+		// },
 		orderBy: {
 			_sum: { quantity: "desc" },
 		},

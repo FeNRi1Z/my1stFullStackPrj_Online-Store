@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../components/ThemeProvider';
+import { useTheme } from '../components/theme/ThemeProvider';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { message } from 'antd';
-import { useAuth } from '../components/AuthProvider';
+import { App, message } from 'antd';
+import { useAuth } from '../components/auth/AuthProvider';
 import config from '../config';
 
 function SignIn() {
@@ -12,6 +12,7 @@ function SignIn() {
   const { login, user } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { message } = App.useApp();
   const [formData, setFormData] = useState({
     username: '',
     password: ''

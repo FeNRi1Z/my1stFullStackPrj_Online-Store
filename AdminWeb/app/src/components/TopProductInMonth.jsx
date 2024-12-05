@@ -32,7 +32,7 @@ const TopSellingProducts = () => {
 
   return (
     <div className="container mt-4">
-      <h4 className="text-center mb-4" style={{fontWeight:'normal'}}>Top 10 Most Sold Product This Month</h4>
+      <h4 className="text-center mb-4" style={{fontWeight:'normal'}}>Top 10 Most Sold Product</h4>
       <div className="table-responsive">
         <table className="table table-responsive-sm table-hover table-striped align-middle table-bordered table-responsive-xl table-responsive-md table-responsive-lg">
           <thead className="table-secondary">

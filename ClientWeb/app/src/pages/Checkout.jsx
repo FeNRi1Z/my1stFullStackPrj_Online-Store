@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../components/AuthProvider";
-import { useCart } from "../components/CartProvider";
-import ScrollableTable from "../components/ScrollableTable";
-import { PenLine, ArrowRight, ArrowLeft, ChevronRight, CheckCircle, Loader2 } from "lucide-react";
+import { useAuth } from "../components/auth/AuthProvider";
+import { useCart } from "../components/cart/CartProvider";
+import ScrollableTable from "../components/shared/ScrollableTable";
+import { PenLine, ArrowRight, ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
 import { message, Image } from "antd";
 import config from "../config";
 import axios from "axios";
@@ -15,6 +15,7 @@ const Checkout = () => {
 	const [addressModalVisible, setAddressModalVisible] = useState(false);
 	const [phoneModalVisible, setPhoneModalVisible] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [orderData, setOrderData] = useState();
 
 	const navigate = useNavigate();
 	const { user } = useAuth();
@@ -26,8 +27,6 @@ const Checkout = () => {
 		address: "",
 		phone: "",
 	});
-
-	const [orderData, setOrderData] = useState();
 
 	// Fetch user data on component mount
 	useEffect(() => {
@@ -43,54 +42,54 @@ const Checkout = () => {
 
 	const handleNextStep = async () => {
 		if (currentStep === 2) {
-			// Add debug logging
-			console.log("Validation check:", {
-				paymentMethod,
-				address: userData.address,
-				phone: userData.phone,
-			});
-
+			// Validate payment method
 			if (!paymentMethod) {
 				message.warning("Please select a payment method");
 				return;
 			}
 
-			// Check both address and phone are filled
+			// Validate address
 			if (!userData.address?.trim()) {
 				message.warning("Please provide a delivery address");
 				return;
 			}
 
-			if (!userData.phone?.trim() || userData.phone.length !== 10 || userData.phone[0] !== "0" || isNaN(userData.phone)) {
-				message.warning("Please provide a contact phone number");
+			// Validate phone number
+			const phoneRegex = /^0\d{9}$/;
+			if (!phoneRegex.test(userData.phone)) {
+				message.warning("Please provide a valid 10-digit phone number starting with 0");
 				return;
 			}
 
-			const dataBody = {
-				address: userData.address,
-				phone: userData.phone,
-				orderItems: cartItems.map((item) => ({
-					productId: parseInt(item.id),
-					quantity: parseInt(item.quantity),
-				})),
-			};
-
 			setIsLoading(true);
 			try {
-				const response = await axios.post(config.apiPath + "/order/orderCreate", dataBody, config.headers());
+				const dataBody = {
+					address: userData.address,
+					phone: userData.phone,
+					paymentMethod: paymentMethod,
+					orderItems: cartItems.map((item) => ({
+						productId: parseInt(item.id),
+						quantity: parseInt(item.quantity),
+					})),
+				};
+
+				const response = await axios.post(
+					`${config.apiPath}/order/orderCreate`,
+					dataBody,
+					config.headers()
+				);
 
 				if (response.status === 200) {
-					clearCart(); // Clear the cart after successful order
+					clearCart();
 					setOrderData(response.data.newOrder);
 					setCurrentStep((prev) => prev + 1);
 				}
 			} catch (error) {
 				console.error("Order creation error:", error);
-				message.error(error.message || "Failed to create order");
+				message.error(error.response?.data?.error || "Failed to create order");
 			} finally {
 				setIsLoading(false);
 			}
-		} else if (currentStep === 3) {
 		} else {
 			setCurrentStep((prev) => prev + 1);
 		}
@@ -102,6 +101,10 @@ const Checkout = () => {
 		setPaymentMethod(method);
 	};
 
+	const handleToMyOrder = (method) => {
+		navigate('/Orders');
+	}
+
 	// Update the payment method selection JSX
 	<div className="space-y-4">
 		{[
@@ -111,9 +114,9 @@ const Checkout = () => {
 			<div
 				key={option.value}
 				className={`p-4 rounded-lg cursor-pointer transition-all
-                          ${paymentMethod === option.value ? "border-2 border-primary-100" : "border border-gray-200 dark:border-gray-700"}
-                          bg-gray-50 dark:bg-background-dark
-                          hover:border-primary-100`}
+							${paymentMethod === option.value ? "border-2 border-primary-100" : "border border-gray-200 dark:border-gray-700"}
+							bg-gray-50 dark:bg-background-dark
+							hover:border-primary-100`}
 				onClick={() => handlePaymentMethodChange(option.value)}>
 				<label className="flex items-center space-x-3 cursor-pointer">
 					<input
@@ -169,7 +172,9 @@ const Checkout = () => {
 							<tr key={item.id} className="border-b dark:border-gray-700 bg-white dark:bg-background-secondary-dark hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
 								<td className="py-4 px-6 min-w-[280px]">
 									<div className="flex items-center gap-4">
-										<Image width={100} height={150} src={config.apiPath + "/uploads/product_img/" + item.img} alt={item.title} className="object-cover rounded shrink-0" />
+										<div className="w-16 h-24">
+											<Image src={config.apiPath + "/uploads/product_img/" + item.img} alt={item.title} className="object-cover rounded shrink-0" />
+										</div>
 										<div className="min-w-0">
 											<h3 className="text-text-dark dark:text-text-light truncate">{item.title}</h3>
 											<p className="text-secondary-50 dark:text-secondary-100 truncate">{item.author}</p>
@@ -208,7 +213,7 @@ const Checkout = () => {
 			case 2:
 				return (
 					<div className="space-y-4 w-full">
-						<h2 className="text-text-dark dark:text-text-light text-xl font-semibold mb-4">Payment Method</h2>
+						<h2 className="text-text-dark dark:text-text-light text-xl font-semibold mb-4">Contact Information</h2>
 						<div className="flex flex-col space-y-6">
 							<div className="bg-white dark:bg-background-secondary-dark p-2 rounded-lg shadow">
 								<div className="space-y-4">
@@ -225,7 +230,6 @@ const Checkout = () => {
 									</div>
 								</div>
 							</div>
-
 							<div className="bg-white dark:bg-background-secondary-dark p-2 rounded-lg shadow">
 								<div className="relative p-4 rounded-lg bg-gray-50 dark:bg-background-dark">
 									<div className="font-medium mb-2 text-text-dark dark:text-text-light">Phone</div>
@@ -242,11 +246,13 @@ const Checkout = () => {
 
 							<div className="space-y-4">
 								{/* Bank Transfer Option - Active */}
+								<h2 className="text-text-dark dark:text-text-light text-xl font-semibold mb-4">Payment Method</h2>
+
 								<div
 									className={`p-4 rounded-lg cursor-pointer transition-all
-                                                  ${paymentMethod === "qr" ? "border-2 border-primary-100" : "border border-gray-200 dark:border-gray-700"}
-                                                  bg-gray-50 dark:bg-background-dark
-                                                  hover:border-primary-100`}
+													${paymentMethod === "qr" ? "border-2 border-primary-100" : "border border-gray-200 dark:border-gray-700"}
+													bg-gray-50 dark:bg-background-dark
+													hover:border-primary-100`}
 									onClick={() => setPaymentMethod("qr")}>
 									<label className="flex items-center space-x-3 cursor-pointer">
 										<input
@@ -264,8 +270,8 @@ const Checkout = () => {
 								{/* Cash on Delivery Option - Disabled */}
 								<div
 									className={`p-4 rounded-lg cursor-not-allowed transition-all
-                                                  border border-gray-200 dark:border-gray-700
-                                                  bg-gray-50/50 dark:bg-background-dark/50`}>
+													border border-gray-200 dark:border-gray-700
+													bg-gray-50/50 dark:bg-background-dark/50`}>
 									<label className="flex items-center space-x-3 cursor-not-allowed">
 										<input type="radio" name="paymentMethod" value="cod" disabled checked={false} className="form-radio text-gray-300 dark:text-gray-600" />
 										<div className="flex items-center gap-2">
@@ -289,7 +295,7 @@ const Checkout = () => {
 			case 3:
 				return (
 					<div className="space-y-4 w-full">
-						<h2 className="text-text-dark dark:text-text-light text-xl font-semibold mb-4">Complete Order</h2>
+						<h2 className="text-text-dark dark:text-text-light text-xl font-semibold mb-24">Complete Order</h2>
 						<div className="flex flex-col items-center gap-6">
 							<CheckCircle className="w-16 h-16 text-green-500" />
 							<div className="text-center">
@@ -298,6 +304,7 @@ const Checkout = () => {
 								<p className="text-text-dark dark:text-text-light">Order Date: {dayjs(orderData.orderDate).format('YYYY/MM/DD HH:mm:ss')}</p>
 							</div>
 							{paymentMethod === "qr" && <p className="text-secondary-50 dark:text-secondary-100">Please upload payment slip to your order</p>}
+							<button className="lg:text-md md:text-lg text-text-dark dark:text-text-light bg-primary-100 px-4 py-3 rounded-md" onClick={navigate('/Orders')}>Go to MyOrder</button>
 						</div>
 					</div>
 				);
@@ -319,7 +326,6 @@ const Checkout = () => {
 		setPhoneModalVisible(false);
 	};
 
-	// Modal section
 	const addressModal = (
 		<Modal isOpen={addressModalVisible} title="Edit Address">
 			<form>
@@ -330,7 +336,7 @@ const Checkout = () => {
 							type="text"
 							onClick={() => setUserData({ ...userData, address: user.address })}
 							className="text-gray-600 dark:text-gray-300 hover:text-primary-100 dark:hover:text-primary-100 underline text-sm mb-2">
-							Default
+							Reset
 						</button>
 					</div>
 					<textarea
@@ -340,9 +346,9 @@ const Checkout = () => {
 						defaultValue={userData.address}
 						pleaseholder="Enter your address"
 						className="w-full px-3 py-2 border rounded-md 
-                                 dark:bg-background-dark dark:border-gray-700
-                                 text-text-dark dark:text-text-light
-                                 focus:outline-none focus:ring-2 focus:ring-primary-100"
+									dark:bg-background-dark dark:border-gray-700
+									text-text-dark dark:text-text-light
+									focus:outline-none focus:ring-2 focus:ring-primary-100"
 					/>
 				</div>
 				<div className="flex justify-end space-x-4">
@@ -350,13 +356,13 @@ const Checkout = () => {
 						type="button"
 						onClick={() => setAddressModalVisible(false)}
 						className="px-4 py-2 text-gray-600 dark:text-gray-300 
-                                 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
+									hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
 						Cancel
 					</button>
 					<button
 						onClick={() => handleAddressChange()}
 						className="px-4 py-2 bg-primary-100 text-white rounded-md
-                                 hover:bg-primary-hover active:bg-primary-active">
+									hover:bg-primary-hover active:bg-primary-active">
 						Save
 					</button>
 				</div>
@@ -374,7 +380,7 @@ const Checkout = () => {
 							type="text"
 							onClick={() => setUserData({ ...userData, phone: user.phone })}
 							className="text-gray-600 dark:text-gray-300 hover:text-primary-100 dark:hover:text-primary-100 underline text-sm mb-2">
-							Default
+							Reset
 						</button>
 					</div>
 					<input
@@ -385,9 +391,9 @@ const Checkout = () => {
 						placeholder="Enter your phone number"
 						defaultValue={userData.phone}
 						className="w-full px-3 py-2 border rounded-md 
-                                 dark:bg-background-dark dark:border-gray-700
-                                 text-text-dark dark:text-text-light
-                                 focus:outline-none focus:ring-2 focus:ring-primary-100"
+									dark:bg-background-dark dark:border-gray-700
+									text-text-dark dark:text-text-light
+									focus:outline-none focus:ring-2 focus:ring-primary-100"
 					/>
 				</div>
 				<div className="flex justify-end space-x-4">
@@ -395,13 +401,13 @@ const Checkout = () => {
 						type="button"
 						onClick={() => setPhoneModalVisible(false)}
 						className="px-4 py-2 text-gray-600 dark:text-gray-300 
-                                 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
+									hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
 						Cancel
 					</button>
 					<button
 						onClick={() => handlePhoneChange()}
 						className="px-4 py-2 bg-primary-100 text-white rounded-md
-                                 hover:bg-primary-hover active:bg-primary-active">
+									hover:bg-primary-hover active:bg-primary-active">
 						Save
 					</button>
 				</div>
@@ -411,36 +417,52 @@ const Checkout = () => {
 
 	const previousURL = localStorage.getItem('previousURL');
 
+
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark p-4 transition-colors duration-300">
 			<div className="w-full max-w-4xl rounded-lg shadow-lg">
+				{/* Header and progress bar */}
 				<div className="px-8 pt-8 pb-6">
-					<h1 className="text-text-dark dark:text-text-light text-4xl font-bold text-center">Checkout</h1>
-
+					<h1 className="text-text-dark dark:text-text-light text-4xl font-bold text-center">
+						Checkout
+					</h1>
 					<div className="mt-6">
 						<div className="grid grid-cols-3 mb-3">
-							<span className={`text-sm text-left ${currentStep >= 1 ? "text-primary-100" : "text-text-disabled"}`}>Confirm Items</span>
-							<span className={`text-sm text-center ${currentStep >= 2 ? "text-primary-100" : "text-text-disabled"}`}>Payment</span>
-							<span className={`text-sm text-right ${currentStep >= 3 ? "text-primary-100" : "text-text-disabled"}`}>Complete</span>
+							<span className={`text-sm text-left ${currentStep >= 1 ? "text-primary-100" : "text-text-disabled"}`}>
+								Confirm Items
+							</span>
+							<span className={`text-sm text-center ${currentStep >= 2 ? "text-primary-100" : "text-text-disabled"}`}>
+								Payment
+							</span>
+							<span className={`text-sm text-right ${currentStep >= 3 ? "text-primary-100" : "text-text-disabled"}`}>
+								Complete
+							</span>
 						</div>
 						<div className="h-2 bg-gray-200 dark:bg-gray-600 rounded-full">
-							<div className="h-full bg-primary-100 rounded-full transition-all duration-300" style={{ width: `${((currentStep - 1) / 2) * 100}%` }} />
+							<div
+								className="h-full bg-primary-100 rounded-full transition-all duration-300"
+								style={{ width: `${((currentStep - 1) / 2) * 100}%` }}
+							/>
 						</div>
 					</div>
 				</div>
 
+				{/* Main content */}
 				<div className="px-8 pb-6">
 					<div className="min-h-[480px]">{renderStep()}</div>
 
+					{/* Navigation buttons */}
 					<div className="flex justify-between mt-4">
 						{currentStep !== 3 && (
 							<button
 								onClick={() => currentStep === 1 ? navigate(`${previousURL}`) : setCurrentStep((prev) => prev - 1)}
 								className="flex items-center px-6 py-2 bg-white dark:bg-background-secondary-dark 
-                             text-text-dark dark:text-text-light rounded-md 
-                             border border-gray-200 dark:border-gray-700
-                             hover:bg-gray-100 dark:hover:bg-gray-700
-                             focus:outline-none transition-colors">
+								  text-text-dark dark:text-text-light rounded-md 
+								  border border-gray-200 dark:border-gray-700
+								  hover:bg-gray-100 dark:hover:bg-gray-700
+								  focus:outline-none transition-colors"
+								disabled={isLoading}
+							>
 								<ArrowLeft className="w-4 h-4 mr-2" />
 								{currentStep === 1 ? "Cancel" : "Previous"}
 							</button>
@@ -450,39 +472,25 @@ const Checkout = () => {
 							<button
 								onClick={handleNextStep}
 								className="flex items-center px-6 py-2 bg-primary-100 text-white rounded-md
-                                 hover:bg-primary-hover active:bg-primary-active
-                                 focus:outline-none transition-colors">
-								Next
-								<ArrowRight className="w-4 h-4 ml-2" />
+								  hover:bg-primary-hover active:bg-primary-active
+								  focus:outline-none transition-colors"
+								disabled={isLoading}
+							>
+								{isLoading ? (
+									<Loader2 className="w-4 h-4 mr-2 animate-spin" />
+								) : (
+									<>
+										Next
+										<ArrowRight className="w-4 h-4 ml-2" />
+									</>
+								)}
 							</button>
-						)}
-						{currentStep === 3 && (
-							<div className="flex justify-between items-center">
-								<button
-									onClick={() => navigate("/store")}
-									className="flex items-center px-6 py-2 bg-white dark:bg-background-secondary-dark 
-								 text-text-dark dark:text-text-light rounded-md 
-								 border border-gray-200 dark:border-gray-700
-								 hover:bg-gray-100 dark:hover:bg-gray-700
-								 focus:outline-none transition-colors mr-3">
-									Continue Shopping
-								</button>
-								<button
-									onClick={() => navigate("/orders")}
-									className="flex items-center px-6 py-2 bg-primary-100 text-white rounded-md
-                                 hover:bg-primary-hover active:bg-primary-active
-                                 focus:outline-none transition-colors">
-									My Orders
-									<ChevronRight className="w-4 h-4 ml-2" />
-								</button>
-							</div>
 						)}
 					</div>
 				</div>
-
-				{addressModal}
-				{phoneModal}
 			</div>
+			{addressModal}
+			{phoneModal}
 		</div>
 	);
 };
