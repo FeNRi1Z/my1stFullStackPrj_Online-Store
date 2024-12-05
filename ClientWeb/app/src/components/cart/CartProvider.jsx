@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { App, ConfigProvider, theme as antdTheme } from 'antd';
-import { useAuth } from './AuthProvider';
-import { useTheme } from './ThemeProvider';
-import config from '../config';
+import { useAuth } from '../auth/AuthProvider';
+import { useTheme } from '../theme/ThemeProvider';
+import config from '../../config';
 
 const CartContext = createContext();
 
@@ -37,7 +37,6 @@ export const CartProvider = ({ children }) => {
   );
 };
 
-// Separate component to use App.useApp() inside App context
 const CartContextContent = ({
   children,
   cartItems,

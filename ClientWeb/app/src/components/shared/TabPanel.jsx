@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ScrollableFrame from './ScrollableFrame';
-import booksData from '../assets/books.json';
+import booksData from '../../assets/books.json';
 
 const TabPanel = () => {
   const [activeTab, setActiveTab] = useState('');
@@ -16,32 +16,31 @@ const TabPanel = () => {
   const tabsContainerRef = useRef(null);
   const isFirstRender = useRef(true);
 
-  // Function to fetch book cover from Google Books API
-  const fetchBookCover = async (book) => {
-    try {
-      const response = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(book.name)}+inauthor:${encodeURIComponent(book.author)}`
-      );
-      const data = await response.json();
+  // const fetchBookCover = async (book) => {
+  //   try {
+  //     const response = await fetch(
+  //       `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(book.name)}+inauthor:${encodeURIComponent(book.author)}`
+  //     );
+  //     const data = await response.json();
       
-      if (data.items && data.items[0]?.volumeInfo?.imageLinks?.thumbnail) {
-        return {
-          ...book,
-          cover: data.items[0].volumeInfo.imageLinks.thumbnail.replace('http:', 'https:')
-        };
-      }
-      return {
-        ...book,
-        cover: book.img
-      };
-    } catch (error) {
-      console.error('Error fetching book cover:', error);
-      return {
-        ...book,
-        cover: book.img
-      };
-    }
-  };
+  //     if (data.items && data.items[0]?.volumeInfo?.imageLinks?.thumbnail) {
+  //       return {
+  //         ...book,
+  //         cover: data.items[0].volumeInfo.imageLinks.thumbnail.replace('http:', 'https:')
+  //       };
+  //     }
+  //     return {
+  //       ...book,
+  //       cover: book.img
+  //     };
+  //   } catch (error) {
+  //     console.error('Error fetching book cover:', error);
+  //     return {
+  //       ...book,
+  //       cover: book.img
+  //     };
+  //   }
+  // };
 
   // Tab scrolling handlers
   const handleMouseDown = (e) => {

@@ -6,7 +6,7 @@ import {
   LogIn
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from './AuthProvider';
+import { useAuth } from '../auth/AuthProvider';
 
 const SideNav = ({ isOpen, onClose }) => {
   const navigate = useNavigate();

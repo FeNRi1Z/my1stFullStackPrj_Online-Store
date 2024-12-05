@@ -1,6 +1,6 @@
 import React from 'react';
-import NavBar from './components/PageLayout';
-import { useTheme } from './components/ThemeProvider';
+import NavBar from './components/layout/Navbar';
+import { useTheme } from './components/theme/ThemeProvider';
 
 const App = () => {
   const { theme } = useTheme();

@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Package, LogOut, ChevronRight } from 'lucide-react';
-import { useAuth } from './AuthProvider';
+import { useAuth } from '../auth/AuthProvider';
 
 const MenuItem = ({ icon: Icon, label, onClick, hasChevron = true }) => {
   return (

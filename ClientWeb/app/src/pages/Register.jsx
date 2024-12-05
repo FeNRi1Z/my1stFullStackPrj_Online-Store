@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
-import { useTheme } from '../components/ThemeProvider';
+import { useTheme } from '../components/theme/ThemeProvider';
 import { App } from 'antd';
 import config from '../config';
 
@@ -51,7 +51,7 @@ const Register = () => {
           return false;
         }
         return true;
-      case 3: // No validate on last step move validate to handle submit instead.
+      case 3: 
         return true;
       default:
         return false;

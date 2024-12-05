@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from './AuthProvider';
+import { useAuth } from '../auth/AuthProvider';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -15,7 +15,6 @@ const ProtectedRoute = ({ children }) => {
   }
 
   if (!user) {
-    // Redirect to signin while saving the attempted url
     return <Navigate to="/signin" state={{ from: location }} replace />;
   }
 

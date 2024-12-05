@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../components/AuthProvider";
-import { useCart } from "../components/CartProvider";
-import ScrollableTable from "../components/ScrollableTable";
-import { PenLine, ArrowRight, ArrowLeft, ChevronRight, CheckCircle, Loader2 } from "lucide-react";
+import { useAuth } from "../components/auth/AuthProvider";
+import { useCart } from "../components/cart/CartProvider";
+import ScrollableTable from "../components/shared/ScrollableTable";
+import { PenLine, ArrowRight, ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
 import { message, Image } from "antd";
 import config from "../config";
 import axios from "axios";

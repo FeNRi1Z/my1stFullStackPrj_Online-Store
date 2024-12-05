@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { Package} from 'lucide-react';
-import ScrollableTable from './ScrollableTable';
-import config from '../config';
-import OrderModal from '../components/OrderModal'
+import ScrollableTable from '../shared/ScrollableTable';
+import config from '../../config';
+import OrderModal from '../order/OrderModal'
 
 
 const OrderCard = ({ order, onUploadSlip, onCancel }) => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { FileText, User, Key } from 'lucide-react';
-import { useTheme } from '../components/ThemeProvider';
+import { useTheme } from '../theme/ThemeProvider';
 
 const SideOrderNav = ({ totalOrderCount }) => {
   const { theme } = useTheme();

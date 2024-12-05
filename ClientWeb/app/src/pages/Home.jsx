@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
-import { useTheme } from '../components/ThemeProvider';
-import NavBar from '../components/Navbar.jsx';
-import SideNav from '../components/SideNav.jsx';
-import CartModal from '../components/CartModal.jsx';
-import ScrollableFrame from '../components/ScrollableFrame.jsx';
+import { useTheme } from '../components/theme/ThemeProvider';
+import NavBar from '../components/layout/Navbar.jsx';
+import SideNav from '../components/layout/SideNav.jsx';
+import CartModal from '../components/cart/CartModal.jsx';
+import ScrollableFrame from '../components/shared/ScrollableFrame.jsx';
 import config from '../config.js';
 
 const Home = () => {

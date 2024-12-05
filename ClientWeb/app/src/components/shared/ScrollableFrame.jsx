@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import BookCard from './BookCard';
+import React, { useState, useRef, useEffect , useCallback } from 'react';
+import BookCard from '../book/BookCard';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const ScrollableFrame = ({ title, books }) => {
@@ -13,14 +13,14 @@ const ScrollableFrame = ({ title, books }) => {
   const scrollContainerRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
 
-  const checkScroll = () => {
+  const checkScroll = useCallback(() => {
     if (scrollContainerRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
       const threshold = 10;
       setShowLeftArrow(scrollLeft > threshold);
       setShowRightArrow(scrollLeft < scrollWidth - clientWidth - threshold);
     }
-  };
+  }, []);
 
   useEffect(() => {
     checkScroll();

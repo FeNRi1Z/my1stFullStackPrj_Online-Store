@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import NavBar from '../components/Navbar';
-import SideOrderNav from '../components/SideOrderNav';
-import OrderHistory from '../components/OrderHistory';
-import { useAuth } from '../components/AuthProvider';
+import NavBar from '../components/layout/Navbar';
+import SideOrderNav from '../components/order/SideOrderNav';
+import OrderHistory from '../components/order/OrderHistory';
+import { useAuth } from '../components/auth/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import { App } from 'antd';
 

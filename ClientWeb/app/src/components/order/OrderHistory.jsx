@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import OrderCard from './OrderCard';
 import { Loader2 } from 'lucide-react';
-import { useAuth } from '../components/AuthProvider';
+import { useAuth } from '../auth/AuthProvider';
 import { App } from 'antd';
-import config from '../config';
+import config from '../../config';
 
 const OrderHistory = ({ onOrderCountUpdate }) => {
   const [orders, setOrders] = useState([]);
@@ -67,7 +67,7 @@ const OrderHistory = ({ onOrderCountUpdate }) => {
     onOrderCountUpdate(orders.length);
   }, [orders, onOrderCountUpdate]);
 
-  const handleUploadSlip = async (orderId) => {
+  const handleUploadSlip = useCallback(async (orderId) => {
     try {
       const token = getAuthToken();
       if (!token) return;
@@ -109,7 +109,7 @@ const OrderHistory = ({ onOrderCountUpdate }) => {
       console.error('Error handling upload:', err);
       message.error('Failed to upload payment slip');
     }
-  };
+  }, [getAuthToken, message]);
 
   const updateOrderPayment = async (orderId, slipImage) => {
     try {
