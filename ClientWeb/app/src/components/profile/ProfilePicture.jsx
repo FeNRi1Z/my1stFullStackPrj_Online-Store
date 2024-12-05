@@ -2,6 +2,7 @@ import React from 'react';
 import { User } from 'lucide-react';
 import { Image } from 'antd';
 import config from '../../config';
+import '../../styles/HoverProductIMG.css'
 
 export const ProfilePicture = ({ profile, isEditing, isChangeImg, setIsChangeImg, handleImageChange }) => (
   <div className="flex justify-center">

@@ -1,54 +1,165 @@
-import React, { useState, useEffect } from 'react';
-import { format } from 'date-fns';
-import { Package} from 'lucide-react';
+import React, { useState } from 'react';
+import dayjs from 'dayjs';
+import { Package } from 'lucide-react';
 import ScrollableTable from '../shared/ScrollableTable';
 import config from '../../config';
-import OrderModal from '../order/OrderModal'
+import OrderModal from '../order/OrderModal';
+import Dialog from '../layout/Dialog';
+import axios from 'axios';
 
-
-const OrderCard = ({ order, onUploadSlip, onCancel }) => {
+const OrderCard = ({ order, onUploadSlip, onCancel, onStatusChange, getAuthToken }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [imageErrors, setImageErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [countdown, setCountdown] = useState(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    type: null,
+    orderId: null
+  });
 
   if (!order) {
     return null;
   }
 
+
+  const handleStatusUpdate = async (orderId, newStatus) => {
+    try {
+      const token = getAuthToken();
+      if (!token) return;
+
+      const cleanToken = token.replace('Bearer ', '');
+
+      await axios.put(`${config.apiPath}/order/clientOrderUpdate`,
+        {
+          id: orderId,
+          status: newStatus
+        },
+        {
+          headers: {
+            'Authorization': cleanToken,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      // Call onStatusChange if provided
+      if (onStatusChange) {
+        onStatusChange(orderId, newStatus);
+      }
+
+      // Call onCancel to refresh the order list
+      if (onCancel) {
+        await onCancel();
+      }
+
+      return true; // Return true on success
+
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      return false; // Return false on error
+    }
+  };
+
+  const handleDialogClose = () => {
+    setConfirmDialog({ isOpen: false, type: null, orderId: null });
+    setShowSuccess(false);
+    setCountdown(null);
+    setIsModalOpen(false);
+  };
+
+  const handleConfirmAction = async () => {
+    const { type, orderId } = confirmDialog;
+
+    try {
+      setIsLoading(true);
+      let success = false;
+
+      if (type === 'cancel') {
+        success = await handleStatusUpdate(orderId, 'Cancelled');
+      } else if (type === 'complete') {
+        success = await handleStatusUpdate(orderId, 'Completed');
+      }
+
+      if (success) {
+        setShowSuccess(true);
+        setIsLoading(false);
+
+        let timeLeft = 5;
+        setCountdown(timeLeft);
+
+        const countInterval = setInterval(() => {
+          timeLeft -= 1;
+          if (timeLeft <= 0) {
+            clearInterval(countInterval);
+            handleDialogClose();
+          } else {
+            setCountdown(timeLeft);
+          }
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('Error in handleConfirmAction:', error);
+      setIsLoading(false);
+    }
+  };
+
+
+
+  const handleCancel = (e, orderId) => {
+    e.stopPropagation();
+    setConfirmDialog({
+      isOpen: true,
+      type: 'cancel',
+      orderId
+    });
+  };
+
+  const handleComplete = (e, orderId) => {
+    e.stopPropagation();
+    setConfirmDialog({
+      isOpen: true,
+      type: 'complete',
+      orderId
+    });
+  };
+
   const getStatusColor = (status) => {
-    switch ((status || '').toLowerCase()) {
-      case 'completed':
-        return 'bg-green-500';
-      case 'problem':
-        return 'bg-orange-500';
-      case 'shipped':
-        return 'bg-purple-500';
-      case 'paid':
-        return 'bg-lime-500';
-      case 'in progress':
-        return 'bg-blue-500';
-      case 'cancelled':
-        return 'bg-red-500';
+    switch ((status || "").toLowerCase()) {
+      case "completed":
+        return "bg-green-500";
+      case "problem":
+        return "bg-orange-500";
+      case "shipped":
+        return "bg-purple-500";
+      case "paid":
+        return "bg-lime-500";
+      case "in progress":
+        return "bg-blue-500";
+      case "cancelled":
+        return "bg-red-500";
       default: // "to be paid"
-        return 'bg-yellow-500';
+        return "bg-yellow-500";
     }
   };
 
   const getStatusDisplay = (status) => {
-    switch ((status || '').toLowerCase()) {
-      case 'completed':
-        return 'Completed';
-      case 'problem':
-        return 'Problem';
-      case 'shipped':
-        return 'Shipped';
-      case 'in progress':
-        return 'In Progress';
-      case 'cancelled':
-        return 'Cancelled';
-      case 'paid':
-        return 'Paid';
+    switch ((status || "").toLowerCase()) {
+      case "completed":
+        return "Completed";
+      case "problem":
+        return "Problem";
+      case "shipped":
+        return "Shipped";
+      case "in progress":
+        return "In Progress";
+      case "cancelled":
+        return "Cancelled";
+      case "paid":
+        return "Paid";
       default:
-        return 'To be paid';
+        return "To be paid";
     }
   };
 
@@ -58,11 +169,6 @@ const OrderCard = ({ order, onUploadSlip, onCancel }) => {
       [itemId]: true
     }));
   };
-
-  const generateTrackingNumber = () => {
-    return Math.floor(1000000000000 + Math.random() * 9000000000000).toString();
-  };
-
 
   const getImageUrl = (item) => {
     if (imageErrors[item.productId]) {
@@ -78,8 +184,8 @@ const OrderCard = ({ order, onUploadSlip, onCancel }) => {
   const uniqueItemCount = orderItems.length;
 
   const handleCardClick = (e) => {
-    if (e.target.tagName.toLowerCase() === 'button' || 
-        e.target.closest('button')) {
+    if (e.target.tagName.toLowerCase() === 'button' ||
+      e.target.closest('button')) {
       return;
     }
     setIsModalOpen(true);
@@ -87,24 +193,23 @@ const OrderCard = ({ order, onUploadSlip, onCancel }) => {
 
   const formatDate = (dateString) => {
     try {
-      return format(new Date(dateString), 'dd/MM/yy');
+      return dayjs(dateString).format("YYYY/MM/DD HH:mm:ss");
     } catch {
       return 'N/A';
     }
   };
 
   const formatPrice = (price) => {
-    return typeof price === 'number' ? 
-      price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : 
+    return typeof price === 'number' ?
+      price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") :
       '0.00';
   };
 
   const isShipped = (order.status || '').toLowerCase() === 'shipped';
-  const trackingNumber = generateTrackingNumber()
 
   return (
     <>
-      <div 
+      <div
         className="bg-white dark:bg-background-secondary-dark rounded-lg p-4 mb-4 relative cursor-pointer hover:shadow-md transition-shadow"
         onClick={handleCardClick}
       >
@@ -119,7 +224,7 @@ const OrderCard = ({ order, onUploadSlip, onCancel }) => {
             Order #{order.id}
           </h3>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Order Date: {formatDate(order.createdAt)}
+            Order Date: {formatDate(order.orderDate)}
           </p>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Items: {uniqueItemCount} <br />
@@ -131,10 +236,10 @@ const OrderCard = ({ order, onUploadSlip, onCancel }) => {
             </p>
           )}
           {/* Parcel Code with Tracking number */}
-          {isShipped && trackingNumber && (
+          {isShipped && (
             <div className="mt-2">
               <a
-                href={`https://track.thailandpost.com/?trackNumber=${trackingNumber}`}
+                href={`https://track.thailandpost.com/?trackNumber=${order.parcelCode}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-primary-100 hover:bg-primary-hover px-3 py-1 rounded-md transition-colors"
@@ -142,7 +247,7 @@ const OrderCard = ({ order, onUploadSlip, onCancel }) => {
               >
                 <Package className="h-4 w-4 text-text-dark dark:text-text-light" />
                 <span className="text-sm font-medium text-text-dark dark:text-text-light">
-                  Parcel: {order.parcelCode} | Track Your Order {trackingNumber}
+                  Track your order: {order.parcelCode}
                 </span>
               </a>
             </div>
@@ -150,32 +255,43 @@ const OrderCard = ({ order, onUploadSlip, onCancel }) => {
         </div>
 
         {/* Action Buttons */}
-        {(order.status || '').toLowerCase() === 'to be paid' && (
-          <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2">
+          {(order.status || '').toLowerCase() === 'to be paid' && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUploadSlip(order.id);
+                }}
+                className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors text-sm font-medium"
+                disabled={isLoading}
+              >
+                Upload your slip
+              </button>
+              <button
+                onClick={(e) => handleCancel(e, order.id)}
+                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors text-sm font-medium"
+                disabled={isLoading}
+              >
+                Cancel
+              </button>
+            </>
+          )}
+          {isShipped && (
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onUploadSlip(order.id);
-              }}
-              className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors text-sm font-medium"
+              onClick={(e) => handleComplete(e, order.id)}
+              className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors text-sm font-medium"
+              disabled={isLoading}
             >
-              Upload your slip
+              Confirm Order
             </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onCancel(order.id);
-              }}
-              className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors text-sm font-medium"
-            >
-              Cancel
-            </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      <OrderModal 
-        isOpen={isModalOpen} 
+      {/* Order Details Modal */}
+      <OrderModal
+        isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={`Order Details #${order.id}`}
       >
@@ -191,8 +307,8 @@ const OrderCard = ({ order, onUploadSlip, onCancel }) => {
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {orderItems.map((item) => (
-                <tr 
-                  key={item.productId} 
+                <tr
+                  key={item.productId}
                   className="hover:bg-gray-50 dark:hover:bg-background-secondary-dark"
                 >
                   <td className="px-4 py-3">
@@ -242,6 +358,62 @@ const OrderCard = ({ order, onUploadSlip, onCancel }) => {
           </table>
         </ScrollableTable>
       </OrderModal>
+      <Dialog
+        isOpen={confirmDialog.isOpen}
+        onClose={handleDialogClose} // Always allow closing
+      >
+        <div className="space-y-4">
+          {!showSuccess ? (
+            <>
+              <h3 className="text-lg font-semibold">
+                {confirmDialog.type === 'cancel'
+                  ? 'Cancel Order'
+                  : 'Complete Order'}
+              </h3>
+              <p>
+                {confirmDialog.type === 'cancel'
+                  ? 'Are you sure you want to cancel this order?'
+                  : 'Are you sure you want to mark this order as completed?'}
+              </p>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={handleDialogClose}
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors text-sm font-medium"
+                  disabled={isLoading}
+                >
+                  No, Keep it
+                </button>
+                <button
+                  onClick={handleConfirmAction}
+                  className={`px-4 py-2 text-white rounded-md text-sm font-medium ${confirmDialog.type === 'cancel'
+                    ? 'bg-red-500 hover:bg-red-600'
+                    : 'bg-green-500 hover:bg-green-600'
+                    }`}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Processing...' : 'Yes, Confirm'}
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-4">
+              <h3 className="text-lg font-semibold text-green-600 mb-2">
+                Success!
+              </h3>
+              <p className="text-gray-600">
+                {confirmDialog.type === 'cancel'
+                  ? 'Order has been cancelled'
+                  : 'Order has been completed'}
+              </p>
+              {countdown && (
+                <p className="text-gray-500 mt-2">
+                  Closing in {countdown} seconds...
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </Dialog>
     </>
   );
 };

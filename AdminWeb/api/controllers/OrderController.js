@@ -200,6 +200,32 @@ app.put("/orderUpdate", checkSignIn, async (req, res) => {
 	}
 });
 
+app.put("/clientOrderUpdate", checkSignIn, async (req, res) => {
+    try {
+        const status = req.body.status;
+        let statusDetail;
+        if (status === "Completed") {
+            statusDetail = "The order has been completed, thank you for shopping with us";
+        } else {
+            statusDetail = "The order has been cancelled";
+        }
+        await prisma.order.update({
+            data: {
+                status: status,
+                statusDetail: statusDetail,
+            },
+            where: {
+                id: parseInt(req.body.id),
+            },
+        });
+
+        res.send({ message: "success" });
+    } catch (e) {
+        console.log("Error: Order update", e);
+        res.status(500).send({ error: e.message });
+    }
+});
+
 app.post("/uploadPaymentSlip", checkSignIn, async (req, res) => {
 	try {
 		if (req.files != undefined && req.files.img != undefined && ifIsImage(req.files.img.name)) {

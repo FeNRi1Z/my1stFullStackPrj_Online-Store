@@ -67,25 +67,31 @@ const CartTable = ({ items, searchQuery, windowWidth }) => {
         sorter: (a, b) => a.quantity - b.quantity,
         render: (_, record) => (
           <div className="flex items-center justify-center gap-1 sm:gap-2">
-            <Button
-              size="small"
-              icon={<Minus className="w-4 h-4" />}
-              onClick={() => updateQuantity(record.id, record.quantity - 1)}
-              disabled={record.quantity <= 1}
-              className="flex items-center justify-center"
-            />
-            <Tooltip title={`${record.quantity} of ${record.maxQuantity || 99} available`}>
-              <span className="w-6 sm:w-8 text-center text-sm sm:text-base">
-                {record.quantity}
-              </span>
-            </Tooltip>
-            <Button
-              size="small"
-              icon={<Plus className="w-4 h-4" />}
-              onClick={() => updateQuantity(record.id, record.quantity + 1)}
-              disabled={record.quantity >= (record.maxQuantity || 99)}
-              className="flex items-center justify-center"
-            />
+            {record.maxQuantity < 1 ? (
+              <span className="text-red-500">Out of Stock</span>
+            ) : (
+              <>
+                <Button
+                  size="small"
+                  icon={<Minus className="w-4 h-4" />}
+                  onClick={() => updateQuantity(record.id, record.quantity - 1)}
+                  disabled={record.quantity <= 1}
+                  className="flex items-center justify-center"
+                />
+                <Tooltip title={`${record.quantity} of ${record.maxQuantity} available`}>
+                  <span className="w-6 sm:w-8 text-center text-sm sm:text-base">
+                    {record.quantity}
+                  </span>
+                </Tooltip>
+                <Button
+                  size="small"
+                  icon={<Plus className="w-4 h-4" />}
+                  onClick={() => updateQuantity(record.id, record.quantity + 1)}
+                  disabled={record.quantity >= record.maxQuantity}
+                  className="flex items-center justify-center"
+                />
+              </>
+            )}
           </div>
         ),
       }
@@ -134,7 +140,7 @@ const CartTable = ({ items, searchQuery, windowWidth }) => {
         }
       );
     }
-
+    
     baseColumns.push({
       title: '',
       key: 'action',
@@ -152,7 +158,7 @@ const CartTable = ({ items, searchQuery, windowWidth }) => {
         />
       ),
     });
-
+      
     return baseColumns;
   }, [windowWidth, updateQuantity, removeItem]);
 
@@ -176,6 +182,7 @@ const CartTable = ({ items, searchQuery, windowWidth }) => {
         className="cart-table"
       />
     </div>
+   
   );
 };
 
