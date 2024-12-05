@@ -86,6 +86,7 @@ CREATE TABLE `ProductOnOrder` (
     `orderId` INTEGER NOT NULL,
     `productId` INTEGER NOT NULL,
     `productPrice` INTEGER NOT NULL,
+    `productCost` INTEGER NOT NULL,
     `quantity` INTEGER NOT NULL DEFAULT 1,
 
     PRIMARY KEY (`orderId`, `productId`)
