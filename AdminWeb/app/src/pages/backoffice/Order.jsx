@@ -1,14 +1,11 @@
 import { useEffect, useState, useRef } from "react";
-import Highlighter from "react-highlight-words";
+
 import Swal from "sweetalert2";
 import axios from "axios";
 import dayjs from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
-
-import { Select, Input, Tag, Space, Table, Button, Image, Flex, DatePicker } from "antd";
-import { createStyles } from "antd-style";
+import { Select, Input, Tag, Table, Image, Flex, DatePicker } from "antd";
 import {
-	SearchOutlined,
 	LoadingOutlined,
 	QuestionCircleOutlined,
 	InfoCircleOutlined,
@@ -23,6 +20,8 @@ import {
 import config from "../../config";
 import BackOffice from "../../components/BackOffice";
 import MyModal from "../../components/MyModal";
+import SearchColumn from "../../components/AntTableSearchHandle";
+import { useCustomTableStyle } from "../../components/AntTableStyleHandle";
 import "../../styles/HoverTag.css";
 
 axios.interceptors.response.use(
@@ -37,14 +36,13 @@ axios.interceptors.response.use(
 );
 
 const { TextArea } = Input;
-
 dayjs.extend(buddhistEra);
 
 function Order() {
-	const [orderList, setOrderList] = useState([]);
-	const [order, setOrder] = useState({});
+	const [orderList, setOrderList] = useState([]); // List of orders
+	const [order, setOrder] = useState({}); // Selected order
 
-	const [selectedStatus, setSelectedStatus] = useState();
+	const [selectedStatus, setSelectedStatus] = useState(); // Selected status
 	const statusConfig = {
 		"To be paid": { color: "orange", icon: <QuestionCircleOutlined />, statusDetail: "Please transfer money to the bank account below" },
 		Paid: { color: "lime", icon: <InfoCircleOutlined />, statusDetail: "Payment has been received, wait for admin checking" },
@@ -55,6 +53,9 @@ function Order() {
 		Cancelled: { color: "red", icon: <CloseCircleOutlined />, statusDetail: "The order has been cancelled" },
 	};
 
+	/*
+	// fetchData function is used to fetch order list data from the server
+*/
 	const fetchData = async () => {
 		try {
 			const orderListResult = await axios.get(config.apiPath + "/order/orderList/", config.headers());
@@ -77,101 +78,12 @@ function Order() {
 
 	const [searchText, setSearchText] = useState("");
 	const [searchedColumn, setSearchedColumn] = useState("");
-	const searchInput = useRef(null);
-	const handleSearch = (selectedKeys, confirm, dataIndex) => {
-		confirm();
-		setSearchText(selectedKeys[0]);
-		setSearchedColumn(dataIndex);
-	};
-	const handleReset = (clearFilters) => {
-		clearFilters();
-		setSearchText("");
-	};
-	const getColumnSearchProps = (dataIndex) => ({
-		filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
-			<div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
-				<Input
-					ref={searchInput}
-					placeholder={`Search ${dataIndex}`}
-					value={selectedKeys[0]}
-					onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-					onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-					style={{ marginBottom: 8, display: "block" }}
-				/>
-				<Space>
-					<Button type="primary" onClick={() => handleSearch(selectedKeys, confirm, dataIndex)} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
-						Search
-					</Button>
-					<Button onClick={() => clearFilters && handleReset(clearFilters)} size="small" style={{ width: 90 }}>
-						Reset
-					</Button>
-					<Button
-						type="link"
-						size="small"
-						onClick={() => {
-							confirm({ closeDropdown: false });
-							setSearchText(selectedKeys[0]);
-							setSearchedColumn(dataIndex);
-						}}>
-						Filter
-					</Button>
-					<Button
-						type="link"
-						size="small"
-						onClick={() => {
-							close();
-						}}>
-						Close
-					</Button>
-				</Space>
-			</div>
-		),
-		filterIcon: (filtered) => (
-			<SearchOutlined
-				style={{
-					color: filtered ? "#1677ff" : undefined,
-				}}
-			/>
-		),
-		onFilter: (value, record) => record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-		filterDropdownProps: {
-			onOpenChange(open) {
-				if (open) setTimeout(() => searchInput.current?.select(), 100);
-			},
-		},
-		render: (text) =>
-			searchedColumn === dataIndex ? (
-				<Highlighter
-					highlightStyle={{
-						backgroundColor: "#ffc069",
-						padding: 0,
-					}}
-					searchWords={[searchText]}
-					autoEscape
-					textToHighlight={text ? text.toString() : ""}
-				/>
-			) : (
-				text
-			),
-	});
-	const useStyle = createStyles(({ css, token }) => {
-		const { antCls } = token;
-		return {
-			customTable: css`
-				${antCls}-table {
-					${antCls}-table-container {
-						${antCls}-table-body,
-						${antCls}-table-content {
-							scrollbar-width: thin;
-							scrollbar-color: #eaeaea transparent;
-							scrollbar-gutter: stable;
-						}
-					}
-				}
-			`,
-		};
-	});
-	const { styles } = useStyle();
+
+	const getColumnSearchProps = (dataIndex) => SearchColumn({ dataIndex: dataIndex, setSearchText, setSearchedColumn, searchText, searchedColumn });
+	const { styles } = useCustomTableStyle();
+	/*
+	// columns setup for main table
+*/
 	const columns = [
 		{
 			title: "ID",
@@ -343,6 +255,9 @@ function Order() {
 			onFilter: (value, record) => record.status.includes(value) === true,
 		},
 	];
+	/*
+	// expandColumns setup for sub table
+*/
 	const expandColumns = [
 		{
 			title: "ID",
@@ -452,14 +367,20 @@ function Order() {
 
 	const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
-	const [img, setImg] = useState(null);
-	const refImg = useRef();
-	const [isChangeIMG, setIsChangeIMG] = useState(true);
+	const [img, setImg] = useState(null); // Payment slip image
+	const refImg = useRef(); // Reference for input payment slip image file
+	const [isChangeIMG, setIsChangeIMG] = useState(true); // Check if user change payment slip image
+	/*
+		// selectedFile function is used to get the selected file from the input file
+	*/
 	const selectedFile = (inputFile) => {
 		if (inputFile !== undefined && inputFile.length > 0) {
 			setImg(inputFile[0]);
 		}
 	};
+	/*
+		// handleUpload function is used to upload the payment slip image to the server
+	*/
 	const handleUpload = async () => {
 		try {
 			if (!img) return null;
@@ -486,7 +407,9 @@ function Order() {
 			return null;
 		}
 	};
-
+	/*
+		// handleSave function is used to save the order data to the server
+	*/
 	const handleSave = async (mode) => {
 		try {
 			// Validate
@@ -562,6 +485,9 @@ function Order() {
 		}
 	};
 
+	/*
+	 		// error hndler zone, used to store the error status of the form, set the error status of the form to true, and clear the error status of the form
+	*/
 	const [errorForm, setErrorForm] = useState({
 		address: false,
 		phone: false,
@@ -715,14 +641,7 @@ function Order() {
 
 							{!isChangeIMG && (
 								<div class="container containerIMG mt-1" onClick={async () => await setIsChangeIMG(true)}>
-									<Image
-										className="imageProduct"
-										height={200}
-										width="full"
-										src={config.apiPath + "/uploads/payment_slip_img/" + order.paymentSlipIMG}
-										fallback="default_img.webp"
-										preview={false}
-									/>
+									<Image className="imageProduct" height={200} width="full" src={config.apiPath + "/uploads/payment_slip_img/" + order.paymentSlipIMG} fallback="default_img.webp" preview={false} />
 									<div class="middle textIMG">
 										<i className="fas fa-trash-alt"></i>
 										<div>Click to Remove</div>

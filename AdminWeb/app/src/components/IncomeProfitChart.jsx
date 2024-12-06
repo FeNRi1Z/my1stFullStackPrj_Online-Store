@@ -1,13 +1,16 @@
 import React from "react";
-import { Line } from "react-chartjs-2";
+
 import { Chart as ChartJS, LineElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend } from "chart.js";
+import { Line } from "react-chartjs-2";
 import { Col } from "antd";
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend);
 
 const IncomeProfitChart = ({ data }) => {
+	// Months for X-axis labels
 	const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
+	// Chart data for Line chart
 	const chartData = {
 		labels: months, // X-axis labels
 		datasets: [
@@ -28,6 +31,7 @@ const IncomeProfitChart = ({ data }) => {
 		],
 	};
 
+	// Chart options for Line chart
 	const options = {
 		responsive: true,
 		plugins: {

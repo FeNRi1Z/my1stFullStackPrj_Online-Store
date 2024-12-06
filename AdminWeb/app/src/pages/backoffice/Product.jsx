@@ -1,15 +1,14 @@
 import { useEffect, useState, useRef } from "react";
+
 import Swal from "sweetalert2";
 import axios from "axios";
-
-import { Select, Input, Tag, Flex, Space, Table, Button, Image } from "antd";
-import { createStyles } from "antd-style";
-import { SearchOutlined } from "@ant-design/icons";
-import Highlighter from "react-highlight-words";
+import { Select, Input, Tag, Flex, Table, Image } from "antd";
 
 import config from "../../config";
 import BackOffice from "../../components/BackOffice";
 import MyModal from "../../components/MyModal";
+import SearchColumn from "../../components/AntTableSearchHandle";
+import { useCustomTableStyle } from "../../components/AntTableStyleHandle";
 import "../../styles/HoverProductIMG.css";
 
 const { TextArea } = Input;
@@ -25,120 +24,24 @@ axios.interceptors.response.use(
 	}
 );
 
-// function showImage(path) {
-//     if (path !== undefined) {
-//         let imgPath = config.apiPath + '/uploads/product_img/' + path;
-
-//         if (path === "noIMGFile") imgPath = 'default_img.webp';
-
-//         return <Image height={100} width={100} src={imgPath} />
-//     }
-//     return <></>
-// }
-
 function Product() {
-  const [products, setProducts] = useState([]); //fetched product data
+	const [products, setProducts] = useState([]); //fetched product data
 	const [product, setProduct] = useState({}); //for new product adding holder
 
 	const [img, setImg] = useState(); //file upload
-	const refImg = useRef();
-
-	//   const [fileExcel, setFileExcel] = useState({}); //excel upload
-	//   const refExcel = useRef();
+	const refImg = useRef(); //ref for file upload
 
 	const [isEdit, setIsEdit] = useState(false); //for Product modal text display
 	const [isRemoveIMG, setIsRemoveIMG] = useState(false); //for remove image status
 
 	const [searchText, setSearchText] = useState("");
 	const [searchedColumn, setSearchedColumn] = useState("");
-	const searchInput = useRef(null);
-	const handleSearch = (selectedKeys, confirm, dataIndex) => {
-		confirm();
-		setSearchText(selectedKeys[0]);
-		setSearchedColumn(dataIndex);
-	};
-	const handleReset = (clearFilters) => {
-		clearFilters();
-		setSearchText("");
-	};
-	const getColumnSearchProps = (dataIndex) => ({
-		filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
-			<div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
-				<Input ref={searchInput} placeholder={`Search ${dataIndex}`} value={selectedKeys[0]} onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])} onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)} style={{ marginBottom: 8, display: "block" }} />
-				<Space>
-					<Button type="primary" onClick={() => handleSearch(selectedKeys, confirm, dataIndex)} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
-						Search
-					</Button>
-					<Button onClick={() => clearFilters && handleReset(clearFilters)} size="small" style={{ width: 90 }}>
-						Reset
-					</Button>
-					<Button
-						type="link"
-						size="small"
-						onClick={() => {
-							confirm({ closeDropdown: false });
-							setSearchText(selectedKeys[0]);
-							setSearchedColumn(dataIndex);
-						}}>
-						Filter
-					</Button>
-					<Button
-						type="link"
-						size="small"
-						onClick={() => {
-							close();
-						}}>
-						Close
-					</Button>
-				</Space>
-			</div>
-		),
-		filterIcon: (filtered) => (
-			<SearchOutlined
-				style={{
-					color: filtered ? "#1677ff" : undefined,
-				}}
-			/>
-		),
-		onFilter: (value, record) => record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-		filterDropdownProps: {
-			onOpenChange(open) {
-				if (open) setTimeout(() => searchInput.current?.select(), 100);
-			},
-		},
-		render: (text) =>
-			searchedColumn === dataIndex ? (
-				<Highlighter
-					highlightStyle={{
-						backgroundColor: "#ffc069",
-						padding: 0,
-					}}
-					searchWords={[searchText]}
-					autoEscape
-					textToHighlight={text ? text.toString() : ""}
-				/>
-			) : (
-				text
-			),
-	});
-	const useStyle = createStyles(({ css, token }) => {
-		const { antCls } = token;
-		return {
-			customTable: css`
-				${antCls}-table {
-					${antCls}-table-container {
-						${antCls}-table-body,
-						${antCls}-table-content {
-							scrollbar-width: thin;
-							scrollbar-color: #eaeaea transparent;
-							scrollbar-gutter: stable;
-						}
-					}
-				}
-			`,
-		};
-	});
-	const { styles } = useStyle();
+
+	const getColumnSearchProps = (dataIndex) => SearchColumn({ dataIndex: dataIndex, setSearchText, setSearchedColumn, searchText, searchedColumn });
+	const { styles } = useCustomTableStyle();
+	/*
+		// columns setup for main table
+	*/
 	const columns = [
 		{
 			width: "100px",
@@ -276,6 +179,9 @@ function Product() {
 		category: "",
 	});
 
+	/*
+		// fetch all product data from server
+	*/
 	const fetchData = async () => {
 		try {
 			const productsList = await axios.get(config.apiPath + "/product/list/", config.headers());
@@ -306,6 +212,9 @@ function Product() {
 		fetchData();
 	}, []);
 
+	/*
+		// handle save for product add and edit
+	*/
 	let errorListInFront = [];
 	const handleSave = async () => {
 		try {
@@ -337,7 +246,7 @@ function Product() {
 			product.cost = parseInt(product.cost);
 			product.price = parseInt(product.price);
 			product.quantity = parseInt(product.quantity);
-			if(isRemoveIMG) {
+			if (isRemoveIMG) {
 				product.img = await handleUpload();
 				product.deleteIMG = true;
 			} else {
@@ -396,7 +305,9 @@ function Product() {
 			}
 		}
 	};
-
+	/*
+		// handle remove product
+	*/
 	const handleRemove = async (item) => {
 		try {
 			const button = await Swal.fire({
@@ -431,13 +342,17 @@ function Product() {
 			});
 		}
 	};
-
+	/*
+		// handle selected file for upload
+	*/
 	const selectedFile = (inputFile) => {
 		if (inputFile !== undefined && inputFile.length > 0) {
 			setImg(inputFile[0]);
 		}
 	};
-
+	/*
+		// handle upload image file
+	*/
 	const handleUpload = async () => {
 		try {
 			if (!img) return "noIMGFile";
@@ -464,68 +379,21 @@ function Product() {
 			return "noIMGFile";
 		}
 	};
-
-	//   const selectedFileExcel = (fileInput) => {
-	//     if (fileInput !== undefined && fileInput.length > 0) {
-	//       setFileExcel(fileInput[0]);
-	//     }
-	//   };
-
-	//   const handleUploadExcel = async () => {
-	//     try {
-	//       const formData = new FormData();
-	//       formData.append("fileExcel", fileExcel);
-
-	//       const result = await axios.post(
-	//         config.apiPath + "/product/uploadFromExcel",
-	//         formData,
-	//         {
-	//           headers: {
-	//             "Content-Type": "multipart/form-data",
-	//             Authorization: localStorage.getItem("token"),
-	//           },
-	//         }
-	//       );
-
-	//       if (result.data.message === "success") {
-	//         Swal.fire({
-	//           title: "Import products from sheet",
-	//           text: "Import successfully",
-	//           icon: "success",
-	//           timer: 2000,
-	//         });
-	//         fetchData();
-	//         document.getElementById("modalSheet_btnClose").click();
-	//       }
-	//     } catch (e) {
-	//       Swal.fire({
-	//         title: "Error",
-	//         text: e.message,
-	//         icon: "error",
-	//         confirmButtonColor: "#dc3545",
-	//       });
-	//     }
-	//   };
-
-	//   const clearFormExcel = () => {
-	//     setFileExcel(null);
-	//     refExcel.current.value = "";
-	//   };
-
+	/*
+		// error handling for form zone
+	*/
 	const setErrorBorder = (e) => {
 		setErrorForm((prev) => ({
 			...prev,
 			[e]: e,
 		}));
 	};
-
 	const clearErrorBorder = (e) => {
 		setErrorForm((prev) => ({
 			...prev,
 			[e]: "",
 		}));
 	};
-
 	const clearErrorForm = () => {
 		setErrorForm({
 			name: "",
@@ -536,7 +404,6 @@ function Product() {
 			category: "",
 		});
 	};
-
 	const clearForm = () => {
 		setImg(null);
 		if (refImg.current) {
@@ -587,14 +454,6 @@ function Product() {
 					data-target="#modalProduct">
 					<i className="fa fa-plus-circle mr-2" aria-hidden="true"></i> Add Product
 				</button>
-				{/* <button
-          onClick={clearFormExcel}
-          className="btn btn-outline-success"
-          data-toggle="modal"
-          data-target="#modalSheet"
-        >
-          <i className="fa fa-arrow-down mr-2"></i>Import products from sheet
-        </button> */}
 			</div>
 
 			<Table
@@ -620,14 +479,20 @@ function Product() {
 			<MyModal id="modalProduct" title={`${isEdit ? "Edit Product" : "Add Product"}`}>
 				<div>
 					<div>Name</div>
-					<Input status={errorForm["name"] ? "error" : ""} allowClear type="text" value={product.name} onChange={(e) => setProduct({ ...product, name: e.target.value })} onKeyDown={() => clearErrorBorder("name")} />
+					<Input
+						status={errorForm["name"] ? "error" : ""}
+						allowClear
+						type="text"
+						value={product.name}
+						onChange={(e) => setProduct({ ...product, name: e.target.value })}
+						onKeyDown={() => clearErrorBorder("name")}
+					/>
 				</div>
 				<div className="mt-1">
 					<div>Description</div>
 					<TextArea rows={3} allowClear placeholder="type some details of the product" value={product.desc} onChange={(e) => setProduct({ ...product, desc: e.target.value })} />
 				</div>
 				<div className="mt-1">
-					{/* <button className='btn btn-primary size-5' onClick={() => console.log(selectedAuthor, typeof (selectedAuthor), isNewAuthor)}></button> */}
 					<div>Author</div>
 					<Select
 						key={selectedAuthor}
@@ -648,7 +513,6 @@ function Product() {
 					/>
 				</div>
 				<div className="mt-1">
-					{/* <button className='btn btn-primary size-5' onClick={() => console.log(selectedCategory, typeof (selectedCategory), isNewCategory)}></button> */}
 					<div>Category</div>
 					<Select
 						key={selectedCategory}
@@ -670,15 +534,42 @@ function Product() {
 				<div className="row mt-1">
 					<div className="col-md-4">
 						<div>Cost</div>
-						<Input status={errorForm["cost"] ? "error" : ""} allowClear type="number" value={product.cost} placeholder="Enter positive integer only" min={0} onChange={(e) => setProduct({ ...product, cost: e.target.value })} onKeyDown={() => clearErrorBorder("cost")} />
+						<Input
+							status={errorForm["cost"] ? "error" : ""}
+							allowClear
+							type="number"
+							value={product.cost}
+							placeholder="Enter positive integer only"
+							min={0}
+							onChange={(e) => setProduct({ ...product, cost: e.target.value })}
+							onKeyDown={() => clearErrorBorder("cost")}
+						/>
 					</div>
 					<div className="col-md-4">
 						<div>Price</div>
-						<Input status={errorForm["price"] ? "error" : ""} allowClear type="number" value={product.price} placeholder="Enter positive integer only" min={0} onChange={(e) => setProduct({ ...product, price: e.target.value })} onKeyDown={() => clearErrorBorder("price")} />
+						<Input
+							status={errorForm["price"] ? "error" : ""}
+							allowClear
+							type="number"
+							value={product.price}
+							placeholder="Enter positive integer only"
+							min={0}
+							onChange={(e) => setProduct({ ...product, price: e.target.value })}
+							onKeyDown={() => clearErrorBorder("price")}
+						/>
 					</div>
 					<div className="col-md-4">
 						<div>Quantity</div>
-						<Input status={errorForm["quantity"] ? "error" : ""} allowClear type="number" value={product.quantity} placeholder="Enter positive integer only" min={0} onChange={(e) => setProduct({ ...product, quantity: e.target.value })} onKeyDown={() => clearErrorBorder("quantity")} />
+						<Input
+							status={errorForm["quantity"] ? "error" : ""}
+							allowClear
+							type="number"
+							value={product.quantity}
+							placeholder="Enter positive integer only"
+							min={0}
+							onChange={(e) => setProduct({ ...product, quantity: e.target.value })}
+							onKeyDown={() => clearErrorBorder("quantity")}
+						/>
 					</div>
 				</div>
 
@@ -700,7 +591,11 @@ function Product() {
 				</div>
 
 				<div className="text-right mt-3">
-					<button className="btn btn-primary font-weight-bold" onClick={() => {handleSave()}}>
+					<button
+						className="btn btn-primary font-weight-bold"
+						onClick={() => {
+							handleSave();
+						}}>
 						{isEdit ? (
 							<>
 								<i className="fa fa-save mr-2"></i> Save
@@ -713,20 +608,6 @@ function Product() {
 					</button>
 				</div>
 			</MyModal>
-
-			{/* <MyModal id="modalSheet" title="Import products from sheet">
-        <div>Please select the product sheet file</div>
-        <div className="mt-1">
-          <input
-            type="file"
-            ref={refExcel}
-            onChange={(e) => selectedFileExcel(e.target.files)}
-          />
-        </div>
-        <button className="mt-3 btn btn-primary" onClick={handleUploadExcel}>
-          <i className="fa fa-arrow-down mr-2"></i> Import
-        </button>
-      </MyModal> */}
 		</BackOffice>
 	);
 }

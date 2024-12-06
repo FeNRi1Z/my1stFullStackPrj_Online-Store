@@ -1,11 +1,12 @@
 import React from "react";
-import { Bar } from "react-chartjs-2";
+
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from "chart.js";
+import { Bar } from "react-chartjs-2";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
 const MonthlyOrdersChart = ({ data }) => {
-	// Chart Data
+	// Chart Data - Monthly Orders
 	const chartData = {
 		labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
 		datasets: [

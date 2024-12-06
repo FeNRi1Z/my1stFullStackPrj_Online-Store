@@ -1,15 +1,14 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
+
 import Swal from "sweetalert2";
 import axios from "axios";
-
-import { Table, Input, Space, Button, Image } from "antd";
-import { createStyles } from "antd-style";
-import { SearchOutlined } from "@ant-design/icons";
-import Highlighter from "react-highlight-words";
+import { Table, Input, Image } from "antd";
 
 import BackOffice from "../../components/BackOffice";
 import MyModal from "../../components/MyModal";
 import config from "../../config";
+import SearchColumn from "../../components/AntTableSearchHandle";
+import { useCustomTableStyle } from "../../components/AntTableStyleHandle";
 
 const { TextArea } = Input;
 
@@ -25,9 +24,12 @@ axios.interceptors.response.use(
 );
 
 function User() {
-	const [clientList, setClientList] = useState([]);
-	const [client, setClient] = useState({});
+	const [clientList, setClientList] = useState([]); // Client List from server
+	const [client, setClient] = useState({}); // selected client to edit
 
+	/*
+		// fetch clients data from server
+	*/
 	const fetchData = async () => {
 		try {
 			const clientListResult = await axios.get(config.apiPath + "/user/clientList/", config.headers());
@@ -49,103 +51,15 @@ function User() {
 	}, []);
 
 	const [selectedClients, setSelectedClients] = useState([]);
-	const useStyle = createStyles(({ css, token }) => {
-		const { antCls } = token;
-		return {
-			customTable: css`
-				${antCls}-table {
-					${antCls}-table-container {
-						${antCls}-table-body,
-						${antCls}-table-content {
-							scrollbar-width: thin;
-							scrollbar-color: #eaeaea transparent;
-							scrollbar-gutter: stable;
-						}
-					}
-				}
-			`,
-		};
-	});
-	const { styles } = useStyle();
+
 	const [searchText, setSearchText] = useState("");
 	const [searchedColumn, setSearchedColumn] = useState("");
-	const searchInput = useRef(null);
-	const handleSearch = (selectedKeys, confirm, dataIndex) => {
-		confirm();
-		setSearchText(selectedKeys[0]);
-		setSearchedColumn(dataIndex);
-	};
-	const handleReset = (clearFilters) => {
-		clearFilters();
-		setSearchText("");
-	};
-	const getColumnSearchProps = (dataIndex) => ({
-		filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
-			<div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
-				<Input
-					ref={searchInput}
-					placeholder={`Search ${dataIndex}`}
-					value={selectedKeys[0]}
-					onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-					onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-					style={{ marginBottom: 8, display: "block" }}
-				/>
-				<Space>
-					<Button type="primary" onClick={() => handleSearch(selectedKeys, confirm, dataIndex)} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
-						Search
-					</Button>
-					<Button onClick={() => clearFilters && handleReset(clearFilters)} size="small" style={{ width: 90 }}>
-						Reset
-					</Button>
-					<Button
-						type="link"
-						size="small"
-						onClick={() => {
-							confirm({ closeDropdown: false });
-							setSearchText(selectedKeys[0]);
-							setSearchedColumn(dataIndex);
-						}}>
-						Filter
-					</Button>
-					<Button
-						type="link"
-						size="small"
-						onClick={() => {
-							close();
-						}}>
-						Close
-					</Button>
-				</Space>
-			</div>
-		),
-		filterIcon: (filtered) => (
-			<SearchOutlined
-				style={{
-					color: filtered ? "#1677ff" : undefined,
-				}}
-			/>
-		),
-		onFilter: (value, record) => record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-		filterDropdownProps: {
-			onOpenChange(open) {
-				if (open) setTimeout(() => searchInput.current?.select(), 100);
-			},
-		},
-		render: (text) =>
-			searchedColumn === dataIndex ? (
-				<Highlighter
-					highlightStyle={{
-						backgroundColor: "#ffc069",
-						padding: 0,
-					}}
-					searchWords={[searchText]}
-					autoEscape
-					textToHighlight={text ? text.toString() : ""}
-				/>
-			) : (
-				text
-			),
-	});
+
+	const getColumnSearchProps = (dataIndex) => SearchColumn({ dataIndex: dataIndex, setSearchText, setSearchedColumn, searchText, searchedColumn });
+	const { styles } = useCustomTableStyle();
+	/*
+		//columns setup for main table
+	*/
 	const columns = [
 		{
 			fixed: "left",
@@ -163,7 +77,7 @@ function User() {
 			dataIndex: "profile",
 			key: "profile",
 			className: "text-center",
-			render: (profile) => <Image height={100} width={'100%'} className="rounded-circle" src={config.apiPath + "/uploads/user_img/" + profile} fallback="default_profile.jpg" />,
+			render: (profile) => <Image height={100} width={"100%"} className="rounded-circle" src={config.apiPath + "/uploads/user_img/" + profile} fallback="default_profile.jpg" />,
 		},
 		{
 			fixed: "left",
@@ -188,7 +102,9 @@ function User() {
 			...getColumnSearchProps("phone"),
 		},
 	];
-
+	/*
+		//error handling zone for form
+	*/
 	const [errorForm, setErrorForm] = useState({
 		name: "",
 		phone: "",
@@ -211,7 +127,7 @@ function User() {
 			phone: "",
 		});
 	};
-	let errorListInFront = [];
+
 	const handleEditClient = async () => {
 		try {
 			if (!client.name) errorListInFront.push("name");
@@ -249,7 +165,6 @@ function User() {
 			}
 		}
 	};
-
 	const handleRemoveClient = () => {
 		Swal.fire({
 			title: "Are you sure?",
@@ -287,6 +202,7 @@ function User() {
 		});
 	};
 
+	let errorListInFront = [];
 	return (
 		<BackOffice>
 			<div className="mb-3 row">
@@ -329,14 +245,7 @@ function User() {
 			<MyModal id="modalClient" title={`Edit Client ID: ${client.id}`}>
 				<div className="row">
 					<div className="col-4">
-						<Image
-							className="border rounded-circle hover-img"
-							height={145}
-							width={145}
-							preview={false}
-							src={config.apiPath + "/uploads/user_img/" + client.profile}
-							fallback="default_profile.jpg"
-						/>
+						<Image className="border rounded-circle hover-img" height={145} width={145} preview={false} src={config.apiPath + "/uploads/user_img/" + client.profile} fallback="default_profile.jpg" />
 					</div>
 
 					<div className="col-8">
@@ -390,7 +299,7 @@ function User() {
 								onKeyDown={() => clearErrorBorder("phone")}
 							/>
 						</div>
-						
+
 						<div className="text-right mt-3">
 							<button
 								className="btn btn-primary font-weight-bold"
@@ -416,7 +325,6 @@ function User() {
 				rowKey={(record) => record.id}
 				rowSelection={{
 					onChange: (selectedRowKey) => {
-						// console.log(selectedRowKey);
 						setSelectedClients(selectedRowKey);
 					},
 				}}
