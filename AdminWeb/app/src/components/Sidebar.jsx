@@ -1,10 +1,13 @@
+//React imports
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+//Other imports
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Image } from "antd";
 
+//Local imports
 import config from "../config";
 import modedLogo from "../MODED_LOGO.png"
 
