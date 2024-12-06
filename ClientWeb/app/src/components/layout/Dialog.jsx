@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 
+/**
+ * Dialog component
+ * is a resuable dialog / modal component
+ */
+
 const Dialog = ({ isOpen, onClose, children }) => {
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -39,7 +44,7 @@ const Dialog = ({ isOpen, onClose, children }) => {
   return (
     <div className="relative">
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed top-0 left-0 w-full h-full bg-black/50 transition-opacity duration-300"
         style={{
           opacity: isAnimating ? 1 : 0,
@@ -48,14 +53,14 @@ const Dialog = ({ isOpen, onClose, children }) => {
         }}
         onClick={onClose}
       />
-      
+
       {/* Dialog container */}
-      <div 
+      <div
         className="fixed top-0 left-0 w-full h-full overflow-y-auto"
         style={{ zIndex: 100000 }}
       >
         <div className="flex items-center justify-center min-h-full p-4">
-          <div 
+          <div
             className={`relative w-full max-w-md rounded-lg bg-white dark:bg-background-dark p-6 shadow-xl
               transform transition-all duration-300
               ${isAnimating ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95'}`}
@@ -70,7 +75,7 @@ const Dialog = ({ isOpen, onClose, children }) => {
                 <X className="w-5 h-5" />
               </button>
             )}
-            
+
             {children}
           </div>
         </div>

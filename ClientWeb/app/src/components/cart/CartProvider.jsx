@@ -4,6 +4,11 @@ import { useAuth } from '../auth/AuthProvider';
 import { useTheme } from '../theme/ThemeProvider';
 import config from '../../config';
 
+
+/**
+ * CartProvider component
+ * Are all about fetching and updating cart item and status
+ */
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {

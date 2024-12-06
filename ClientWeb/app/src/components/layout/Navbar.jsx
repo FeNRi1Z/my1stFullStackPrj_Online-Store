@@ -9,6 +9,12 @@ import ProfileDropdown from "../profile/ProfileDropdown";
 import { Image } from "antd";
 import config from "../../config";
 
+/**
+ * NavBar component
+ * serve for different menu option and navigation
+ */
+
+
 const ThemeToggleButton = ({ children, onClick, showThemeToggle }) =>
 	showThemeToggle && (
 		<button

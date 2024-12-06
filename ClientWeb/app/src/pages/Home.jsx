@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
-import { useTheme } from '../components/theme/ThemeProvider';
 import NavBar from '../components/layout/Navbar.jsx';
 import SideNav from '../components/layout/SideNav.jsx';
 import CartModal from '../components/cart/CartModal.jsx';
@@ -13,7 +12,6 @@ const Home = () => {
   const [recentBooks, setRecentBooks] = useState([]);
   const [recommendedBooks, setRecommendedBooks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { theme } = useTheme();
   const storeRef = useRef(null);
   const landingRef = useRef(null);
 
@@ -29,14 +27,14 @@ const Home = () => {
     setIsSideNavOpen(false);
   };
 
-  // Function to shuffle array
-  const shuffleArray = (array) => {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
+  /*Function to shuffle array*/
+  const shuffleBook = (array) => {
+    const bookList = [...array];
+    for (let i = bookList.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      [bookList[i], bookList[j]] = [bookList[j], bookList[i]];
     }
-    return newArray;
+    return bookList;
   };
 
   // Initial fetch of all books
@@ -63,7 +61,7 @@ const Home = () => {
         setRecentBooks(recent);
 
         // Get 10 random books
-        const randomBooks = shuffleArray(transformedBooks).slice(0, 10);
+        const randomBooks = shuffleBook(transformedBooks).slice(0, 10);
         setRecommendedBooks(randomBooks);
       } catch (error) {
         console.error('Error fetching books:', error);

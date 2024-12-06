@@ -3,7 +3,11 @@ import PropTypes from 'prop-types';
 import LoadingSpinner from './LoadingSpinner';
 import EmptyCart from './EmptyCart';
 import CartTable from './CartTable';
-
+/**
+ * CartContent component
+ * Are refactored component from CartModal component, this component 
+ * serve purpose of Displaying cart item from the CartTable.
+ */
 const CartContent = ({ 
   items, 
   loading, 
