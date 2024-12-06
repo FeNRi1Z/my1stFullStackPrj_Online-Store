@@ -1,14 +1,12 @@
-import React, { useState, useRef } from "react";
-import { useTheme } from "../components/theme/ThemeProvider.jsx";
+import React, { useState, useRef } from 'react';
 import NavBar from "../components/layout/Navbar.jsx";
-import SideNav from "../components/layout/SideNav.jsx";
-import CartModal from "../components/cart/CartModal.jsx";
-import { Image } from "antd";
+import SideNav from '../components/layout/SideNav.jsx';
+import CartModal from '../components/cart/CartModal.jsx';
+import { Image } from 'antd';
 
 const About = () => {
 	const [isSideNavOpen, setIsSideNavOpen] = useState(false);
 	const [isCartOpen, setIsCartOpen] = useState(false);
-	const { theme } = useTheme();
 	const storeRef = useRef(null);
 
 	const handleMenuClick = () => {

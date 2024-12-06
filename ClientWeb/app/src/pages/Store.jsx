@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef , useCallback} from 'react';
-import { useTheme } from '../components/theme/ThemeProvider.jsx';
 import NavBar from '../components/layout/Navbar.jsx';
 import SearchBox from '../components/search/SearchBox.jsx';
 import BookCard from '../components/book/BookCard.jsx';
@@ -12,7 +11,6 @@ const Store = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [books, setBooks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { theme } = useTheme();
   const storeRef = useRef(null);
 
   const handleMenuClick = () => {
@@ -23,7 +21,7 @@ const Store = () => {
     setIsSideNavOpen(false);
   };
 
-  // Function to handle search results
+  /* Function to handle search results */
   const handleSearch = useCallback((searchResults) => {
     if (Array.isArray(searchResults)) {
       setBooks(searchResults);
@@ -31,7 +29,7 @@ const Store = () => {
     }
   }, []);
 
-  // Initial fetch of all books
+  /* Initial fetch of all books */
   useEffect(() => {
     const fetchBooks = async () => {
       try {
@@ -50,7 +48,7 @@ const Store = () => {
 
   return (
     <div className="min-h-screen bg-background-light dark:bg-background-dark">
-      {/* Fixed Navbar */}
+      {/* Nav bar */}
       <div className="fixed top-0 left-0 right-0 z-40">
         <NavBar
           onMenuClick={handleMenuClick}

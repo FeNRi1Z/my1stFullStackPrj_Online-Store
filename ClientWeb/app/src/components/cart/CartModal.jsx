@@ -1,4 +1,3 @@
-// src/components/cart/CartModal/index.jsx
 import React, { useEffect } from "react";
 import PropTypes from 'prop-types';
 import { ConfigProvider } from "antd";
@@ -17,6 +16,10 @@ import { useModalAnimation } from "../../hooks/useModalAnimation";
 import useModalSearch from "../../hooks/useModalSearch.js";
 import { useWindowDimensions } from "../../hooks/useWindowDimensions";
 import { getThemeConfig } from "./utils/themeConfig";
+
+/**
+ * CartModal component are main component displaying a list of item in user cart
+ */
 
 const CartModal = ({ isOpen, onClose }) => {
   const navigate = useNavigate();

@@ -5,6 +5,11 @@ import PropTypes from 'prop-types';
 import { useCart } from './CartProvider';
 import config from '../../config';
 
+/**
+ * CartItem component
+ * serve for displaying fetched cart items
+ */
+
 const CartTable = ({ items, searchQuery, windowWidth }) => {
   const { updateQuantity, removeItem } = useCart();
 

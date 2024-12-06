@@ -25,9 +25,12 @@ const Orders = () => {
 		setTotalOrderCount(count);
 	};
 
+<<<<<<< HEAD
 	const handleNavigation = (view) => {
 		setActiveView(view);
 	};
+=======
+>>>>>>> e3bef8c7240c6c694b7cf00ac5cf69979bc8f654
 
 	useEffect(() => {
 		const token = getAuthToken();
