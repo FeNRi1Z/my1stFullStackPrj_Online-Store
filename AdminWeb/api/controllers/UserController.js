@@ -1,19 +1,20 @@
 const express = require("express");
 const app = express.Router();
+const fileUpload = require("express-fileupload");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
-dotenv.config();
-
 const ifIsImage = require("if-is-image");
-const fileUpload = require("express-fileupload");
 const fs = require("fs");
 
 const { checkSignIn } = require("../middleware/auth");
 
-app.use(fileUpload());
+dotenv.config();
 
+// File upload middleware
+app.use(fileUpload());
+// Sign in endpoint for clients and admins
 app.post("/signIn", async (req, res) => {
 	try {
 		if (!req.body.username && !req.body.user) {
@@ -82,7 +83,7 @@ app.post("/signIn", async (req, res) => {
 		res.status(500).send({ error: e.message });
 	}
 });
-
+// Info endpoint for clients
 app.get("/info", checkSignIn, async (req, res) => {
 	try {
 		console.log("Fetching user info for id:", req.user.id);
@@ -117,7 +118,6 @@ app.get("/info", checkSignIn, async (req, res) => {
 		res.status(500).send({ error: e.message });
 	}
 });
-
 // Registration endpoint for clients
 app.post("/register", async (req, res) => {
 	console.log("Received registration request with body:", {
@@ -195,7 +195,7 @@ app.post("/register", async (req, res) => {
 		res.status(500).send({ error: e.message });
 	}
 });
-
+// Client list endpoint for admins
 app.get("/clientList", checkSignIn, async (req, res) => {
 	try {
 		const users = await prisma.user.findMany({
@@ -213,7 +213,7 @@ app.get("/clientList", checkSignIn, async (req, res) => {
 		res.status(500).send({ error: e.message });
 	}
 });
-
+// Client update endpoint for admins
 app.put("/clientUpdate", checkSignIn, async (req, res) => {
 	try {
 		//Validate
@@ -258,7 +258,30 @@ app.put("/clientUpdate", checkSignIn, async (req, res) => {
 		res.status(500).send({ error: e.message });
 	}
 });
+// Remove client endpoint for admins
+app.put("/clientRemove", checkSignIn, async (req, res) => {
+	try {
+		console.log("Remove client ID: ", req.body.id);
+		//Validate
+		await prisma.user.updateMany({
+			data: {
+				status: "delete",
+			},
+			where: {
+				id: {
+					in: req.body.id,
+				},
+				status: "use",
+				role: "client",
+			},
+		});
 
+		res.send({ message: "success" });
+	} catch (e) {
+		res.status(500).send({ error: e.message });
+	}
+});
+// Upload profile image endpoint for clients
 app.post("/uploadProfile", checkSignIn, async (req, res) => {
 	try {
 		console.log("Uploading profile image...", req.files);
@@ -291,31 +314,12 @@ app.post("/uploadProfile", checkSignIn, async (req, res) => {
 		res.status(500).send({ error: e.message, newName: "noIMGFile" });
 	}
 });
+ 
 
-app.put("/clientRemove", checkSignIn, async (req, res) => {
-	try {
-		console.log("Remove client ID: ", req.body.id);
-		//Validate
-		await prisma.user.updateMany({
-			data: {
-				status: "delete",
-			},
-			where: {
-				id: {
-					in: req.body.id,
-				},
-				status: "use",
-				role: "client",
-			},
-		});
+/* Dashboard related function & api to analytics */
 
-		res.send({ message: "success" });
-	} catch (e) {
-		res.status(500).send({ error: e.message });
-	}
-});
 
-// Dashboard related function & api to analytics
+// Get total, active, and inactive user count
 app.get("/stat/card", checkSignIn, async (req, res) => {
 	try {
 		const totalUsers = await prisma.user.count({ where: { role: "client" } });

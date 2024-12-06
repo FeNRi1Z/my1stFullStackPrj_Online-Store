@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 
+import axios from "axios";
 import { Col, Row, Card, message, Typography, Popover, Statistic, ConfigProvider, Button, List, Tag } from "antd";
 import {
 	TeamOutlined,
@@ -41,8 +41,13 @@ axios.interceptors.response.use(
 );
 
 function Home() {
-	const [userCardData, setUserCardData] = useState({});
-	const [productCardData, setProductCardData] = useState({});
+	const [userCardData, setUserCardData] = useState({}); // userCardData = {activeUsers: 0, inactiveUsers: 0, totalUsers: 0}
+	const [orderCardData, setOrderCardData] = useState({}); // orderCardData = {totalOrders: 0, todayOrders: 0, ordersByStatus: []}
+	const [financialCardData, setFinancialCardData] = useState({}); // financialCardData = {totalIncome: 0, totalProfit: 0}
+	const [productCardData, setProductCardData] = useState({}); // productCardData = {activeProducts: 0, inactiveProducts: 0, totalProducts: 0, outOfStock: 0, outOfStockProducts: []}
+	/*
+		Data for product card chart extends from productCardData
+	*/
 	const chartData = {
 		labels: ["Active", "Inactive"],
 		datasets: [
@@ -53,11 +58,12 @@ function Home() {
 			},
 		],
 	};
-	const [orderCardData, setOrderCardData] = useState({});
-	const [financialCardData, setFinancialCardData] = useState({});
 
 	const [isOutOfStockOpen, setIsOutOfStockOpen] = useState(false);
 
+	/*
+		Fetch data from API and set to state for all cards statistic
+	*/
 	const fetchData = async () => {
 		try {
 			const user = await axios.get(config.apiPath + "/user/stat/card", config.headers());
@@ -99,6 +105,9 @@ function Home() {
 		};
 	}, []);
 
+	/* 
+	userCard statistic function is a card that shows the total number of users, active users, and inactive users.
+*/
 	const userCard = () => {
 		return (
 			<ConfigProvider
@@ -168,7 +177,9 @@ function Home() {
 			</ConfigProvider>
 		);
 	};
-
+	/* 
+	productCard statistic function is a card that shows the total number of products, active products, inactive products, out of stock products, and a pie chart that shows the percentage of active and inactive products.
+*/
 	const productCard = () => {
 		return (
 			<ConfigProvider
@@ -182,34 +193,6 @@ function Home() {
 				<Popover
 					placement="bottom"
 					content={
-						// <Row gutter={16} justify={"space-evenly"}>
-						// 	<Col span={"100%"}>
-						// 		<Card bordered={true}>
-						// 			<Statistic
-						// 				title="Available"
-						// 				value={productCardData.activeProducts}
-						// 				valueStyle={{
-						// 					color: "#245501",
-						// 				}}
-						// 				prefix={<CheckCircleOutlined />}
-						// 				suffix="product"
-						// 			/>
-						// 		</Card>
-						// 	</Col>
-						// 	<Col span={"100%"}>
-						// 		<Card bordered={true}>
-						// 			<Statistic
-						// 				title="Unavailable"
-						// 				value={productCardData.inactiveProducts}
-						// 				valueStyle={{
-						// 					color: "#cf1322",
-						// 				}}
-						// 				prefix={<CloseCircleOutlined />}
-						// 				suffix="product"
-						// 			/>
-						// 		</Card>
-						// 	</Col>
-						// </Row>
 						<div style={{ width: "200px", height: "200px", margin: "auto" }}>
 							<Pie
 								data={chartData}
@@ -285,7 +268,9 @@ function Home() {
 			</ConfigProvider>
 		);
 	};
-
+	/* 
+	orderCard statistic function is a card that shows the total number of orders, orders for today, and the number of orders by status.
+*/
 	const orderCard = () => {
 		const getOrderCountByStatus = (status) => {
 			const statusObj = orderCardData.ordersByStatus.find((item) => item.status === status);
@@ -371,7 +356,9 @@ function Home() {
 			</ConfigProvider>
 		);
 	};
-
+	/*
+	financialCard statistic function is a card that shows the total income and total profit.
+*/
 	const financialCard = () => {
 		return (
 			<ConfigProvider
@@ -443,7 +430,7 @@ function Home() {
 				</Row>
 				<Row gutter={20} wrap={false} className="mt-3" justify={"space-between"}>
 					<GraphStat />
-					<Col xs={{flex: "5%",}} sm={{flex: "10%",}} md={{flex: "15%",}} lg={{flex: "20%",}} xl={{flex: "34%",}}>
+					<Col xs={{ flex: "5%" }} sm={{ flex: "10%" }} md={{ flex: "15%" }} lg={{ flex: "20%" }} xl={{ flex: "34%" }}>
 						<Card style={{ width: "98%", height: "100%" }} hoverable={true}>
 							<TopSellingProducts />
 						</Card>

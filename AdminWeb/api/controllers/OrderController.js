@@ -7,12 +7,166 @@ const fileUpload = require("express-fileupload");
 const fs = require("fs");
 const ifIsImage = require("if-is-image");
 
-dotenv.config();
-
 const { checkSignIn } = require("../middleware/auth");
 
-app.use(fileUpload());
+dotenv.config();
 
+// File upload middleware
+app.use(fileUpload());
+// Order list endpoint for admins
+app.get("/orderList", checkSignIn, async (req, res) => {
+	try {
+		const orderList = await prisma.order.findMany({
+			orderBy: {
+				id: "desc",
+			},
+			include: {
+				user: {
+					select: {
+						name: true,
+					},
+				},
+				orderItems: {
+					select: {
+						productId: true,
+						productPrice: true,
+						productCost: true,
+						quantity: true,
+						product: {
+							include: {
+								author: true,
+								categories: {
+									include: {
+										category: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		});
+
+		const transOrderList = orderList.map((order) => ({
+			...order,
+			paymentDate: order.paymentDate ? order.paymentDate : null,
+			userName: order.user.name,
+			user: undefined, // Remove original user key
+			orderItems: order.orderItems.map((item) => ({
+				...item,
+				totalPrice: item.productPrice * item.quantity, // Add totalPrice key
+				name: item.product.name,
+				img: item.product.img,
+				desc: item.product.desc,
+				author: item.product.author.name,
+				categoriesName: item.product.categories.map((pc) => pc.category.name),
+				product: undefined, // Remove original product key
+			})),
+		}));
+
+		res.send({ results: transOrderList });
+	} catch (e) {
+		res.status(500).send({ error: e.message });
+	}
+});
+// Order update endpoint for admins
+app.put("/orderUpdate", checkSignIn, async (req, res) => {
+	try {
+		// Delete old paymentSlip image
+		const oldData = await prisma.order.findFirst({
+			select: {
+				paymentSlipIMG: true,
+			},
+			where: {
+				id: parseInt(req.body.id),
+			},
+		});
+		if (req.body.deleteIMG) {
+			if (fs.existsSync("./uploads/payment_slip_img/" + oldData.img)) {
+				await fs.unlinkSync("./uploads/payment_slip_img/" + oldData.img); // Delete old file
+			}
+		}
+
+		await prisma.order.update({
+			data: {
+				status: req.body.status,
+				statusDetail: req.body.statusDetail,
+				paymentDate: req.body.paymentDate,
+				paymentSlipIMG: req.body.paymentSlipIMG,
+				parcelCode: req.body.parcelCode,
+				address: req.body.address,
+				phone: req.body.phone,
+			},
+			where: {
+				id: req.body.id,
+			},
+		});
+
+		res.send({ message: "success" });
+	} catch (e) {
+		console.log("Error: Order update", e);
+		res.status(500).send({ error: e.message });
+	}
+});
+// Upload payment slip endpoint for admins and clients
+app.post("/uploadPaymentSlip", checkSignIn, async (req, res) => {
+	try {
+		if (req.files != undefined && req.files.img != undefined && ifIsImage(req.files.img.name)) {
+			const img = req.files.img;
+			const myDate = new Date();
+			const y = myDate.getFullYear();
+			const m = myDate.getMonth() + 1;
+			const d = myDate.getDate();
+			const h = myDate.getHours();
+			const mi = myDate.getMinutes();
+			const s = myDate.getSeconds();
+			const ms = myDate.getMilliseconds();
+
+			const arrFileName = img.name.split(".");
+			const ext = arrFileName[arrFileName.length - 1];
+
+			const newName = `${y}${m}${d}${h}${mi}${s}${ms}.${ext}`;
+
+			img.mv("./uploads/payment_slip_img/" + newName, (err) => {
+				if (err) throw err;
+				res.send({ newName: newName });
+			});
+		} else {
+			res.send({ newName: null });
+		}
+	} catch (e) {
+		res.status(500).send({ error: e.message, newName: null });
+	}
+});
+
+
+// Order update endpoint for clients
+app.put("/clientOrderUpdate", checkSignIn, async (req, res) => {
+    try {
+        const status = req.body.status;
+        let statusDetail;
+        if (status === "Completed") {
+            statusDetail = "The order has been completed, thank you for shopping with us";
+        } else {
+            statusDetail = "The order has been cancelled";
+        }
+        await prisma.order.update({
+            data: {
+                status: status,
+                statusDetail: statusDetail,
+            },
+            where: {
+                id: parseInt(req.body.id),
+            },
+        });
+
+        res.send({ message: "success" });
+    } catch (e) {
+        console.log("Error: Order update", e);
+        res.status(500).send({ error: e.message });
+    }
+});
+// create order endpoint for clients
 app.post("/orderCreate", checkSignIn, async (req, res) => {
 	try {
 		const userId = req.user.id;
@@ -104,158 +258,7 @@ app.post("/orderCreate", checkSignIn, async (req, res) => {
 		res.status(500).send({ error: e.message });
 	}
 });
-
-app.get("/orderList", checkSignIn, async (req, res) => {
-	try {
-		const orderList = await prisma.order.findMany({
-			orderBy: {
-				id: "desc",
-			},
-			include: {
-				user: {
-					select: {
-						name: true,
-					},
-				},
-				orderItems: {
-					select: {
-						productId: true,
-						productPrice: true,
-						productCost: true,
-						quantity: true,
-						product: {
-							include: {
-								author: true,
-								categories: {
-									include: {
-										category: true,
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		});
-
-		const transOrderList = orderList.map((order) => ({
-			...order,
-			paymentDate: order.paymentDate ? order.paymentDate : null,
-			userName: order.user.name,
-			user: undefined, // Remove original user key
-			orderItems: order.orderItems.map((item) => ({
-				...item,
-				totalPrice: item.productPrice * item.quantity, // Add totalPrice key
-				name: item.product.name,
-				img: item.product.img,
-				desc: item.product.desc,
-				author: item.product.author.name,
-				categoriesName: item.product.categories.map((pc) => pc.category.name),
-				product: undefined, // Remove original product key
-			})),
-		}));
-
-		res.send({ results: transOrderList });
-	} catch (e) {
-		res.status(500).send({ error: e.message });
-	}
-});
-
-app.put("/orderUpdate", checkSignIn, async (req, res) => {
-	try {
-		// Delete old paymentSlip image
-		const oldData = await prisma.order.findFirst({
-			select: {
-				paymentSlipIMG: true,
-			},
-			where: {
-				id: parseInt(req.body.id),
-			},
-		});
-		if (req.body.deleteIMG) {
-			if (fs.existsSync("./uploads/payment_slip_img/" + oldData.img)) {
-				await fs.unlinkSync("./uploads/payment_slip_img/" + oldData.img); // Delete old file
-			}
-		}
-
-		await prisma.order.update({
-			data: {
-				status: req.body.status,
-				statusDetail: req.body.statusDetail,
-				paymentDate: req.body.paymentDate,
-				paymentSlipIMG: req.body.paymentSlipIMG,
-				parcelCode: req.body.parcelCode,
-				address: req.body.address,
-				phone: req.body.phone,
-			},
-			where: {
-				id: req.body.id,
-			},
-		});
-
-		res.send({ message: "success" });
-	} catch (e) {
-		console.log("Error: Order update", e);
-		res.status(500).send({ error: e.message });
-	}
-});
-
-app.put("/clientOrderUpdate", checkSignIn, async (req, res) => {
-    try {
-        const status = req.body.status;
-        let statusDetail;
-        if (status === "Completed") {
-            statusDetail = "The order has been completed, thank you for shopping with us";
-        } else {
-            statusDetail = "The order has been cancelled";
-        }
-        await prisma.order.update({
-            data: {
-                status: status,
-                statusDetail: statusDetail,
-            },
-            where: {
-                id: parseInt(req.body.id),
-            },
-        });
-
-        res.send({ message: "success" });
-    } catch (e) {
-        console.log("Error: Order update", e);
-        res.status(500).send({ error: e.message });
-    }
-});
-
-app.post("/uploadPaymentSlip", checkSignIn, async (req, res) => {
-	try {
-		if (req.files != undefined && req.files.img != undefined && ifIsImage(req.files.img.name)) {
-			const img = req.files.img;
-			const myDate = new Date();
-			const y = myDate.getFullYear();
-			const m = myDate.getMonth() + 1;
-			const d = myDate.getDate();
-			const h = myDate.getHours();
-			const mi = myDate.getMinutes();
-			const s = myDate.getSeconds();
-			const ms = myDate.getMilliseconds();
-
-			const arrFileName = img.name.split(".");
-			const ext = arrFileName[arrFileName.length - 1];
-
-			const newName = `${y}${m}${d}${h}${mi}${s}${ms}.${ext}`;
-
-			img.mv("./uploads/payment_slip_img/" + newName, (err) => {
-				if (err) throw err;
-				res.send({ newName: newName });
-			});
-		} else {
-			res.send({ newName: null });
-		}
-	} catch (e) {
-		res.status(500).send({ error: e.message, newName: null });
-	}
-});
-
+// Order list endpoint for clients
 app.get("/myOrderList", checkSignIn, async (req, res) => {
 	try {
 		const userId = req.user.id;
@@ -317,7 +320,12 @@ app.get("/myOrderList", checkSignIn, async (req, res) => {
 	}
 });
 
-// Dashboard related function & api to analytics
+
+
+/* Dashboard statistic zone */
+
+
+// Order statistics card endpoints for admins
 app.get("/stat/card", checkSignIn, async (req, res) => {
 	try {
 		const totalOrders = await prisma.order.count();
@@ -347,7 +355,7 @@ app.get("/stat/card", checkSignIn, async (req, res) => {
 		res.status(500).json({ error: "Internal server error" });
 	}
 });
-
+// Financial statistics card endpoint for admins
 app.get("/stat/financial", checkSignIn, async (req, res) => {
 	try {
 		// 1. Calculate Total Income
@@ -388,7 +396,7 @@ app.get("/stat/financial", checkSignIn, async (req, res) => {
 		res.status(500).json({ error: "Internal server error" });
 	}
 });
-
+// Income and profit statistics chart endpoint for admins
 app.get("/stat/incomeProfitMonthly", checkSignIn, async (req, res) => {
 	try {
 		const year = new Date().getFullYear();
@@ -466,7 +474,7 @@ app.get("/stat/incomeProfitMonthly", checkSignIn, async (req, res) => {
 		res.status(500).json({ error: "Internal server error" });
 	}
 });
-
+// Order monthly statistics chart endpoint for admins
 app.get('/stat/orderMonthly', checkSignIn, async (req, res) => {
     try {
         const year = new Date().getFullYear();
@@ -499,13 +507,5 @@ app.get('/stat/orderMonthly', checkSignIn, async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch monthly orders' });
     }
 });
-
-
-app.post("/mockUpOrderCreate", checkSignIn, async (req, res) => {
-	
-});
-
-
-
 
 module.exports = app;

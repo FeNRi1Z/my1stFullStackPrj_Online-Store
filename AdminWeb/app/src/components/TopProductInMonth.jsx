@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from "react";
+
 import axios from "axios";
+
 import config from "../config";
 
 const TopSellingProducts = () => {
-  const [topProducts, setTopProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [topProducts, setTopProducts] = useState([]); // topProducts = [{id, name, quantitySold}, ...] fetch from server
+  const [loading, setLoading] = useState(true); // loading state for holding the loading status
 
   useEffect(() => {
+    /*
+      // Fetch top 10 most sold products from the server
+    */
     const fetchTopProducts = async () => {
       try {
         const response = await axios.get(config.apiPath + "/product/stat/topProduct", config.headers());

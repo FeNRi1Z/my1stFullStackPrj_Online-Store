@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import config from "../config";
 
+import axios from "axios";
 import { Card, Col } from "antd";
 
+import config from "../config";
 import IncomeProfitChart from "./IncomeProfitChart";
 import MonthlyOrdersChart from "./MonthlyOrdersChart";
 
 const GraphStat = () => {
-	const [incomeProfitData, setIncomeProfitData] = useState({});
-	const [monthlyOrdersData, setMonthlyOrdersData] = useState({});
-	const [loading, setLoading] = useState(true);
+	const [incomeProfitData, setIncomeProfitData] = useState({}); // {income: [], profit: []} incomeProfitData for IncomeProfitChart
+	const [monthlyOrdersData, setMonthlyOrdersData] = useState({}); // {orders: []} monthlyOrdersData for MonthlyOrdersChart
+	const [loading, setLoading] = useState(true); // loading state
 
 	useEffect(() => {
+		/*
+			// Fetch top products data from the server
+		*/
 		const fetchTopProducts = async () => {
 			try {
 				const fetchIncomProfit = await axios.get(config.apiPath + "/order/stat/incomeProfitMonthly", config.headers());
@@ -30,6 +33,7 @@ const GraphStat = () => {
 		fetchTopProducts();
 	}, []);
 
+	// Tab list and content list for the card
 	const tabListNoTitle = [
 		{
 			key: "Financial",
@@ -40,6 +44,7 @@ const GraphStat = () => {
 			label: "Monthly Orders",
 		},
 	];
+	// Content render chart for each tab
 	const contentListNoTitle = {
 		Financial: (
 			<>
@@ -55,8 +60,9 @@ const GraphStat = () => {
 		),
 	};
 
-	const [activeTabKey2, setActiveTabKey2] = useState("Financial");
+	const [activeTabKey2, setActiveTabKey2] = useState("Financial"); // active tab key state
 
+	// Handle tab change
 	const onTab2Change = (key) => {
 		setActiveTabKey2(key);
 	};

@@ -1,8 +1,9 @@
+import { FloatButton } from 'antd';
+
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
 import ControlSidebar from './ControlSidebar';
-import { FloatButton } from 'antd';
 
 function BackOffice(props) {
     return <>

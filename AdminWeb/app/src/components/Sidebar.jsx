@@ -1,17 +1,24 @@
-import axios from "axios";
+//React imports
 import { useState, useEffect } from "react";
-import Swal from "sweetalert2";
-import config from "../config";
 import { Link, useNavigate } from "react-router-dom";
+
+//Other imports
+import axios from "axios";
+import Swal from "sweetalert2";
+import { Image } from "antd";
+
+//Local imports
+import config from "../config";
 import modedLogo from "../MODED_LOGO.png"
 
 
-import { Image } from "antd";
-
 function Sidebar() {
-	const [user, setUser] = useState({});
+	const [user, setUser] = useState({}); // Loged in user info
 	const navigate = useNavigate();
 
+	/*
+		// Fetch user info
+	*/
 	const fetchData = async () => {
 		try {
 			const res = await axios.get(config.apiPath + "/user/info", config.headers());
@@ -31,6 +38,9 @@ function Sidebar() {
 		fetchData();
 	}, []);
 
+	/*
+		// Sign out handler
+	*/
 	const handleSignOut = async () => {
 		try {
 			const button = await Swal.fire({
@@ -126,7 +136,6 @@ function Sidebar() {
 							alignItems: "center",
 						}}>
 						<i className="fa fa-power-off fa-lg"></i>
-						{/* <span>Sign Out</span> */}
 					</button>
 				</div>
 			</aside>
