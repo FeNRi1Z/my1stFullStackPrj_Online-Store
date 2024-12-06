@@ -5,11 +5,11 @@ import { useAuth } from '../auth/AuthProvider';
 import { App } from 'antd';
 import config from '../../config';
 
-const OrderHistory = ({ onOrderCountUpdate }) => {
+const OrderHistory = ({ onOrderCountUpdate, getAuthToken }) => {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { user, getAuthToken } = useAuth();
+  const { user } = useAuth();
   const { message } = App.useApp();
 
   const fetchOrders = useCallback(async () => {
@@ -64,8 +64,45 @@ const OrderHistory = ({ onOrderCountUpdate }) => {
   }, [user, fetchOrders]);
 
   useEffect(() => {
-    onOrderCountUpdate(orders.length);
+    const activeOrderCount = orders.filter(
+      order => ['to be paid'].includes(order.status.toLowerCase())
+    ).length;
+    
+    onOrderCountUpdate(activeOrderCount);
   }, [orders, onOrderCountUpdate]);
+
+  const updateOrderPayment = async (orderId, slipImage) => {
+    try {
+      const token = getAuthToken();
+      if (!token) return;
+
+      const cleanToken = token.replace('Bearer ', '');
+
+      const response = await fetch(`${config.apiPath}/order/orderUpdate`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': cleanToken,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: orderId,
+          status: 'Paid',
+          paymentSlipIMG: slipImage,
+          paymentDate: new Date().toISOString()
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update order status');
+      }
+
+      await fetchOrders();
+      message.success('Payment updated successfully');
+    } catch (err) {
+      console.error('Error updating order:', err);
+      message.error('Failed to update payment status');
+    }
+  };
 
   const handleUploadSlip = useCallback(async (orderId) => {
     try {
@@ -111,38 +148,15 @@ const OrderHistory = ({ onOrderCountUpdate }) => {
     }
   }, [getAuthToken, message]);
 
-  const updateOrderPayment = async (orderId, slipImage) => {
+  const handleOrderStatusChange = useCallback(async (orderId, newStatus) => {
     try {
-      const token = getAuthToken();
-      if (!token) return;
-
-      const cleanToken = token.replace('Bearer ', '');
-
-      const response = await fetch(`${config.apiPath}/order/orderUpdate`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': cleanToken,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          id: orderId,
-          status: 'Paid',
-          paymentSlipIMG: slipImage,
-          paymentDate: new Date().toISOString()
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update order status');
-      }
-
-      await fetchOrders();
-      message.success('Order status updated successfully');
+      await fetchOrders(); // Refresh orders after status change
+      message.success(`Order ${newStatus.toLowerCase()} successfully`);
     } catch (err) {
-      console.error('Error updating order:', err);
+      console.error('Error updating order status:', err);
       message.error('Failed to update order status');
     }
-  };
+  }, [fetchOrders, message]);
 
   if (isLoading) {
     return (
@@ -168,7 +182,9 @@ const OrderHistory = ({ onOrderCountUpdate }) => {
             key={order.id}
             order={order}
             onUploadSlip={handleUploadSlip}
-            onCancel={() => {}}
+            onCancel={fetchOrders}
+            onStatusChange={handleOrderStatusChange}
+            getAuthToken={getAuthToken}
           />
         ))
       ) : (

@@ -3,6 +3,12 @@ import { Button } from 'antd';
 import { X } from 'lucide-react';
 import PropTypes from 'prop-types';
 
+/**
+ * Header
+ * Are refactored component from CartModal component, this component 
+ * serve purpose of showing cart count and closign cart
+ */
+
 const CartHeader = ({ cartCount, onClose, isAnimating }) => (
   <div 
     className={`p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700

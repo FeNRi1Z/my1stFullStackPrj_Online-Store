@@ -473,6 +473,7 @@ app.get("/cart/items", checkSignIn, async (req, res) => {
 			img: cartItem.product.img,
 			desc: cartItem.product.desc,
 			quantity: cartItem.quantity,
+			maxQuantity: cartItem.product.quantity,
 			author: cartItem.product.author.name,
 			categories: cartItem.product.categories.map((pc) => pc.categoryId),
 			categoriesName: cartItem.product.categories.map((pc) => pc.category.name),

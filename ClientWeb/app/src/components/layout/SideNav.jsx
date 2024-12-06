@@ -8,6 +8,11 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 
+/**
+ * SideNav component
+ * is a navbar that will display when screen width is small / mobile screen
+ */
+
 const SideNav = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();

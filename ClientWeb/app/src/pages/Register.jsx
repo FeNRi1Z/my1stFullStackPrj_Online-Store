@@ -1,18 +1,26 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
-import { useTheme } from '../components/theme/ThemeProvider';
 import { App } from 'antd';
 import config from '../config';
 
+/**
+ * Register Component
+ * A multi-step registration form with personal, contact, and account information sections.
+ * Features client-side validation, password visibility toggle, and server communication.
+ */
+
 const Register = () => {
+  // Navigation and hooks
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const { message } = App.useApp();
+
+  // UI state
   const [showPassword, setShowPassword] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const { message } = App.useApp();
 
+  // Form state
   const [formData, setFormData] = useState({
     firstName: '',
     surname: '',
@@ -22,13 +30,20 @@ const Register = () => {
     password: '',
   });
 
+  /**
+  * Handles navigation between form steps
+  * Returns to sign in page if on first step, otherwise moves to previous step
+  */
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
       [e.target.id]: e.target.value
     });
   };
-
+  /**
+   * Handles navigation between form steps
+   * Returns to sign in page if on first step, otherwise moves to previous step
+   */
   const handleBack = () => {
     if (currentStep === 1) {
       navigate('/signIn');
@@ -37,6 +52,10 @@ const Register = () => {
     }
   };
 
+  /**
+ * Validates form data for each step
+ * @returns {boolean} Whether the current step's data is valid
+ */
   const validateStep = () => {
     switch (currentStep) {
       case 1:
@@ -51,33 +70,39 @@ const Register = () => {
           return false;
         }
         return true;
-      case 3: 
+      case 3:
         return true;
       default:
         return false;
     }
   };
-
+  /**
+   * Handles progression to next step
+   * Validates current step before proceeding
+   */
   const handleNext = (e) => {
-    // Prevent any form submission when clicking next
+    //Prevent any form submission when clicking next
     e?.preventDefault();
 
     if (validateStep()) {
       setCurrentStep(currentStep + 1);
     }
   };
-
+  /**
+   * Handles final form submission
+   * Validates cred and sends registration request to server
+   * 
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // validate username and password in submission
+    //validate username and password in submission
     if (!formData.username || !formData.password) {
       message.warning('Please fill in all account information fields');
       return;
     }
 
     setIsLoading(true);
-
+    // Prepare API data required for request
     try {
       const requestData = {
         name: `${formData.firstName} ${formData.surname}`.trim(),
@@ -86,7 +111,7 @@ const Register = () => {
         address: formData.address,
         phone: formData.phone,
       };
-
+      // Send request
       const response = await fetch(config.apiPath + '/user/register', {
         method: 'POST',
         headers: {
@@ -101,13 +126,14 @@ const Register = () => {
       if (!response.ok) {
         throw new Error(data.message || 'Registration failed');
       }
-
+      // Store auth data
       localStorage.setItem('token', data.token);
       localStorage.setItem('role', data.role);
 
       message.success('Registration successful!');
       navigate('/signIn');
     } catch (err) {
+      // Handle error
       if (err.message.includes('Failed to fetch')) {
         message.error('Cannot connect to server. Please ensure the server is running.');
       } else {
@@ -121,12 +147,14 @@ const Register = () => {
     console.log(`Rendering step ${currentStep}`);
     switch (currentStep) {
       case 1:
+        // Personal Information Step
         return (
           <div className="space-y-4 w-full">
             <h2 className="text-text-dark dark:text-text-light text-xl font-semibold mb-4">
               Personal Information
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-4">
+              {/*First Name Input*/}
               <label className="text-text-disabled dark:text-text-disabled self-center" htmlFor="firstName">
                 First Name
               </label>
@@ -139,8 +167,8 @@ const Register = () => {
                             text-text-dark dark:text-text-light placeholder-text-disabled
                             border border-gray-300 dark:border-none
                             focus:outline-none focus:ring-2 focus:ring-primary-100"
-                />
-
+              />
+              {/* Surname Input */}
               <label className="text-text-disabled dark:text-text-disabled self-center" htmlFor="surname">
                 Surname
               </label>
@@ -153,18 +181,20 @@ const Register = () => {
                             text-text-dark dark:text-text-light placeholder-text-disabled
                             border border-gray-300 dark:border-none
                             focus:outline-none focus:ring-2 focus:ring-primary-100"
-                />
+              />
             </div>
           </div>
         );
 
       case 2:
+        // Contact Info step
         return (
           <div className="space-y-4 w-full">
             <h2 className="text-text-dark dark:text-text-light text-xl font-semibold mb-4">
               Contact Information
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-4">
+              {/* Address input */}
               <label className="text-text-disabled dark:text-text-disabled self-start pt-3" htmlFor="address">
                 Address
               </label>
@@ -177,8 +207,8 @@ const Register = () => {
                             text-text-dark dark:text-text-light placeholder-text-disabled
                             border border-gray-300 dark:border-none
                             focus:outline-none focus:ring-2 focus:ring-primary-100"
-                />
-
+              />
+              {/* Phone Input */}
               <label className="text-text-disabled dark:text-text-disabled self-center" htmlFor="phone">
                 Phone
               </label>
@@ -192,18 +222,20 @@ const Register = () => {
                             text-text-dark dark:text-text-light placeholder-text-disabled
                             border border-gray-300 dark:border-none
                             focus:outline-none focus:ring-2 focus:ring-primary-100"
-                />
+              />
             </div>
           </div>
         );
 
       case 3:
+        // Account Information step
         return (
           <div className="space-y-4 w-full">
             <h2 className="text-text-dark dark:text-text-light text-xl font-semibold mb-4">
               Account Information
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-4">
+              {/* Username Input */}
               <label className="text-text-disabled dark:text-text-disabled self-center" htmlFor="username">
                 Username
               </label>
@@ -216,8 +248,8 @@ const Register = () => {
                             text-text-dark dark:text-text-light placeholder-text-disabled
                             border border-gray-300 dark:border-none
                             focus:outline-none focus:ring-2 focus:ring-primary-100"
-                />
-
+              />
+               {/* Password Input */}
               <label className="text-text-disabled dark:text-text-disabled self-center" htmlFor="password">
                 Password
               </label>
@@ -293,7 +325,7 @@ const Register = () => {
             <div className="min-h-[280px]">
               {renderStep()}
             </div>
-
+            {/* Back to sign in or Previous button */}
             <div className="flex justify-between mt-6">
               <button
                 type="button"
@@ -308,7 +340,7 @@ const Register = () => {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 {currentStep === 1 ? 'Back to Sign in' : 'Previous'}
               </button>
-
+              {/* Submit or Next button */}
               <button
                 type={currentStep === 3 ? "submit" : "button"}
                 onClick={currentStep === 3 ? undefined : handleNext}

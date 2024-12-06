@@ -9,13 +9,19 @@ import ProfileDropdown from "../profile/ProfileDropdown";
 import { Image } from "antd";
 import config from "../../config";
 
+/**
+ * NavBar component
+ * serve for different menu option and navigation
+ */
+
+
 const ThemeToggleButton = ({ children, onClick, showThemeToggle }) =>
 	showThemeToggle && (
 		<button
 			onClick={onClick}
 			className="w-10 h-10 rounded-full transition-all duration-300 ease-in-out 
-                 hover:bg-gray-200 dark:hover:bg-gray-700 
-                 flex items-center justify-center"
+                hover:bg-gray-200 dark:hover:bg-gray-700 
+                flex items-center justify-center"
 			aria-label="Toggle theme">
 			{children}
 		</button>
@@ -25,12 +31,12 @@ const NavLink = ({ to, children }) => (
 	<Link
 		to={to}
 		className="text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white
-               transition-colors px-4 py-2">
+             transition-colors px-4 py-2">
 		{children}
 	</Link>
 );
 
-const NavBar = ({ onCartOpen, showThemeToggle = true }) => {
+const NavBar = ({ onCartOpen, showThemeToggle = true, onViewChange }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { theme, toggleTheme } = useTheme();
@@ -47,6 +53,9 @@ const NavBar = ({ onCartOpen, showThemeToggle = true }) => {
 		}
 	};
 
+	// Check if current path is checkout
+	const isCheckoutPage = location.pathname === '/checkout';
+
 	return (
 		<>
 			<nav className="w-full bg-white dark:bg-background-dark shadow-sm transition-all duration-300 ease-in-out">
@@ -57,7 +66,7 @@ const NavBar = ({ onCartOpen, showThemeToggle = true }) => {
 							<button
 								onClick={() => setIsSideNavOpen(true)}
 								className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-background-secondary-dark 
-                         transition-colors md:hidden"
+                       transition-colors md:hidden"
 								aria-label="Open menu">
 								<Menu className="h-6 w-6 text-text-dark dark:text-text-light" />
 							</button>
@@ -66,27 +75,28 @@ const NavBar = ({ onCartOpen, showThemeToggle = true }) => {
 								<NavLink to="/">Home</NavLink>
 								<NavLink to="/store">Store</NavLink>
 								<NavLink to="/about">About</NavLink>
-								<NavLink to="/contact">Contact</NavLink>
 							</div>
 						</div>
 
 						{/* Right side - Icons group */}
 						<div className="flex items-center gap-4">
-							{/* Cart Button */}
-							<button
-								onClick={onCartOpen}
-								className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-background-secondary-dark 
+							{/* Cart Button - Only show if not on checkout page */}
+							{!isCheckoutPage && (
+								<button
+									onClick={onCartOpen}
+									className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-background-secondary-dark 
                          transition-colors"
-								aria-label="Shopping cart">
-								<ShoppingBag className="h-6 w-6 text-text-dark dark:text-text-light hover:text-primary-100 dark:hover:text-primary-100" />
-								{cartCount > 0 && (
-									<span
-										className="absolute -top-1 -right-1 w-5 h-5 text-xs flex items-center 
-                                justify-center bg-primary-100 text-white rounded-full">
-										{cartCount}
-									</span>
-								)}
-							</button>
+									aria-label="Shopping cart">
+									<ShoppingBag className="h-6 w-6 text-text-dark dark:text-text-light hover:text-primary-100 dark:hover:text-primary-100" />
+									{cartCount > 0 && (
+										<span
+											className="absolute -top-1 -right-1 w-5 h-5 text-xs flex items-center 
+                             justify-center bg-primary-100 text-white rounded-full">
+											{cartCount}
+										</span>
+									)}
+								</button>
+							)}
 
 							{/* Theme Toggle */}
 							<ThemeToggleButton onClick={toggleTheme} showThemeToggle={showThemeToggle}>
@@ -115,7 +125,14 @@ const NavBar = ({ onCartOpen, showThemeToggle = true }) => {
 									</button>
 								)}
 
-								{isAuthenticated && <ProfileDropdown isOpen={isProfileDropdownOpen} onClose={() => setIsProfileDropdownOpen(false)} />}
+								{isAuthenticated && (
+									<ProfileDropdown
+										isOpen={isProfileDropdownOpen}
+										onClose={() => setIsProfileDropdownOpen(false)}
+										onViewChange={onViewChange}
+									/>
+								)}
+
 							</div>
 						</div>
 					</div>

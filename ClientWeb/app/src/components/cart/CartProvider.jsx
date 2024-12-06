@@ -4,6 +4,11 @@ import { useAuth } from '../auth/AuthProvider';
 import { useTheme } from '../theme/ThemeProvider';
 import config from '../../config';
 
+
+/**
+ * CartProvider component
+ * Are all about fetching and updating cart item and status
+ */
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
@@ -78,6 +83,8 @@ const CartContextContent = ({
         }
       });
 
+      console.log(response);
+
       if (response.status === 401) {
         message.error('Please sign in to view your cart');
         return;
@@ -87,7 +94,13 @@ const CartContextContent = ({
 
       const data = await response.json();
       setCartItems(data.results || []);
+      console.log(data.results)
       updateCartCount(data.results || []);
+      const updatedCartItems = data.results.map((item) => ({
+        ...item,
+        maxQuantity: item.maxQuantity || 0,
+      }));
+      setCartItems(updatedCartItems);
     } catch (error) {
       console.error('Error fetching cart:', error);
       message.error('Failed to load cart items');

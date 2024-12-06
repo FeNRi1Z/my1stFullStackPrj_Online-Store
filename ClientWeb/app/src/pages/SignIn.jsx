@@ -1,29 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../components/theme/ThemeProvider';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { App, message } from 'antd';
+import { App } from 'antd';
 import { useAuth } from '../components/auth/AuthProvider';
 import config from '../config';
 
 function SignIn() {
+  // Navigate 
   const navigate = useNavigate();
-  const { theme } = useTheme();
+
+  // User auth 
   const { login, user } = useAuth();
+
+  // UI state
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Hook
   const { message } = App.useApp();
+
+  // Form state
   const [formData, setFormData] = useState({
     username: '',
     password: ''
   });
 
+  // Navigate to Home page
   useEffect(() => {
     if (user) {
       navigate('/');
     }
   }, [user, navigate]);
 
+  // Handle input from user.
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
@@ -31,13 +40,15 @@ function SignIn() {
     });
   };
 
+  // Handle navigate to register page
   const handleRegister = () => {
     navigate('/register');
   };
 
+  // Handle submit button
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    // If username or password blank show error message
     if (!formData.username || !formData.password) {
       message.warning('Please fill in all fields');
       return;
@@ -46,6 +57,7 @@ function SignIn() {
     setIsLoading(true);
 
     try {
+      // Send request
       const response = await fetch(config.apiPath + '/user/signIn', {
         method: 'POST',
         headers: {
@@ -58,7 +70,7 @@ function SignIn() {
       });
 
       const data = await response.json();
-
+      // API failed to respond show error message
       if (!response.ok) {
         throw new Error(data.message || 'Sign in failed');
       }
@@ -68,7 +80,7 @@ function SignIn() {
       const role = data.role || 'client'; // Default to client if role not specified
 
       await login(token, role);
-      
+
       // Clear form data after successful sign in
       setFormData({
         username: '',
@@ -76,6 +88,7 @@ function SignIn() {
       });
 
     } catch (err) {
+      // Error catching
       console.error('Sign in error:', err);
       message.error(err.message || 'Sign in failed');
     } finally {

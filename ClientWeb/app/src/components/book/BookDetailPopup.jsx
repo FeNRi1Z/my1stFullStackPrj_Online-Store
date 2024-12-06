@@ -70,7 +70,7 @@ const BookDetailPopup = ({ book, onClose, isOpen }) => {
 
   if (!isOpen && !isAnimating) return null;
 
-   return (
+  return (
     <div
       className={`fixed inset-0 z-[98] flex items-center justify-center
                 ${isAnimating ? '' : 'pointer-events-none'}`}
@@ -89,7 +89,7 @@ const BookDetailPopup = ({ book, onClose, isOpen }) => {
         <div
           className={`relative bg-white dark:bg-background-secondary-dark rounded-lg 
                      w-full max-w-3xl max-h-[90vh] overflow-y-auto
-                     shadow-xl border border-gray-200 dark:border-gray-800
+                     shadow-xl
                      transform transition-all duration-300 ease-out
                      ${isAnimating ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-8 opacity-0 scale-95'}`}
           onClick={e => e.stopPropagation()}
@@ -128,7 +128,7 @@ const BookDetailPopup = ({ book, onClose, isOpen }) => {
                   </p>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {book.categories?.map((category, index) => (
-                      <span 
+                      <span
                         key={index}
                         className="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-700 
                                  text-gray-700 dark:text-gray-300 rounded-full
@@ -180,7 +180,7 @@ const BookDetailPopup = ({ book, onClose, isOpen }) => {
                               autoFocus
                             />
                           ) : (
-                            <span 
+                            <span
                               className="w-8 text-center text-gray-900 dark:text-white cursor-pointer"
                               onDoubleClick={() => setIsEditing(true)}
                             >
@@ -200,17 +200,17 @@ const BookDetailPopup = ({ book, onClose, isOpen }) => {
                         </div>
                       )}
                       <span className="text-lg font-semibold text-gray-900 dark:text-white whitespace-nowrap">
-                      {isOutOfStock ? 'Price per unit: ' : ''} ${(book.price * quantity).toFixed(2)} 
+                        {isOutOfStock ? 'Price per unit: ' : ''} ${(book.price * quantity).toFixed(2)}
                       </span>
                     </div>
                     <button
                       onClick={handleAddToCart}
                       disabled={isOutOfStock}
                       className={`px-6 py-2 rounded-lg transition-colors duration-200 w-full sm:w-auto
-                                ${isOutOfStock 
-                                  ? 'bg-gray-400 cursor-not-allowed text-white'
-                                  : 'bg-primary-100 text-white hover:bg-primary-hover active:bg-primary-active'
-                                }`}
+                                ${isOutOfStock
+                          ? 'bg-gray-400 cursor-not-allowed text-white'
+                          : 'bg-primary-100 text-white hover:bg-primary-hover active:bg-primary-active'
+                        }`}
                     >
                       {isOutOfStock ? 'Out of Stock' : 'Add to cart'}
                     </button>

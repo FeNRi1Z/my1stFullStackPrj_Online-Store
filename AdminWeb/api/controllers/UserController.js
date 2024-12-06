@@ -233,7 +233,7 @@ app.put("/clientUpdate", checkSignIn, async (req, res) => {
 				},
 			});
 			if (fs.existsSync("./uploads/user_img/" + oldData.profile)) {
-				await fs.unlinkSync("./uploads/user_img/" + oldData.profile); // Delete old file
+				await fs.unlinkSync("./uploads/user_img/" + oldData.profile);
 			}
 		}
 

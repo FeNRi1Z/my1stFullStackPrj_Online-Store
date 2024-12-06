@@ -1,7 +1,11 @@
 import React from 'react';
 import { Button } from 'antd';
 import PropTypes from 'prop-types';
-
+/**
+ * CartFooter component
+ * Are refactored component from CartModal component, this component 
+ * serve purpose of showing cart total and proceed to checkout ( button )
+ */
 const CartFooter = ({ items, isAnimating, onCheckout }) => {
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 

@@ -18,6 +18,7 @@ import Profile from './pages/Profile';
 import Orders from './pages/Orders';
 import Checkout from './pages/Checkout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import About from './pages/About';
 
 // Root layout component that provides context
 const RootLayout = () => {
@@ -52,6 +53,10 @@ const router = createBrowserRouter([
       {
         path: 'store',
         element: <Store />
+      },
+      {
+        path: 'about',
+        element: <About />
       },
       {
         path: 'profile',
