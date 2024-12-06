@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import NavBar from '../components/layout/Navbar';
 import SideOrderNav from '../components/order/SideOrderNav';
 import OrderHistory from '../components/order/OrderHistory';
-import ProfileContent from '../components/profile/ProfileContent'; 
+import ProfileContent from '../components/profile/ProfileContent';
 import CartModal from '../components/cart/CartModal';
 import { useAuth } from '../components/auth/AuthProvider';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { App } from 'antd';
 
 const Orders = () => {
@@ -13,8 +13,15 @@ const Orders = () => {
   const navigate = useNavigate();
   const { message } = App.useApp();
   const [totalOrderCount, setTotalOrderCount] = useState(0);
-  const [activeView, setActiveView] = useState('orders');
+  const location = useLocation();
+  const [activeView, setActiveView] = useState(
+    location.state?.initialView || 'orders'
+  );
   const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const handleViewChange = (view) => {
+    setActiveView(view);
+  };
 
   const handleOrderCountUpdate = (count) => {
     setTotalOrderCount(count);
@@ -36,15 +43,18 @@ const Orders = () => {
   return (
     <div className="min-h-screen bg-background-light dark:bg-background-dark">
       <div className="fixed top-0 left-0 right-0 z-50">
-        <NavBar onCartOpen={() => setIsCartOpen(true)} />
+        <NavBar
+          onCartOpen={() => setIsCartOpen(true)}
+          onViewChange={handleViewChange}
+        />
       </div>
 
       <div className="flex pt-[60px]">
         <div className="hidden lg:block w-64 flex-shrink-0">
-          <SideOrderNav 
-            totalOrderCount={totalOrderCount} 
+          <SideOrderNav
+            totalOrderCount={totalOrderCount}
             activeView={activeView}
-            onNavigate={handleNavigation}
+            onNavigate={handleViewChange}
           />
         </div>
 
@@ -54,8 +64,8 @@ const Orders = () => {
               {activeView === 'orders' ? 'Order History' : 'Profile Information'}
             </h1>
             {activeView === 'orders' ? (
-              <OrderHistory 
-                onOrderCountUpdate={handleOrderCountUpdate} 
+              <OrderHistory
+                onOrderCountUpdate={handleOrderCountUpdate}
                 getAuthToken={getAuthToken}
               />
             ) : (
