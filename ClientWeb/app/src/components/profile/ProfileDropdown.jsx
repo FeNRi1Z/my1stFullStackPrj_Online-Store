@@ -1,25 +1,16 @@
 import React, { useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { User, Package, LogOut, ChevronRight } from 'lucide-react';
+import { User, Package, LogOut } from 'lucide-react';
+import { MenuItem } from './MenuItem';
 import { useAuth } from '../auth/AuthProvider';
 
-const MenuItem = ({ icon: Icon, label, onClick, hasChevron = true }) => {
-  return (
-    <button
-      onClick={onClick}
-      className="w-full px-4 py-3 flex items-center justify-between
-                 hover:bg-gray-100 dark:hover:bg-gray-700
-                 text-gray-700 dark:text-gray-200
-                 transition-all duration-200"
-    >
-      <div className="flex items-center gap-3">
-        <Icon className="w-5 h-5" />
-        <span className="text-sm font-medium">{label}</span>
-      </div>
-      {hasChevron && <ChevronRight className="w-4 h-4" />}
-    </button>
-  );
-};
+/**
+ * ProfileDropdown Component - Displays user profile actions in a dropdown menu
+ * @param {Object} props
+ * @param {boolean} props.isOpen - Controls dropdown visibility
+ * @param {Function} props.onClose - Callback to close the dropdown
+ * @param {Function} props.onViewChange - Callback to change view in orders page
+ */
 
 const ProfileDropdown = ({ isOpen, onClose, onViewChange }) => {
   const dropdownRef = useRef(null);

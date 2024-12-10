@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-
+/**For Showing order detail in modal form*/
 const OrderModal = ({ isOpen, onClose, children, title }) => {
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -37,7 +37,7 @@ const OrderModal = ({ isOpen, onClose, children, title }) => {
 
   return (
     <>
-      <div 
+      <div
         className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999]
           transition-opacity duration-300 ease-in-out
           ${isAnimating ? 'opacity-100' : 'opacity-0'}`}
@@ -45,14 +45,14 @@ const OrderModal = ({ isOpen, onClose, children, title }) => {
         style={{ margin: 0 }}
       />
 
-      <div 
+      <div
         className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
         style={{ margin: 0 }}
         onClick={(e) => {
           if (e.target === e.currentTarget) handleClose();
         }}
       >
-        <div 
+        <div
           className={`relative bg-white dark:bg-background-dark rounded-lg w-full 
             max-w-[90vw] lg:max-w-[900px] max-h-[90vh] flex flex-col
             transform transition-all duration-300 ease-out

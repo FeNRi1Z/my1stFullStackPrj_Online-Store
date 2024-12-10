@@ -1,15 +1,28 @@
 import React from 'react';
 import { ArrowLeft, Save, X, Edit2, LogOut } from 'lucide-react';
 
+/**
+ * ProfileHeader Component - Handles the header section of the profile page
+ * with editing controls and navigation
+ * 
+ * @param {Object} props
+ * @param {boolean} props.isEditing - Current editing state
+ * @param {() => void} props.handleBack - Handler for back navigation
+ * @param {() => void} props.handleEdit - Handler for enabling edit mode
+ * @param {() => void} props.handleSave - Handler for saving changes
+ * @param {() => void} props.handleCancel - Handler for canceling edit mode
+ * @param {() => void} props.logout - Handler for user logout
+ */
+
 export const ProfileHeader = ({ isEditing, handleBack, handleEdit, handleSave, handleCancel, logout }) => (
   <div className="p-6 border-b border-gray-200 dark:border-none">
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="order-last sm:order-first">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-4">
+        {/* <div className="order-last sm:order-first">
           <h1 className="text-xl font-bold text-text-dark dark:text-text-light text-center sm:text-left">
             Profile Information
           </h1>
-        </div>
+        </div> */}
 
         <div className="flex items-center justify-end gap-2 order-first sm:order-last">
           <button

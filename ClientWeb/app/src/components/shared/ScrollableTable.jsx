@@ -1,50 +1,34 @@
 import React from 'react';
-
+/**
+ * ScrollableTable Component
+ * A container component that adds custom scrollbar styling with dark mode support
+ *
+ * @component
+ * @param {Object} props
+ * @param {ReactNode} props.children - Content to be rendered inside scrollable container
+ * @param {string} [props.maxHeight="300px"] - Maximum height of scrollable area
+ */
 const ScrollableTable = ({ children, maxHeight = '300px' }) => {
     return (
         <div className="custom-scrollbar relative rounded-lg overflow-hidden">
-            <style jsx>{`
-            .custom-scrollbar {
-                scrollbar-width: thin;
-            }   
-            .custom-scrollbar::-webkit-scrollbar {
-                width: 6px;
-                height: 6px;
-            }
-            .custom-scrollbar::-webkit-scrollbar-track {
-                background: transparent;
-            }
-            .custom-scrollbar::-webkit-scrollbar-thumb {
-                background: rgb(203 213 225);
-                border-radius: 3px;
-                transition: all 0.2s ease-in-out;
-            }
-            .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-                background: rgb(148 163 184);
-            }
-            .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-                background: rgb(71 85 105);
-            }
-            .dark .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-                background: rgb(100 116 139);
-            }
-            .custom-scrollbar {
-                scrollbar-width: thin;
-                scrollbar-color: rgb(203 213 225) transparent;
-            }
-            .dark .custom-scrollbar {
-                scrollbar-color: rgb(71 85 105) transparent;
-            }
-            .custom-scrollbar::-webkit-scrollbar-thumb {
-                opacity: 0;
-            }
-            .custom-scrollbar:hover::-webkit-scrollbar-thumb,
-            .custom-scrollbar:focus::-webkit-scrollbar-thumb,
-            .custom-scrollbar:focus-within::-webkit-scrollbar-thumb {
-                opacity: 1;
-            }
-        `}</style>
-            <div className="overflow-y-auto" style={{ maxHeight }}>
+            <div 
+                className={`
+                    overflow-y-auto
+                    [&::-webkit-scrollbar]:w-[6px]
+                    [&::-webkit-scrollbar]:h-[6px]
+                    [&::-webkit-scrollbar-track]:bg-transparent
+                    [&::-webkit-scrollbar-thumb]:bg-slate-300
+                    [&::-webkit-scrollbar-thumb]:rounded-[3px]
+                    [&::-webkit-scrollbar-thumb]:transition-all
+                    hover:[&::-webkit-scrollbar-thumb]:bg-slate-400
+                    dark:[&::-webkit-scrollbar-thumb]:bg-slate-600
+                    dark:hover:[&::-webkit-scrollbar-thumb]:bg-slate-500
+                    scrollbar-thin
+                    dark:scrollbar-thumb-slate-600
+                    scrollbar-thumb-slate-300
+                `}
+                style={{ maxHeight }}
+            >
                 {children}
             </div>
         </div>

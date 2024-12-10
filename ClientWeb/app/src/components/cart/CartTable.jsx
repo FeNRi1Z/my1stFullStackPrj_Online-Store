@@ -6,8 +6,11 @@ import { useCart } from './CartProvider';
 import config from '../../config';
 
 /**
- * CartItem component
- * serve for displaying fetched cart items
+ * CartTable Component
+ * @param {Object} props
+ * @param {Array} props.items - Array of cart items to display
+ * @param {string} props.searchQuery - Current search filter text
+ * @param {number} props.windowWidth - Current window width for responsive layout
  */
 
 const CartTable = ({ items, searchQuery, windowWidth }) => {

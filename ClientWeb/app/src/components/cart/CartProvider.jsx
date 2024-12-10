@@ -6,9 +6,10 @@ import config from '../../config';
 
 
 /**
- * CartProvider component
- * Are all about fetching and updating cart item and status
+ * Context for managing cart state and operations
+ * @type {React.Context}
  */
+
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {

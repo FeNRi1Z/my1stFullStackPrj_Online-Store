@@ -3,11 +3,21 @@ import PropTypes from 'prop-types';
 import LoadingSpinner from './LoadingSpinner';
 import EmptyCart from './EmptyCart';
 import CartTable from './CartTable';
+
 /**
- * CartContent component
- * Are refactored component from CartModal component, this component 
- * serve purpose of Displaying cart item from the CartTable.
+ * Displays cart contents with loading, empty, and populated states.
+ * Handles responsive behavior and animations for cart modal content.
+ * 
+ * @param {Object} props
+ * @param {Array} props.items - Cart items to display
+ * @param {boolean} props.loading - Loading state of cart data
+ * @param {string} props.searchQuery - Current search filter for cart items
+ * @param {number} props.windowWidth - Current window width for responsive layout
+ * @param {boolean} props.isAnimating - Controls entry/exit animations
+ * @param {Function} props.onClose - Handler for closing the cart
+ * @param {Function} props.navigate - Navigation function for routing
  */
+
 const CartContent = ({ 
   items, 
   loading, 

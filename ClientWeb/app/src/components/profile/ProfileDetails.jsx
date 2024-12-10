@@ -1,6 +1,17 @@
 import React from 'react';
 import { User, MapPin, Phone } from 'lucide-react';
 
+/**
+ * ProfileField Component - Renders a single field in the profile with icon and label
+ * @param {Object} props
+ * @param {React.ComponentType} props.icon - Lucide icon component to display
+ * @param {string} props.label - Label text for the field
+ * @param {string} props.value - Current value of the field
+ * @param {boolean} props.isEditing - Whether the field is in edit mode
+ * @param {Function} props.onChange - Handler for value changes
+ * @param {boolean} props.readOnly - Whether the field is read-only
+ */
+
 const ProfileField = ({ icon: Icon, label, value, isEditing, onChange, readOnly }) => (
   <div className="flex items-start gap-3">
     <Icon className="w-5 h-5 mt-0.5 flex-shrink-0 text-text-dark dark:text-text-light" />

@@ -4,9 +4,11 @@ import { X } from 'lucide-react';
 import PropTypes from 'prop-types';
 
 /**
- * Header
- * Are refactored component from CartModal component, this component 
- * serve purpose of showing cart count and closign cart
+ * A header component for the shopping cart modal that displays item count and close button
+ * @param {Object} props
+ * @param {number} props.cartCount - Number of items currently in cart
+ * @param {Function} props.onClose - Handler for closing the cart modal
+ * @param {boolean} props.isAnimating - Controls opacity animation state
  */
 
 const CartHeader = ({ cartCount, onClose, isAnimating }) => (

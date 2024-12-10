@@ -1,7 +1,19 @@
-import React, { useState, useRef, useEffect , useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import BookCard from '../book/BookCard';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-
+/**
+ * ScrollableFrame Component
+ * A horizontally scrollable container for displaying book cards with navigation controls
+ * 
+ * @component
+ * @param {Object} props
+ * @param {string} [props.title] - Optional title for the scrollable section
+ * @param {Array<Object>} props.books - Array of book objects to display
+ * @param {string} props.books[].id - Unique identifier for each book
+ * @param {string} props.books[].cover - Book cover image URL
+ * @param {string} props.books[].title - Book title
+ * @param {string} props.books[].author - Book author
+ */
 const ScrollableFrame = ({ title, books }) => {
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
@@ -12,7 +24,9 @@ const ScrollableFrame = ({ title, books }) => {
   const [showControls, setShowControls] = useState(false);
   const scrollContainerRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
-
+  /**
+   * Check if user scroll then show navigation arrow
+   */
   const checkScroll = useCallback(() => {
     if (scrollContainerRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
@@ -21,7 +35,7 @@ const ScrollableFrame = ({ title, books }) => {
       setShowRightArrow(scrollLeft < scrollWidth - clientWidth - threshold);
     }
   }, []);
-
+  // Set time out for navigation arrow.
   useEffect(() => {
     checkScroll();
     window.addEventListener('resize', checkScroll);
@@ -140,7 +154,7 @@ const ScrollableFrame = ({ title, books }) => {
             <ChevronRight className="w-6 h-6" />
           </button>
         )}
-
+        {/* Scrollable container for book cards */}
         <div
           ref={scrollContainerRef}
           className="overflow-x-auto scrollbar-hide select-none cursor-grab active:cursor-grabbing"
@@ -157,7 +171,7 @@ const ScrollableFrame = ({ title, books }) => {
                 cover={book.cover}
                 title={book.title}
                 author={book.author}
-                book={book} 
+                book={book}
               />
             ))}
           </div>

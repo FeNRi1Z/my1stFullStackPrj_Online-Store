@@ -1,4 +1,9 @@
-import { useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
+
+/**
+ * Custom hook that tracks window width dimension
+ * @returns {Object} windowWidth - Current window width in pixels
+ */
 
 export const useWindowDimensions = () => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);

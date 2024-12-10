@@ -2,6 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import ScrollableFrame from './ScrollableFrame';
 import booksData from '../../assets/books.json';
 
+/**
+ * TabPanel Component
+ * A scrollable, touch-enabled tab interface for categorized book display
+ * Currently unused but can be implement as category tab in future implementation
+*/
 const TabPanel = () => {
   const [activeTab, setActiveTab] = useState('');
   const [indicatorStyle, setIndicatorStyle] = useState({ opacity: 0 });
@@ -22,7 +27,7 @@ const TabPanel = () => {
   //       `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(book.name)}+inauthor:${encodeURIComponent(book.author)}`
   //     );
   //     const data = await response.json();
-      
+
   //     if (data.items && data.items[0]?.volumeInfo?.imageLinks?.thumbnail) {
   //       return {
   //         ...book,
@@ -87,7 +92,7 @@ const TabPanel = () => {
     const processBooks = async () => {
       try {
         setIsLoading(true);
-        
+
         // Extract unique categories from all books
         const uniqueCategories = new Set();
         booksData.books.forEach(book => {
@@ -97,11 +102,11 @@ const TabPanel = () => {
         });
 
         const categoryList = Array.from(uniqueCategories).sort();
-        
+
         // Create categorized books object with Google Books API covers
         const booksByCategory = {};
         for (const category of categoryList) {
-          const booksInCategory = booksData.books.filter(book => 
+          const booksInCategory = booksData.books.filter(book =>
             book.categoriesName.includes(category)
           );
 
@@ -147,7 +152,7 @@ const TabPanel = () => {
     if (currentTab) {
       const container = tabsContainerRef.current;
       const tabLeft = currentTab.offsetLeft;
-      
+
       setIndicatorStyle({
         left: `${tabLeft}px`,
         width: `${currentTab.offsetWidth}px`,
@@ -209,7 +214,7 @@ const TabPanel = () => {
     <div className="w-full">
       {/* Tabs Header */}
       <div className="dark:border-b border-secondary-50 border-text-disabled">
-        <div 
+        <div
           ref={tabsContainerRef}
           className="relative flex overflow-x-auto scrollbar-hide select-none cursor-grab active:cursor-grabbing"
           onMouseDown={handleMouseDown}

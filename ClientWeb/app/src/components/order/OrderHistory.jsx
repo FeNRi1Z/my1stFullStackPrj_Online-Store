@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { useAuth } from '../auth/AuthProvider';
 import { App } from 'antd';
 import config from '../../config';
-
+/**Order history panel display a list of OrderCard */
 const OrderHistory = ({ onOrderCountUpdate, getAuthToken }) => {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -14,14 +14,14 @@ const OrderHistory = ({ onOrderCountUpdate, getAuthToken }) => {
 
   const fetchOrders = useCallback(async () => {
     if (!user) return;
-    
+
     try {
       const token = getAuthToken();
       if (!token) return;
 
       const cleanToken = token.replace('Bearer ', '');
 
-      console.log('Fetching orders...'); 
+      console.log('Fetching orders...');
 
       const response = await fetch(`${config.apiPath}/order/myOrderList`, {
         headers: {
@@ -33,7 +33,7 @@ const OrderHistory = ({ onOrderCountUpdate, getAuthToken }) => {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error('Error response:', errorData);
-        
+
         if (response.status === 401) {
           return;
         }
@@ -42,7 +42,7 @@ const OrderHistory = ({ onOrderCountUpdate, getAuthToken }) => {
 
       const data = await response.json();
       console.log('Orders received:', data);
-      
+
       if (data && data.results && Array.isArray(data.results)) {
         setOrders(data.results);
       } else {
@@ -67,7 +67,7 @@ const OrderHistory = ({ onOrderCountUpdate, getAuthToken }) => {
     const activeOrderCount = orders.filter(
       order => ['to be paid'].includes(order.status.toLowerCase())
     ).length;
-    
+
     onOrderCountUpdate(activeOrderCount);
   }, [orders, onOrderCountUpdate]);
 
@@ -103,18 +103,18 @@ const OrderHistory = ({ onOrderCountUpdate, getAuthToken }) => {
       message.error('Failed to update payment status');
     }
   };
-
+  /**Handle upload payment slip in to be paid status */
   const handleUploadSlip = useCallback(async (orderId) => {
     try {
       const token = getAuthToken();
       if (!token) return;
 
       const cleanToken = token.replace('Bearer ', '');
-      
+
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/*';
-      
+
       input.onchange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -130,12 +130,12 @@ const OrderHistory = ({ onOrderCountUpdate, getAuthToken }) => {
           body: formData
         });
 
-        if (!response.ok) {
+        if (!response.ok) { // If API fail to respond
           throw new Error('Failed to upload payment slip');
         }
 
         const data = await response.json();
-        if (data.newName) {
+        if (data.newName) { // Show order success
           message.success('Payment slip uploaded successfully');
           await updateOrderPayment(orderId, data.newName);
         }

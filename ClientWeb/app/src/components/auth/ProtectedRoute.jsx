@@ -2,6 +2,13 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 
+/**
+ * ProtectedRoute Component - Handles route protection based on authentication state
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - Child components to render when authenticated
+ * @returns {React.ReactElement} Rendered component or navigation redirect
+ */
+
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   const location = useLocation();

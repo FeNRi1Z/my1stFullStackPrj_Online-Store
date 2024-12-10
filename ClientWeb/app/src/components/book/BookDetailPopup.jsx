@@ -2,6 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { X, Minus, Plus } from 'lucide-react';
 import { useCart } from '../cart/CartProvider';
 
+/**
+ * BookDetailPopup Component - Displays detailed information about a book with add to cart functionality
+ * @param {Object} props
+ * @param {Object} props.book - Book details including title, author, price, quantity
+ * @param {Function} props.onClose - Handler to close the popup
+ * @param {boolean} props.isOpen - Controls visibility of the popup
+ */
+
 const BookDetailPopup = ({ book, onClose, isOpen }) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -53,6 +61,7 @@ const BookDetailPopup = ({ book, onClose, isOpen }) => {
   };
 
   const handleAddToCart = () => {
+     // Convert book data into cart item format
     const cartItem = {
       id: book.id,
       title: book.title,

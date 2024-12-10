@@ -1,0 +1,12 @@
+{
+    "name": "project-root",
+    "version": "1.0.0",
+    "description": "Script for setup project after first clone quickly",
+    "scripts": {
+      "setup": "node setup.js",
+      "start": "node setup.js"
+    },
+    "engines": {
+      "node": ">=14.0.0"
+    }
+  }

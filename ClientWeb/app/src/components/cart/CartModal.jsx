@@ -18,16 +18,19 @@ import { useWindowDimensions } from "../../hooks/useWindowDimensions";
 import { getThemeConfig } from "./utils/themeConfig";
 
 /**
- * CartModal component are main component displaying a list of item in user cart
+ * CartModal Component
+ * @param {Object} props
+ * @param {boolean} props.isOpen - Controls modal visibility
+ * @param {function} props.onClose - Callback function to close the modal
  */
 
 const CartModal = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const { cartItems, cartCount, loading } = useCart();
-  const { width: windowWidth } = useWindowDimensions();
   const { searchQuery, setSearchQuery } = useModalSearch("");
   const { isAnimating, handleClose } = useModalAnimation(isOpen, onClose);
+  const { windowWidth } = useWindowDimensions();
 
   // Handle body scroll lock
   useEffect(() => {
@@ -107,7 +110,7 @@ const CartModal = ({ isOpen, onClose }) => {
               items={cartItems}
               loading={loading}
               searchQuery={searchQuery}
-              windowWidth={windowWidth} 
+              windowWidth={windowWidth}
               isAnimating={isAnimating}
               onClose={handleClose}
               navigate={navigate}

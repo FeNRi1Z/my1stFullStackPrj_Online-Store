@@ -1,3 +1,10 @@
+/**
+ * AuthProvider Component
+ * Manages authentication state and theme configuration
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - Child components to render
+ */
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { App, ConfigProvider, theme as antdTheme } from 'antd';
@@ -73,7 +80,7 @@ const AuthContextContent = ({
       }
 
       const cleanToken = token.replace('Bearer ', '');
-      
+
       const response = await fetch(config.apiPath + '/user/info', {
         method: 'GET',
         headers: {
@@ -94,7 +101,7 @@ const AuthContextContent = ({
 
       const data = await response.json();
       const role = localStorage.getItem('role');
-      
+
       setUser({
         ...data.result,
         role: role
@@ -126,7 +133,7 @@ const AuthContextContent = ({
       const cleanToken = token.replace('Bearer ', '');
       localStorage.setItem('token', cleanToken);
       localStorage.setItem('role', role);
-  
+
       if (userData) {
         setUser({ ...userData, role });
         message.success('Successfully signed in!');
@@ -134,7 +141,7 @@ const AuthContextContent = ({
         navigate(from, { replace: true });
         return;
       }
-  
+
       const response = await fetch(config.apiPath + '/user/info', {
         method: 'GET',
         headers: {
@@ -142,17 +149,17 @@ const AuthContextContent = ({
           'Content-Type': 'application/json'
         }
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to get user information');
       }
-  
+
       const data = await response.json();
       setUser({ ...data.result, role });
       message.success('Successfully signed in!');
       const from = location.state?.from?.pathname || '/';
       navigate(from, { replace: true });
-  
+
     } catch (error) {
       localStorage.removeItem('token');
       localStorage.removeItem('role');
@@ -176,7 +183,7 @@ const AuthContextContent = ({
     try {
       const token = localStorage.getItem('token');
       if (!token) return;
-  
+
       const response = await fetch(config.apiPath + '/user/info', {
         method: 'GET',
         headers: {
@@ -184,11 +191,11 @@ const AuthContextContent = ({
           'Content-Type': 'application/json'
         }
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to refresh user data');
       }
-  
+
       const data = await response.json();
       const role = localStorage.getItem('role');
       setUser({ ...data.result, role });
@@ -223,7 +230,7 @@ const AuthContextContent = ({
   );
 };
 
-// Custom hook to use auth context
+// Intregrated Custom hook to use auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

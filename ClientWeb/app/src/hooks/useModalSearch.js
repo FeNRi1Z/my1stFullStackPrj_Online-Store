@@ -1,7 +1,10 @@
-// src/hooks/useModalSearch.js
 import { useState, useCallback } from 'react';
 
-// Change from const to function declaration
+/**
+ * Custom hook for filtering items based on search criteria within a modal
+ * @param {string} initialQuery - Initial search query value
+ * @returns {Object} Search utilities including query state and filter function
+ */
 function useModalSearch(initialQuery = '') {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
 
@@ -18,8 +21,9 @@ function useModalSearch(initialQuery = '') {
       return items;
     }
 
+    // Filter items by matching query against name or author fields
     const query = searchQuery.toLowerCase();
-    return items.filter(item => 
+    return items.filter(item =>
       item.name?.toLowerCase().includes(query) ||
       item.author?.toLowerCase().includes(query)
     );
@@ -33,5 +37,4 @@ function useModalSearch(initialQuery = '') {
   };
 }
 
-// Export the hook as default
 export default useModalSearch;

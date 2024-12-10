@@ -6,15 +6,16 @@ import { PenLine } from "lucide-react";
  */
 
 
-export const PaymentSection = ({ 
-  userData, 
-  paymentMethod, 
-  setPaymentMethod, 
-  onEditAddress, 
-  onEditPhone 
+export const PaymentSection = ({
+  userData,
+  paymentMethod,
+  setPaymentMethod,
+  onEditAddress,
+  onEditPhone
 }) => {
   return (
     <div className="space-y-4 w-full">
+      {/* Edit address section */}
       <h2 className="text-text-dark dark:text-text-light text-xl font-semibold mb-4">Contact Information</h2>
       <div className="flex flex-col space-y-6">
         <div className="bg-white dark:bg-background-secondary-dark p-2 rounded-lg shadow">
@@ -26,7 +27,7 @@ export const PaymentSection = ({
             </button>
           </div>
         </div>
-
+        {/* Edit phone section */}
         <div className="bg-white dark:bg-background-secondary-dark p-2 rounded-lg shadow">
           <div className="relative p-4 rounded-lg bg-gray-50 dark:bg-background-dark">
             <div className="font-medium mb-2 text-text-dark dark:text-text-light">Phone</div>
@@ -36,7 +37,7 @@ export const PaymentSection = ({
             </button>
           </div>
         </div>
-
+        {/* Set payment method section */}
         <div className="space-y-4">
           <h2 className="text-text-dark dark:text-text-light text-xl font-semibold mb-4">Payment Method</h2>
 
@@ -46,6 +47,7 @@ export const PaymentSection = ({
               bg-gray-50 dark:bg-background-dark
               hover:border-primary-100`}
             onClick={() => setPaymentMethod("qr")}>
+            {/* Payment option */}
             <label className="flex items-center space-x-3 cursor-pointer">
               <input
                 type="radio"
@@ -55,10 +57,10 @@ export const PaymentSection = ({
                 onChange={(e) => setPaymentMethod(e.target.value)}
                 className="form-radio text-primary-100"
               />
+              {/* Bank Transfer */}
               <span className="text-text-dark dark:text-text-light">Bank Transfer</span>
             </label>
           </div>
-
           <div
             className={`p-4 rounded-lg cursor-not-allowed transition-all
               border border-gray-200 dark:border-gray-700
@@ -66,12 +68,13 @@ export const PaymentSection = ({
             <label className="flex items-center space-x-3 cursor-not-allowed">
               <input type="radio" name="paymentMethod" value="cod" disabled checked={false} className="form-radio text-gray-300 dark:text-gray-600" />
               <div className="flex items-center gap-2">
+                {/* COD */}
                 <span className="text-gray-400 dark:text-gray-500">Cash on Delivery</span>
                 <span className="text-xs py-0.5 px-2 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-full">Coming Soon</span>
               </div>
             </label>
           </div>
-
+          {/* Banner after select Bank Transfer */}
           {paymentMethod === "qr" && (
             <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-lg">
               <p className="text-sm text-blue-700 dark:text-blue-300">After order confirmation, please upload your payment slip in the order history section.</p>

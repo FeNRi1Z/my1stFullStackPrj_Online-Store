@@ -24,6 +24,7 @@ export const ProfilePicture = ({ profile, isEditing, isChangeImg, setIsChangeImg
       <div className="w-24 h-24 sm:w-28 sm:h-28 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center overflow-hidden">
         {profile && profile !== "noIMGFile" ? (
           <div className={`w-full h-full ${isEditing ? 'containerIMG' : ''}`} onClick={() => { if (isEditing) setIsChangeImg(true) }}>
+            {/* Profile image */}
             <Image
               src={`${config.apiPath}/uploads/user_img/${profile}`}
               className="img-circle elevation-2"
@@ -36,8 +37,10 @@ export const ProfilePicture = ({ profile, isEditing, isChangeImg, setIsChangeImg
             )}
           </div>
         ) : (
+          // If no profile picture
           <div className={isEditing ? 'containerIMG' : ''} onClick={() => { if (isEditing) setIsChangeImg(true) }}>
             <User className="w-12 h-12 sm:w-14 sm:h-14 text-gray-400 dark:text-gray-300" />
+            {/* Edit overlay shown when in edit mode */}
             {isEditing && (
               <div className="middle textIMG rounded-full w-fit h-fit">
                 <div>Click to Change</div>

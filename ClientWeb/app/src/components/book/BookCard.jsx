@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 import BookDetailPopup from './BookDetailPopup';
 
+/**
+ * BookCard Component - Displays a book preview card with cover image and basic details
+ * @param {Object} props
+ * @param {string} props.cover - URL of the book cover image
+ * @param {string} props.title - Title of the book
+ * @param {string} props.author - Author of the book
+ * @param {Object} props.book - Complete book data object
+ */
+
 const BookCard = ({ cover, title, author, book }) => {
   const [showPopup, setShowPopup] = useState(false);
   // console.log(book) //Debugging data from list api.

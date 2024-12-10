@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../components/auth/AuthProvider';
-
+/**
+ * Custom hook for contact information and related modals
+ * @returns {Object} User data, payment method state, and modal controls
+ */
 export const useContactInfo = () => {
   const [userData, setUserData] = useState({
     address: "",

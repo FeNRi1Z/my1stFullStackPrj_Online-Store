@@ -1,16 +1,19 @@
 import React from 'react';
 import { Button } from 'antd';
 import PropTypes from 'prop-types';
+
 /**
- * CartFooter component
- * Are refactored component from CartModal component, this component 
- * serve purpose of showing cart total and proceed to checkout ( button )
+ * Displays the cart summary and checkout button
+ * @param {Object[]} props.items - Array of cart items with price and quantity
+ * @param {boolean} props.isAnimating - Controls visibility animation state
+ * @param {Function} props.onCheckout - Handler for checkout button click
  */
+
 const CartFooter = ({ items, isAnimating, onCheckout }) => {
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   return (
-    <div 
+    <div
       className={`p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700
         transition-all duration-300 delay-200 rounded-bl-lg rounded-br-lg
         ${isAnimating ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}

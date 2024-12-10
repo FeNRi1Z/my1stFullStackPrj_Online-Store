@@ -7,6 +7,8 @@ import OrderModal from '../order/OrderModal';
 import Dialog from '../layout/Dialog';
 import axios from 'axios';
 
+
+/**Display order detail and actions */
 const OrderCard = ({ order, onUploadSlip, onCancel, onStatusChange, getAuthToken }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [imageErrors, setImageErrors] = useState({});
@@ -23,7 +25,7 @@ const OrderCard = ({ order, onUploadSlip, onCancel, onStatusChange, getAuthToken
     return null;
   }
 
-
+  /**Update order status */
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
       const token = getAuthToken();
@@ -124,7 +126,7 @@ const OrderCard = ({ order, onUploadSlip, onCancel, onStatusChange, getAuthToken
       orderId
     });
   };
-
+  /**Status color */
   const getStatusColor = (status) => {
     switch ((status || "").toLowerCase()) {
       case "completed":
@@ -143,7 +145,7 @@ const OrderCard = ({ order, onUploadSlip, onCancel, onStatusChange, getAuthToken
         return "bg-yellow-500";
     }
   };
-
+  /**Status label */
   const getStatusDisplay = (status) => {
     switch ((status || "").toLowerCase()) {
       case "completed":
@@ -169,7 +171,7 @@ const OrderCard = ({ order, onUploadSlip, onCancel, onStatusChange, getAuthToken
       [itemId]: true
     }));
   };
-
+  /**Get ImageUrl from local storage */
   const getImageUrl = (item) => {
     if (imageErrors[item.productId]) {
       return '/placeholder-image.jpg';
@@ -190,7 +192,7 @@ const OrderCard = ({ order, onUploadSlip, onCancel, onStatusChange, getAuthToken
     }
     setIsModalOpen(true);
   };
-
+  /**Format order date using dayjs.format */
   const formatDate = (dateString) => {
     try {
       return dayjs(dateString).format("YYYY/MM/DD HH:mm:ss");
@@ -290,77 +292,80 @@ const OrderCard = ({ order, onUploadSlip, onCancel, onStatusChange, getAuthToken
       </div>
 
       {/* Order Details Modal */}
-      <OrderModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={`Order Details #${order.id}`}
-      >
-        <ScrollableTable maxHeight="calc(90vh - 250px)">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-background-secondary-dark sticky top-0 z-10">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium text-gray-900 dark:text-white w-1/2 lg:w-3/5">Product</th>
-                <th className="px-4 py-3 text-center font-medium text-gray-900 dark:text-white">Quantity</th>
-                <th className="hidden sm:table-cell px-4 py-3 text-right font-medium text-gray-900 dark:text-white">Price</th>
-                <th className="px-4 py-3 text-right font-medium text-gray-900 dark:text-white">Total</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {orderItems.map((item) => (
-                <tr
-                  key={item.productId}
-                  className="hover:bg-gray-50 dark:hover:bg-background-secondary-dark"
-                >
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3 sm:gap-4">
-                      <div className="w-16 h-20 sm:w-20 sm:h-24 lg:w-24 lg:h-32 flex-shrink-0 bg-gray-100 dark:bg-gray-800 rounded overflow-hidden">
-                        <img
-                          src={getImageUrl(item)}
-                          alt={item.name || 'Product'}
-                          className="w-full h-full object-cover"
-                          onError={() => handleImageError(item.productId)}
-                        />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-medium text-sm sm:text-base lg:text-lg text-gray-900 dark:text-white line-clamp-2">
-                          {item.name || 'Unnamed Product'}
-                        </p>
-                        <p className="text-xs sm:text-sm text-gray-500">
-                          {item.author}
-                        </p>
-                        {item.categoriesName && item.categoriesName.length > 0 && (
-                          <p className="text-xs text-gray-400 mt-1">
-                            {item.categoriesName.join(', ')}
+
+      {isModalOpen && (
+        <OrderModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title={`Order Details #${order.id}`}
+        >
+          <ScrollableTable maxHeight="calc(90vh - 250px)">
+            <table className="w-full">
+              <thead className="bg-gray-50 dark:bg-background-secondary-dark sticky top-0 z-10">
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium text-gray-900 dark:text-white w-1/2 lg:w-3/5">Product</th>
+                  <th className="px-4 py-3 text-center font-medium text-gray-900 dark:text-white">Quantity</th>
+                  <th className="hidden sm:table-cell px-4 py-3 text-right font-medium text-gray-900 dark:text-white">Price</th>
+                  <th className="px-4 py-3 text-right font-medium text-gray-900 dark:text-white">Total</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {orderItems.map((item) => (
+                  <tr
+                    key={item.productId}
+                    className="hover:bg-gray-50 dark:hover:bg-background-secondary-dark"
+                  >
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <div className="w-16 h-20 sm:w-20 sm:h-24 lg:w-24 lg:h-32 flex-shrink-0 bg-gray-100 dark:bg-gray-800 rounded overflow-hidden">
+                          <img
+                            src={getImageUrl(item)}
+                            alt={item.name || 'Product'}
+                            className="w-full h-full object-cover"
+                            onError={() => handleImageError(item.productId)}
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-sm sm:text-base lg:text-lg text-gray-900 dark:text-white line-clamp-2">
+                            {item.name || 'Unnamed Product'}
                           </p>
-                        )}
+                          <p className="text-xs sm:text-sm text-gray-500">
+                            {item.author}
+                          </p>
+                          {item.categoriesName && item.categoriesName.length > 0 && (
+                            <p className="text-xs text-gray-400 mt-1">
+                              {item.categoriesName.join(', ')}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center text-sm sm:text-base">
-                    {item.quantity}
-                  </td>
-                  <td className="hidden sm:table-cell px-4 py-3 text-right text-sm sm:text-base">
-                    ${item.productPrice.toLocaleString()}
-                  </td>
-                  <td className="px-4 py-3 text-right text-sm sm:text-base">
-                    ${item.totalPrice.toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm sm:text-base">
+                      {item.quantity}
+                    </td>
+                    <td className="hidden sm:table-cell px-4 py-3 text-right text-sm sm:text-base">
+                      ${item.productPrice.toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm sm:text-base">
+                      ${item.totalPrice.toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+                <tr className="bg-gray-50 dark:bg-background-secondary-dark font-medium">
+                  <td colSpan="2" className="sm:hidden"></td>
+                  <td colSpan="3" className="hidden sm:table-cell"></td>
+                  <td className="px-4 py-3 text-right text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
+                    Total Amount: ${order.orderTotal.toLocaleString()}
                   </td>
                 </tr>
-              ))}
-              <tr className="bg-gray-50 dark:bg-background-secondary-dark font-medium">
-                <td colSpan="2" className="sm:hidden"></td>
-                <td colSpan="3" className="hidden sm:table-cell"></td>
-                <td className="px-4 py-3 text-right text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
-                  Total Amount: ${order.orderTotal.toLocaleString()}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </ScrollableTable>
-      </OrderModal>
+              </tbody>
+            </table>
+          </ScrollableTable>
+        </OrderModal>
+      )}
       <Dialog
         isOpen={confirmDialog.isOpen}
-        onClose={handleDialogClose} // Always allow closing
+        onClose={handleDialogClose} // Always allow closing while count down
       >
         <div className="space-y-4">
           {!showSuccess ? (

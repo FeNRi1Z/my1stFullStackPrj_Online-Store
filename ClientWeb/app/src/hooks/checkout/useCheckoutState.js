@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+/**
+ * Custom hook for checkout flow state and navigation
+ * @returns {Object} Checkout state and handlers
+ */
 export const useCheckoutState = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSideNavOpen, setIsSideNavOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const navigate = useNavigate();
-
+  // Handle navigate
   const handleNavigation = {
     toStore: () => navigate("/store"),
     toOrders: () => navigate("/orders"),
@@ -19,7 +22,7 @@ export const useCheckoutState = () => {
       }
     }
   };
-
+  // Handle UI state
   const handleNav = {
     openSideNav: () => setIsSideNavOpen(true),
     closeSideNav: () => setIsSideNavOpen(false),

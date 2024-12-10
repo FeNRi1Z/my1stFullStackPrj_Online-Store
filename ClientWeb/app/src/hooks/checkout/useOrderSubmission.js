@@ -2,13 +2,21 @@ import { useState } from 'react';
 import { App } from 'antd';
 import { useCart } from '../../components/cart/CartProvider';
 import config from '../../config';
-
+/**
+ * Custom hook for handle order submission and validation
+ * @returns {Object} Order submission utilities and state
+ */
 export const useOrderSubmission = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [orderData, setOrderData] = useState(null);
   const { cartItems, clearCart } = useCart();
   const { message } = App.useApp();
-
+  /**
+     * Validates order data before submission
+     * @param {Object} userData - User's contact information
+     * @param {string} paymentMethod - Selected payment method
+     * @returns {boolean} Validation result
+     */
   const validateOrder = (userData, paymentMethod) => {
     if (!paymentMethod) {
       message.warning("Please select a payment method");

@@ -2,10 +2,15 @@ import React from 'react';
 import { Input } from 'antd';
 import { Search } from 'lucide-react';
 import PropTypes from 'prop-types';
+
 /**
- * CartSearch component
- * serve for making antd search work.
+ * CartSearch Component
+ * @param {Object} props
+ * @param {string} props.searchQuery - Current search input value
+ * @param {function} props.setSearchQuery - Handler to update search value
+ * @param {boolean} props.isAnimating - Controls visibility animation state
  */
+
 const CartSearch = ({ searchQuery, setSearchQuery, isAnimating }) => (
   <div 
     className={`px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700

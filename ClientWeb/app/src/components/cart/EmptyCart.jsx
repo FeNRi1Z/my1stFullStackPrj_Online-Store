@@ -4,8 +4,11 @@ import { ShoppingBag } from 'lucide-react';
 import PropTypes from 'prop-types';
 
 /**
- * EmptyCart component 
- * serve for showign empty state of cart.
+ * Displays an empty cart state with a shopping bag icon and a call-to-action button
+ * @param {Object} props
+ * @param {Function} props.onClose - Handler to close the cart modal/drawer
+ * @param {Function} props.navigate - Navigation function to redirect user to store page
+ * @returns {React.ReactElement} Empty cart UI component
  */
 
 const EmptyCart = ({ onClose, navigate }) => (

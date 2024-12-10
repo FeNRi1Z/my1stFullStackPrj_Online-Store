@@ -1,29 +1,23 @@
 import React from 'react';
-import { FileText, User, Key } from 'lucide-react';
+import { FileText, User } from 'lucide-react';
 import { useTheme } from '../theme/ThemeProvider';
-
+/**Component use to navigate menu within orders page to change activeView */
 const SideOrderNav = ({ totalOrderCount, activeView, onNavigate }) => {
   const { theme } = useTheme();
   const navItems = [
-    { 
-      icon: User, 
-      text: 'Edit profile', 
+    {
+      icon: User,
+      text: 'Edit profile',
       view: 'profile',
       onClick: () => onNavigate('profile')
     },
-    { 
-      icon: FileText, 
-      text: 'View orders', 
+    {
+      icon: FileText,
+      text: 'View orders',
       count: totalOrderCount > 0 ? totalOrderCount : null,
       view: 'orders',
       onClick: () => onNavigate('orders')
     },
-    // { 
-    //   icon: Key, 
-    //   text: 'Change password', 
-    //   view: 'password',
-    //   onClick: () => onNavigate('password')
-    // },
   ];
 
   return (
@@ -34,8 +28,8 @@ const SideOrderNav = ({ totalOrderCount, activeView, onNavigate }) => {
             key={index}
             onClick={item.onClick}
             className={`w-full flex items-center p-3 rounded-lg 
-              ${activeView === item.view 
-                ? 'bg-gray-100 dark:bg-background-secondary-dark' 
+              ${activeView === item.view
+                ? 'bg-gray-100 dark:bg-background-secondary-dark'
                 : 'hover:bg-gray-100 dark:hover:bg-background-secondary-dark'
               } 
               text-text-dark dark:text-text-light group transition-colors duration-200`}
@@ -44,7 +38,7 @@ const SideOrderNav = ({ totalOrderCount, activeView, onNavigate }) => {
               ${activeView === item.view
                 ? 'text-text-dark dark:text-text-light'
                 : 'text-secondary-50 dark:text-text-disabled group-hover:text-text-dark dark:group-hover:text-text-light'
-              }`} 
+              }`}
             />
             <span className="flex-grow">{item.text}</span>
             {item.count && (
